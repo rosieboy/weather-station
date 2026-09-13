@@ -1,0 +1,9 @@
+services:
+  weather-station:
+    build: .
+    ports:
+      - '3000:3000'
+    environment:
+      ORIGIN: ${ORIGIN:-http://localhost:3000}
+    restart: unless-stopped
+    init: true
