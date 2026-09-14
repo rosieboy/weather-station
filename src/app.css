@@ -162,7 +162,7 @@ h2 {
 }
 .rooms {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16px;
 }
 .room {
@@ -291,4 +291,16 @@ footer {
   .dashboard {
     padding: 16px;
   }
+}
+
+.error {
+  padding: 10px 16px;
+  margin-bottom: 12px;
+  background: #f7e6c4;
+  border-radius: 10px;
+}
+.reading-time {
+  font-size: 11px;
+  color: #627568;
+  margin-top: 10px;
 }

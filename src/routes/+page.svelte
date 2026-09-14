@@ -1,4 +1,35 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import { invalidateAll } from '$app/navigation';
+  let refreshFailed = $state(false);
+  onMount(() => {
+    let active = true;
+    let timer: ReturnType<typeof setTimeout>;
+    const refresh = async () => {
+      try {
+        await invalidateAll();
+        refreshFailed = false;
+      } catch {
+        refreshFailed = true;
+      }
+      if (active) timer = setTimeout(refresh, 30000);
+    };
+    timer = setTimeout(refresh, 30000);
+    return () => {
+      active = false;
+      clearTimeout(timer);
+    };
+  });
+  const time = (value: string | null) =>
+    value
+      ? new Date(value).toLocaleString('sv-SE', {
+          timeZone: 'Europe/Stockholm',
+          month: 'short',
+          day: 'numeric',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      : 'Saknas';
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
   const number = (value: number | null, digits = 0) =>
@@ -14,7 +45,7 @@
   <title>Väderstation · Hemma</title>
   <meta
     name="description"
-    content="Temperatur och luftfuktighet ute och hemma. Prototyp med mockdata."
+    content="Temperatur och luftfuktighet ute och hemma. Mätvärden från Home Assistant."
   />
 </svelte:head>
 
@@ -34,14 +65,20 @@
     >
   </header>
 
+  {#if data.weather.error || refreshFailed}<p class="error" role="status">
+      {data.weather.error ||
+        'Uppdateringen misslyckades. Visar tidigare hämtade värden.'}
+    </p>{/if}
   <section class="outdoor" aria-labelledby="outdoor-title">
     <div class="outdoor-main">
       <p class="eyebrow">UTOMHUS</p>
-      <h2 id="outdoor-title">Precis utanför.</h2>
+      <h2 id="outdoor-title">{data.weather.outdoor.name}</h2>
       <p class="outdoor-temperature">
         {number(data.weather.outdoor.temperature, 1)}<span>°C</span>
       </p>
-      <p class="caption">Temperatur ute</p>
+      <p class="caption">
+        Mätvärde ändrat: {time(data.weather.outdoor.updatedAt)}
+      </p>
     </div>
     <svg class="landscape" viewBox="0 0 500 320" fill="none" aria-hidden="true">
       <circle cx="345" cy="93" r="43" fill="#e6c886" />
@@ -60,10 +97,6 @@
       <div>
         <span class="label">Luftfuktighet</span>
         <p>{number(data.weather.outdoor.humidity)} <span>%</span></p>
-      </div>
-      <div>
-        <span class="label">Lufttryck</span>
-        <p>{number(data.weather.outdoor.pressure)} <span>hPa</span></p>
       </div>
     </div>
   </section>
@@ -86,6 +119,7 @@
           <div class="room-humidity">
             <span>Luftfuktighet</span><strong>{number(room.humidity)} %</strong>
           </div>
+          <p class="reading-time">Mätvärde ändrat: {time(room.updatedAt)}</p>
         </article>
       {/each}
     </div>
@@ -94,7 +128,7 @@
     <span>En liten överblick över hemma.</span><span
       >{data.weather.source === 'mock'
         ? 'Exempelvärden · Inga sensorer anslutna'
-        : 'Sensordata från Home Assistant'}</span
+        : `Hämtat ${time(data.weather.fetchedAt)} · Uppdateras var 30:e sekund`}</span
     >
   </footer>
 </main>

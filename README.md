@@ -1,104 +1,76 @@
 # Väderstation
 
-En enkel dashboard för hemma, byggd med SvelteKit, Svelte 5 och TypeScript.
-Första versionen visar **mockdata**, utan externa tjänster eller anslutna sensorer.
-Layouten är anpassad för **1280 × 720** och staplar rumskorten på mindre skärmar.
+Svensk dashboard i SvelteKit, Svelte 5 och TypeScript för 1280 × 720.
+Visar temperatur och luftfuktighet från Home Assistant: Balkong, Vardagsrum och Sovrum.
+På mindre skärmar staplas rumskorten.
 
-## Lokal utveckling på Mac
+## Lokal utveckling
 
-Använd Node.js 22 (minst 22.12) och npm. Med nvm: `nvm use`.
+Använd Node.js 22.12 eller senare (`nvm use`).
 
 ```sh
-git clone https://github.com/rosieboy/weather-station.git
-cd weather-station
 npm ci
 cp .env.example .env
+# Fyll i Home Assistant-adress, token och de sex entity-ID:na i .env.
 npm run dev -- --open
 ```
 
-Öppna http://localhost:5173. Använd webbläsarens responsiva utvecklingsvy med
-1280 × 720 för att simulera skärmen. Ingen Home Assistant eller Docker behövs.
+Öppna http://localhost:5173. `npm run check` kontrollerar typer,
+`npm run build` bygger och `npm start` kör produktionsservern på port 3000.
+`npm run format` formaterar koden.
+
+## Home Assistant
+
+Skapa en långlivad åtkomsttoken i din Home Assistant-profil och lägg den i
+`HOME_ASSISTANT_TOKEN` i `.env`. Token ska aldrig läggas i Git eller skickas till
+webbläsaren. Ange `HOME_ASSISTANT_URL` med den port där din installation svarar.
+Home Assistant OS kan använda port 80; andra installationer använder ofta 8123.
+
+Hämta sensorernas entity-ID under Utvecklarverktyg → Tillstånd och fyll i
+variablerna i `.env.example`. `HA_ROOM_NAME` styr namnet på det andra området.
+Servern läser [REST API](https://developers.home-assistant.io/docs/api/rest/)
+och returnerar bara de utvalda mätvärdena till dashboarden.
+
+Sidan uppdateras var 30:e sekund. Saknade värden, `unknown`, `unavailable` och
+ogiltiga enheter visas som streck. Fahrenheit omvandlas till Celsius.
+Anslutningsfel visas tydligt och ersätts aldrig med mockvärden.
+Vid avbrott mellan webbläsaren och dashboardservern visas tidigare värden med varning.
+
+”Mätvärde ändrat” visar den äldsta `last_updated` av de två tillgängliga
+mätvärdena. En gammal tidsstämpel betyder inte säkert att sensorn är offline:
+ett oförändrat värde kan vara gammalt. ”Hämtat” anger när servern försökte läsa
+Home Assistant. TIMMERFLOTTE saknar lufttrycksmätning, så lufttryck visas inte.
+
+## Docker på Mac och Raspberry Pi
+
+Starta Docker Desktop på Macen. På Pi behövs 64-bitars Linux, Docker och Compose.
+Skapa och fyll i `.env` enligt ovan. Den behövs även vid Docker-drift.
 
 ```sh
-npm run check   # TypeScript och Svelte
-npm run build   # Bygg produktionsservern
-npm start       # http://localhost:3000, läser .env om filen finns
-```
-
-## Struktur och data
-
-- `src/lib/weather/types.ts`: gemensam datamodell; °C, relativ luftfuktighet i % och hPa.
-- `src/lib/server/weather.ts`: datakällan, nu fasta exempelvärden.
-- `src/routes/+page.server.ts`: hämtar data på servern till sidan.
-- `src/routes/+page.svelte`: dashboarden.
-- `src/app.css`: layout och utseende, utan UI-bibliotek eller externa typsnitt.
-
-| Plats      | Temperatur | Luftfuktighet | Lufttryck |
-| ---------- | ---------- | ------------- | --------- |
-| Ute        | 8,4 °C     | 81 %          | 1012 hPa  |
-| Vardagsrum | 21,6 °C    | 43 %          | –         |
-| Sovrum     | 19,8 °C    | 48 %          | –         |
-| Kontor     | 21,2 °C    | 41 %          | –         |
-
-`null` betyder att ett mätvärde saknas och visas som ett streck. `updatedAt`
-är avsett för sensorns ISO-tidsstämpel och är `null` för mockdata.
-Sidan hämtar data vid sidladdning; automatisk uppdatering är ännu inte implementerad.
-
-## Docker och planerad Raspberry Pi-installation
-
-Starta Docker Desktop för att prova på Macen. På Pi:n är målet ett 64-bitars
-operativsystem med Docker Engine och Compose-plugin installerade.
-
-```sh
-cp .env.example .env # endast första gången, behåll befintliga inställningar
-# Sätt ORIGIN i .env till adressen du använder, t.ex. http://weatherstation.local:3000
 docker compose up -d --build
 docker compose logs -f
 # Stoppa:
 docker compose down
 ```
 
-Öppna http://localhost:3000 på Macen, eller http://weatherstation.local:3000 om
-Pi:n har det värdnamnet. Port 3000 exponeras på värddatorn.
-Compose läser `ORIGIN` från `.env` och skickar den till servern.
+Öppna http://localhost:3000. På Pi sätter du `ORIGIN` till Pi:ns adress,
+t.ex. `http://weatherstation.local:3000`. Om `homeassistant.local` inte fungerar
+inne i containern, använd Home Assistants IP-adress på det lokala nätverket.
+Reservera gärna adressen i routern så att den inte ändras.
 
-Dockerfilen bygger med SvelteKits [Node-adapter](https://svelte.dev/docs/kit/adapter-node)
-och kör resultatet som användaren `node`. Node-imagen stöder ARM64 och AMD64;
-bygget använder värdmaskinens arkitektur. Inga produktionsberoenden behövs i
-nuvarande version eftersom appens beroenden bundlas. Om sådana läggs till senare
-behöver även runtime-steget installera dem.
+Compose skickar `.env` till containern vid start; hemligheter ingår inte i imagen.
+Efter ändringar i `.env`, kör `docker compose up -d` för att återskapa containern.
+Dockerfilen använder Node 22, stöder ARM64/AMD64 och kör som användaren `node`.
+Home Assistant kör separat. Kioskstart och faktisk Raspberry Pi-drift återstår.
 
-Raspberry Pi och själva containerbygget behöver verifieras på en körande Docker-miljö.
-Automatisk omstart är konfigurerad. Kioskstart av webbläsaren och Home Assistant
-ingår inte i Compose ännu.
+## Struktur
 
-## Planerad Home Assistant-integration
+- `src/lib/server/weather.ts`: serveranslutning, sensormappning och felhantering.
+- `src/lib/weather/types.ts`: datamodell med °C, procent och ISO-tidsstämplar.
+- `src/routes/+page.server.ts`: sidans dataladdning.
+- `src/routes/+page.svelte`: presentation och automatisk uppdatering.
+- `src/app.css`: responsiv layout.
 
-1. Anslut sensorerna till Home Assistant och identifiera deras entity-ID:n.
-2. Ersätt mockleverantören i `src/lib/server/weather.ts` med anrop till
-   Home Assistants [REST API](https://developers.home-assistant.io/docs/api/rest/).
-   Behåll samma `WeatherSnapshot` så att dashboarden inte behöver känna till sensormärken.
-3. Läs `HOME_ASSISTANT_URL` och `HOME_ASSISTANT_TOKEN` via SvelteKits
-   `$env/dynamic/private`. Variablerna i `.env.example` är endast platshållare och
-   används inte ännu. Vid Docker-drift behöver de också skickas in i Compose.
-   Token ska stanna på servern och får aldrig returneras till webbläsaren eller committas.
-4. Mappa temperatur, luftfuktighet och lufttryck; normalisera enheter och omvandla
-   `unknown`/`unavailable` till `null`. Bevara `last_updated` som `updatedAt`.
-5. Lägg till timeout, hantering av avbrott och indikering av gamla mätvärden.
-   Börja med periodisk uppdatering och använd vid behov
-   [WebSocket API](https://developers.home-assistant.io/docs/api/websocket/) senare.
-
-Home Assistant körs separat. Apple Home-, DIRIGERA- och sensoranslutningar blir
-nästa etapp; den här versionen gör inga anrop till dem.
-
-## Verifiering av projektgrunden
-
-Typkontroll, produktionsbygge, kodformatering och Compose-konfiguration är
-kontrollerade. Dashboarden är även granskad i webbläsaren vid 1280 × 720.
-Docker Desktop var inte startat vid kontrollen, så containerbygge och Pi-drift
-återstår att testa.
-
-`npm audit` rapporterar tre varningar med låg allvarlighetsgrad som härrör från
-SvelteKits indirekta `cookie`-beroende. Appen sätter inga egna cookies.
-Följ upp detta vid nästa beroendeuppdatering; undvik `npm audit fix --force`,
-som här föreslår nedgradering till äldre SvelteKit-versioner.
+`npm audit` rapporterar tre varningar med låg allvarlighetsgrad från SvelteKits
+indirekta `cookie`-beroende. Följ upp vid beroendeuppdatering; `npm audit fix --force`
+föreslår här en olämplig nedgradering. Appen sätter inga egna cookies.
