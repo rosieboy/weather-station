@@ -1,3 +1,4 @@
+import { getHAStream } from './ha-stream';
 import { celsius, getForecasts } from './forecast';
 import { env } from '$env/dynamic/private';
 import type { SensorReading, WeatherSnapshot } from '$lib/weather/types';
@@ -43,17 +44,9 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
     return snapshot;
   }
   try {
-    const response = await fetch(
-      `${env.HOME_ASSISTANT_URL.replace(/\/$/, '')}/api/states`,
-      {
-        headers: { Authorization: `Bearer ${env.HOME_ASSISTANT_TOKEN}` },
-        signal: AbortSignal.timeout(8000),
-        redirect: 'error'
-      }
-    );
-    if (!response.ok) throw new Error('Home Assistant request failed');
-    const states = await response.json();
-    if (!Array.isArray(states)) throw new Error('Invalid response');
+    const stream = getHAStream();
+    const states = [...stream.states.values()];
+    snapshot.error = stream.error;
     const weather = states.find((s) => s.entity_id === env.HA_WEATHER_ENTITY);
     const sun = states.find((s) => s.entity_id === 'sun.sun');
     const moon = states.find(
@@ -99,8 +92,7 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
       readings[i].updatedAt = timestamps.sort()[0] ?? null;
     }
   } catch {
-    snapshot.error =
-      'Kan inte nå Home Assistant. Försöker igen om 30 sekunder.';
+    snapshot.error = 'Kunde inte sammanställa mätvärden från Home Assistant.';
   }
   return snapshot;
 }

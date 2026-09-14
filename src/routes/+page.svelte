@@ -1,6 +1,8 @@
 <script lang="ts">
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
+  let live = $state<WeatherSnapshot | null>(null);
+  let weather = $derived(live ?? data.weather);
   import { conditions, moons } from '$lib/weather/labels';
   let forecastMode = $state<'daily' | 'hourly'>('daily');
   const dayKey = (date: string) =>
@@ -18,36 +20,35 @@
     conditions[condition] || ['—', 'Väderuppgift saknas'];
   let items = $derived(
     (forecastMode === 'daily'
-      ? data.weather.details.daily.filter(
-          (f) => dayKey(f.datetime) >= dayKey(data.weather.fetchedAt)
+      ? weather.details.daily.filter(
+          (f) => dayKey(f.datetime) >= dayKey(weather.fetchedAt)
         )
-      : data.weather.details.hourly.filter(
+      : weather.details.hourly.filter(
           (f) =>
-            Date.parse(f.datetime) >=
-            Date.parse(data.weather.fetchedAt) - 3600000
+            Date.parse(f.datetime) >= Date.parse(weather.fetchedAt) - 3600000
         )
     ).slice(0, 6)
   );
   import { onMount } from 'svelte';
-  import { invalidateAll } from '$app/navigation';
+  import type { WeatherSnapshot } from '$lib/weather/types';
   let refreshFailed = $state(false);
   onMount(() => {
-    let active = true;
-    let timer: ReturnType<typeof setTimeout>;
-    const refresh = async () => {
+    const events = new EventSource('/api/events');
+    events.onmessage = (event) => {
       try {
-        await invalidateAll();
+        live = JSON.parse(event.data) as WeatherSnapshot;
         refreshFailed = false;
       } catch {
         refreshFailed = true;
       }
-      if (active) timer = setTimeout(refresh, 30000);
     };
-    timer = setTimeout(refresh, 30000);
-    return () => {
-      active = false;
-      clearTimeout(timer);
+    events.onerror = () => {
+      refreshFailed = true;
     };
+    events.addEventListener('stream-error', () => {
+      refreshFailed = true;
+    });
+    return () => events.close();
   });
   const time = (value: string | null) =>
     value
@@ -86,25 +87,25 @@
       </div>
     </div>
     <span class="source"
-      ><span aria-hidden="true"></span>{data.weather.source === 'mock'
+      ><span aria-hidden="true"></span>{weather.source === 'mock'
         ? 'Demoläge · Mockdata'
         : 'Home Assistant'}</span
     >
   </header>
 
-  {#if data.weather.error || refreshFailed}<p class="error" role="status">
-      {data.weather.error ||
-        'Uppdateringen misslyckades. Visar tidigare hämtade värden.'}
+  {#if weather.error || refreshFailed}<p class="error" role="status">
+      {weather.error ||
+        'Kontakt med skärmen bröts. Visar tidigare värden; återansluter…'}
     </p>{/if}
   <section class="outdoor" aria-labelledby="outdoor-title">
     <div class="outdoor-main">
       <p class="eyebrow">UTOMHUS</p>
-      <h2 id="outdoor-title">{data.weather.outdoor.name}</h2>
+      <h2 id="outdoor-title">{weather.outdoor.name}</h2>
       <p class="outdoor-temperature">
-        {number(data.weather.outdoor.temperature, 1)}<span>°C</span>
+        {number(weather.outdoor.temperature, 1)}<span>°C</span>
       </p>
       <p class="caption">
-        Mätvärde ändrat: {time(data.weather.outdoor.updatedAt)}
+        Mätvärde ändrat: {time(weather.outdoor.updatedAt)}
       </p>
     </div>
     <svg class="landscape" viewBox="0 0 500 320" fill="none" aria-hidden="true">
@@ -123,12 +124,12 @@
     <div class="outdoor-details">
       <div>
         <span class="label">Din sensor · Luftfuktighet</span>
-        <p>{number(data.weather.outdoor.humidity)} <span>%</span></p>
+        <p>{number(weather.outdoor.humidity)} <span>%</span></p>
       </div>
       <div class="met-current">
         <span class="label">met.no · beräknad temperatur</span>
-        <p>{number(data.weather.details.temperature, 1)} <span>°C</span></p>
-        <span class="label">{symbol(data.weather.details.condition)[1]}</span>
+        <p>{number(weather.details.temperature, 1)} <span>°C</span></p>
+        <span class="label">{symbol(weather.details.condition)[1]}</span>
       </div>
     </div>
   </section>
@@ -139,7 +140,7 @@
       <span>Rum för rum</span>
     </div>
     <div class="rooms">
-      {#each data.weather.rooms as room, i (room.id)}
+      {#each weather.rooms as room, i (room.id)}
         <article class="room">
           <div class="room-heading">
             <h3>{room.name}</h3>
@@ -169,8 +170,8 @@
         >
       </div>
     </div>
-    {#if data.weather.details.error}<p class="forecast-note" role="status">
-        {data.weather.details.error}
+    {#if weather.details.error}<p class="forecast-note" role="status">
+        {weather.details.error}
       </p>{/if}
     {#if items.length}<div class="forecast-items">
         {#each items as item (item.datetime)}<article class="forecast-item">
@@ -195,16 +196,15 @@
   </section>
   <div class="astronomy">
     <span
-      >☀ ↑ Nästa soluppgång <strong>{time(data.weather.details.sunrise)}</strong
+      >☀ ↑ Nästa soluppgång <strong>{time(weather.details.sunrise)}</strong
       ></span
     ><span
-      >☀ ↓ Nästa solnedgång <strong>{time(data.weather.details.sunset)}</strong
+      >☀ ↓ Nästa solnedgång <strong>{time(weather.details.sunset)}</strong
       ></span
     ><span
-      >{moons[data.weather.details.moon || '']?.[0] || '☾'}
+      >{moons[weather.details.moon || '']?.[0] || '☾'}
       <strong
-        >{moons[data.weather.details.moon || '']?.[1] ||
-          'Månfas saknas'}</strong
+        >{moons[weather.details.moon || '']?.[1] || 'Månfas saknas'}</strong
       ></span
     >
   </div>
@@ -214,9 +214,9 @@
         >met.no · Meteorologisk institutt</a
       ></span
     ><span
-      >{data.weather.source === 'mock'
+      >{weather.source === 'mock'
         ? 'Exempelvärden · Inga sensorer anslutna'
-        : `Hämtat ${time(data.weather.fetchedAt)} · Uppdateras var 30:e sekund`}</span
+        : `Hämtat ${time(weather.fetchedAt)} · Direktuppdatering`}</span
     >
   </footer>
 </main>

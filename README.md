@@ -20,7 +20,7 @@ per **2026-09-14**. Raspberry Pi-drift är planerad och ännu inte verifierad.
 - Dashboarden kör i Docker Desktop. Home Assistant OS kör separat i VirtualBox.
   Det ursprungliga förslaget att även köra Home Assistant i Docker ersattes av
   Home Assistant OS för installationen med Matter.
-- Enkel REST-hämtning används framför WebSocket. Ingen databas eller historiklagring finns. Prognoser cachas i 15 minuter på servern; sensorvärden hämtas vid varje siduppdatering.
+- Sensorflödet använder WebSocket och SSE sedan 2026-09-14. Ingen databas eller historiklagring finns. Prognoser cachas i 15 minuter på servern; sensorvärden uppdateras via händelser.
 - Mockleverantören är borttagen. Typen `source` och visningen har kvar stöd för
   etiketten `mock`, men ingen konfigurationsinställning aktiverar ett demoläge.
 
@@ -29,9 +29,8 @@ per **2026-09-14**. Raspberry Pi-drift är planerad och ännu inte verifierad.
 ```mermaid
 flowchart LR
     Sensors["3 × TIMMERFLOTTE"] -->|"Matter över Thread"| HA["Home Assistant OS\nVirtualBox på Mac"]
-    HA -->|"REST: GET /api/states"| Server["SvelteKit-server\nDocker Desktop, port 3000"]
-    Server -->|"Utvalda mätvärden"| Browser["Dashboard i webbläsaren"]
-    Browser -->|"Ny siddata efter 30 sekunder"| Server
+    HA -->|"WebSocket: tillstånd + REST: prognos"| Server["SvelteKit-server\nDocker Desktop, port 3000"]
+    Server -->|"SSE: utvalda mätvärden"| Browser["Dashboard i webbläsaren"]
 ```
 
 Thread-trafiken passerar hemmets Thread-gränsrouter. DIRIGERA och Apple TV finns
@@ -42,16 +41,28 @@ Home Assistant, aldrig direkt med Apple Hem, DIRIGERA eller sensorerna.
 
 ### Server och webbläsare
 
-1. `+page.server.ts` anropar `getWeatherSnapshot()` vid sidladdning.
-2. Servern läser privata miljövariabler via `$env/dynamic/private` och anropar
-   `/api/states` med en Bearer-token. Anropet har 8 sekunders timeout och tillåter
-   inte omdirigeringar.
-3. Svaret innehåller alla tillstånd från Home Assistant. Servern väljer ut de sex
-   konfigurerade entity-ID:na och returnerar en `WeatherSnapshot` till sidan.
-   Token och övriga Home Assistant-tillstånd skickas inte till webbläsaren.
-4. Efter att sidan monterats hämtar webbläsaren ny siddata med `invalidateAll()`.
-   Nästa uppdatering schemaläggs 30 sekunder efter att föregående försök avslutats.
-   Varje öppen dashboardflik gör egna anrop; stängda flikar pollar inte.
+1. En gemensam anslutning per serverprocess öppnas mot Home Assistants
+   `/api/websocket` och autentiseras med token på servern.
+2. Servern prenumererar på `state_changed` och läser därefter `get_states`.
+   Händelser under inläsningen buffras. Bara konfigurerade sensorer, väder, sol
+   och måne lagras i minnet; borttagna entiteter tas bort ur cachen.
+3. `+page.server.ts` ger sidan ett första läge. Vid kallstart kan anslutningen
+   fortfarande pågå; nästa strömmade uppdatering fyller i värdena.
+4. Webbläsaren öppnar `EventSource('/api/events')`. Server-Sent Events (SSE)
+   skickar normaliserad siddata när relevanta tillstånd ändras. Token och andra
+   Home Assistant-entiteter skickas inte till webbläsaren.
+5. WebSocket kontrolleras med ping/pong var 20:e sekund. Uteblivet svar leder
+   till återanslutning. Uppstart har 10 sekunders timeout; återförsök använder
+   ökande väntetid från 1 till 30 sekunder och läser om hela startläget.
+6. Vid avbrott behålls senast mottagna värden med varning. Felaktig token ger
+   ett särskilt meddelande. Webbläsaren återansluter SSE automatiskt, med 3 sekunders
+   angiven väntetid. SSE skickar även en livssignal var 15:e sekund.
+
+Sensorerna REST-pollas inte längre. Prognoser hämtas fortsatt med REST och
+15 minuters cache. En timer för varje öppen SSE-ström uppdaterar prognosvyn var
+15:e minut även om sensorerna inte ändras. Stängda flikar städar upp prenumerationer
+och timers. Home Assistant-anslutningen hålls kvar tills serverprocessen stoppas;
+under lokal utveckling stängs den också vid modulbyte.
 
 ## Teknik och projektstruktur
 
@@ -91,16 +102,15 @@ docker-compose.yml
 - Saknade entiteter, tomma värden, `unknown`, `unavailable` och ogiltiga tal eller
   enheter ger `null`, vilket visas som ett streck. Övriga givare visas fortfarande.
 - Saknad adress/token ger meddelandet att Home Assistant inte är konfigurerad.
-- Nätverksfel, timeout och HTTP-fel ger ett generellt anslutningsfel. Ett fel på
-  autentiseringen visas alltså inte separat. Ingen automatisk mockfallback finns.
-- Vid ett misslyckat API-anrop skapas normalt en ny ögonblicksbild med tomma värden
-  och varning. Om webbläsarens hämtning från dashboardservern misslyckas behålls
-  tidigare siddata med varning.
+- Avbrott mot Home Assistant visas med varning; senast mottagna sensorvärden
+  behålls tills anslutningen har återställts och ett nytt startläge lästs in.
+- Saknad adress/token och nekad autentisering ger tydliga meddelanden.
+- Vid avbrott mellan webbläsare och server behålls siddata med en separat varning.
 
 ”Mätvärde ändrat” visar den äldsta giltiga `last_updated` av platsens tillgängliga
 mätvärden. Det är inte ett bevis på senaste radiokontakt; ett oförändrat värde kan
 ha en gammal tidsstämpel. Ingen automatisk åldersgräns för gamla värden finns ännu.
-”Hämtat” anger när hämtningsförsöket startade, även om försöket misslyckades.
+”Hämtat” anger när servern sammanställde siddata, inte sensorns rapporttid.
 Tider visas i `Europe/Stockholm`, temperatur med en decimal och luftfuktighet
 avrundad till heltal.
 
@@ -224,8 +234,7 @@ Genomförda kontroller vid integrationsarbetet 2026-09-14:
 - Startad container och verkliga mätvärden för alla tre områden i webbläsaren.
 - Kontroll att token inte fanns i dashboardens HTML-svar.
 - Separata körda kontroller av Fahrenheit-konvertering, saknade/otillgängliga
-  givare, HTTP 401 och nätverksfel. Dessa var engångskontroller; repot har ännu
-  ingen permanent automatiserad testsvit eller CI-konfiguration.
+  givare, HTTP 401 och nätverksfel. Dessa var engångskontroller; dessa kompletteras nu av `npm test` för WebSocket-transporten. CI är inte konfigurerat.
 
 Vid beroendekontrollen 2026-09-13 rapporterade `npm audit` tre varningar med låg
 allvarlighetsgrad från SvelteKits indirekta `cookie`-beroende. Det är en daterad
@@ -240,7 +249,7 @@ kontroll, inte en aktuell säkerhetsgaranti. Appen sätter inga egna cookies.
 - Verifiera bygge och drift på fysisk Pi, skärmrotation och faktisk skärmupplösning.
 - Konfigurera kioskstart och återstart efter strömavbrott.
 - Planera Home Assistant-backup/flytt och kontrollera entity-ID:n efter migrering.
-- Vid behov: permanent testsvit, historik, WebSocket och bättre indikering av
+- Vid behov: utökad testsvit, historik och bättre indikering av
   sensorernas tillgänglighet. Dessa funktioner finns inte i nuvarande version.
 
 ## Prognos, jämförelsetemperatur och astronomi (2026-09-14)
@@ -269,3 +278,16 @@ Dashboarden anropar bara Home Assistant. met.no-integrationen sköter externa
 väderanrop och platskonfiguration. Källan anges i sidfoten. Inga koordinater eller
 åtkomsttoken skickas till klienten av den nya funktionen. Ingen exakt Eve-modell
 eller dess entity-ID:n är konfigurerade ännu.
+
+### Verifiering av direktuppdatering
+
+`npm test` testar en delad transport, händelser under startinläsning, filtrering,
+borttagna entiteter, återanslutning med nytt startläge och autentiseringsfel med
+simulerad WebSocket. `src/lib/server/ha-stream.ts` hanterar transporten och
+`src/routes/api/events/+server.ts` hanterar SSE och klienternas städning.
+Ingen ny miljövariabel krävs. Node 22:s inbyggda WebSocket används.
+
+Vid framtida reverse proxy måste `/api/events` kunna strömmas utan buffring och
+utan kort timeout. Endpointen skickar `X-Accel-Buffering: no` och cacheförbud.
+En flerprocessinstallation får en Home Assistant-anslutning per process;
+nuvarande Docker-installation kör en process.
