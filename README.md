@@ -4,7 +4,7 @@ Svensk dashboard för temperatur och luftfuktighet, byggd med SvelteKit, Svelte 
 och TypeScript. Layouten är anpassad till 1280 × 720 och staplar rumskorten på
 mindre skärmar. Balkong visas som huvudvärde, med Vardagsrum och Sovrum under.
 
-![Bild på prototyp](./static/screenshot.png "Tidig prototyp")
+![Bild på prototyp](./static/screenshot.png 'Tidig prototyp')
 
 Dokumentationen beskriver implementationen och den verifierade Mac-installationen
 per **2026-09-14**. Raspberry Pi-drift är planerad och ännu inte verifierad.
@@ -16,12 +16,11 @@ per **2026-09-14**. Raspberry Pi-drift är planerad och ännu inte verifierad.
 - Slutliga områden är **Balkong, Vardagsrum och Sovrum**. Den givare som först
   kallades Kök används som Vardagsrum, enligt bekräftad mappning i Home Assistant.
 - Lufttryck har tagits bort eftersom våra givare bara tillhandahåller temperatur
-  och luftfuktighet. Landskapsbilden är dekorativ och visar ingen väderprognos.
+  och luftfuktighet. Landskapsbilden är dekorativ. En separat prognosrad visar vädret från met.no.
 - Dashboarden kör i Docker Desktop. Home Assistant OS kör separat i VirtualBox.
   Det ursprungliga förslaget att även köra Home Assistant i Docker ersattes av
   Home Assistant OS för installationen med Matter.
-- Enkel REST-hämtning används framför WebSocket. Ingen databas, historiklagring,
-  gemensam servercache eller bakgrundspollning finns i dashboarden.
+- Enkel REST-hämtning används framför WebSocket. Ingen databas eller historiklagring finns. Prognoser cachas i 15 minuter på servern; sensorvärden hämtas vid varje siduppdatering.
 - Mockleverantören är borttagen. Typen `source` och visningen har kvar stöd för
   etiketten `mock`, men ingen konfigurationsinställning aktiverar ett demoläge.
 
@@ -243,3 +242,30 @@ kontroll, inte en aktuell säkerhetsgaranti. Appen sätter inga egna cookies.
 - Planera Home Assistant-backup/flytt och kontrollera entity-ID:n efter migrering.
 - Vid behov: permanent testsvit, historik, WebSocket och bättre indikering av
   sensorernas tillgänglighet. Dessa funktioner finns inte i nuvarande version.
+
+## Prognos, jämförelsetemperatur och astronomi (2026-09-14)
+
+Den egna utomhussensorn är fortfarande huvudvärdet. met.no visas mindre bredvid,
+märkt **beräknad temperatur**, eftersom värdet inte är vår lokala mätning.
+Vid byte till Eve ändras `HA_BALCONY_TEMPERATURE` och `HA_BALCONY_HUMIDITY` till
+Eve-enheternas entity-ID:n; den egna sensorn behåller huvudrollen.
+
+- `HA_WEATHER_ENTITY=weather.forecast_hem` väljer den befintliga met.no-entiteten.
+- `HA_MOON_ENTITY=sensor.moon_fas` väljer Moon-sensorn. Home Assistants lokala
+  Moon-integration lades till vid detta arbete.
+- Nästa soluppgång och solnedgång hämtas från `sun.sun`, med datum så att morgondagens
+  uppgång inte förväxlas med dagens. Tidszonen är fortsatt Europe/Stockholm.
+- Sex prognoskolumner visar dygn (max/min) eller timmar. Två touchvänliga knappar
+  växlar läge. Nederbörd visas som sannolikhet i procent, inte mängd.
+- Prognosen hämtas via `POST /api/services/weather/get_forecasts?return_response`
+  för `daily` och `hourly`. Detta är en datahämtande Home Assistant-action.
+- Lyckade prognossvar cachas i 15 minuter i serverprocessens minne. Cachen försvinner
+  vid omstart. Misslyckade prognoser visas som otillgängliga och provas igen vid
+  nästa siduppdatering. Sensorvärden fungerar även om prognoshämtningen misslyckas.
+- `src/lib/server/forecast.ts` normaliserar prognoser och hanterar cache;
+  `src/lib/weather/labels.ts` innehåller svenska väder- och månfasnamn.
+
+Dashboarden anropar bara Home Assistant. met.no-integrationen sköter externa
+väderanrop och platskonfiguration. Källan anges i sidfoten. Inga koordinater eller
+åtkomsttoken skickas till klienten av den nya funktionen. Ingen exakt Eve-modell
+eller dess entity-ID:n är konfigurerade ännu.

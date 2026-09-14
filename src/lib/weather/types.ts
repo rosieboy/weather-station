@@ -8,9 +8,29 @@ export interface SensorReading {
   updatedAt: string | null;
 }
 export interface WeatherSnapshot {
+  details: WeatherDetails;
   source: 'mock' | 'home-assistant';
   outdoor: SensorReading;
   rooms: SensorReading[];
   fetchedAt: string;
   error: string | null;
+}
+
+export interface ForecastItem {
+  datetime: string;
+  condition: string;
+  temperature: number | null;
+  low: number | null;
+  rainProbability: number | null;
+}
+export interface WeatherDetails {
+  temperature: number | null;
+  condition: string;
+  updatedAt: string | null;
+  daily: ForecastItem[];
+  hourly: ForecastItem[];
+  error: string | null;
+  sunrise: string | null;
+  sunset: string | null;
+  moon: string | null;
 }

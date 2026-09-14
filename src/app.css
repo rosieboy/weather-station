@@ -304,3 +304,181 @@ footer {
   color: #627568;
   margin-top: 10px;
 }
+
+/* Compact landscape layout keeps the personal sensor dominant at 1280 × 720. */
+.dashboard {
+  padding: 22px 40px 16px;
+}
+header {
+  margin-bottom: 16px;
+}
+.outdoor {
+  min-height: 225px;
+  padding: 22px 30px;
+}
+.outdoor-temperature {
+  font-size: 84px;
+  margin-top: 4px;
+}
+.outdoor h2 {
+  margin-top: 6px;
+}
+.outdoor-details {
+  gap: 15px;
+  min-width: 240px;
+}
+.outdoor-details p {
+  font-size: 25px;
+  margin-top: 3px;
+}
+.met-current {
+  border-top: 1px solid #547163;
+  padding-top: 12px;
+}
+.section-heading {
+  margin: 14px 0 8px;
+}
+.room {
+  padding: 12px 20px;
+}
+.room-temperature {
+  font-size: 38px;
+  margin: 4px 0 6px;
+}
+.room-humidity {
+  padding-top: 7px;
+}
+.reading-time {
+  margin-top: 5px;
+}
+.forecast {
+  margin-top: 14px;
+}
+.forecast-heading {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 7px;
+}
+.forecast-heading h2 {
+  font-size: 18px;
+  font-weight: 550;
+}
+.forecast-switch {
+  display: flex;
+  gap: 4px;
+}
+.forecast-switch button {
+  min-height: 44px;
+  border: 1px solid #c6d2c4;
+  padding: 0 15px;
+  border-radius: 12px;
+  background: transparent;
+  color: #334f40;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.forecast-switch button[aria-pressed='true'] {
+  background: #233d35;
+  color: #f6f7ef;
+  border-color: #233d35;
+}
+.forecast-switch button:focus-visible {
+  outline: 3px solid #95732e;
+  outline-offset: 2px;
+}
+.forecast-items {
+  display: grid;
+  grid-template-columns: repeat(6, 1fr);
+  background: #f6f7ef;
+  border: 1px solid #d7dfd2;
+  border-radius: 15px;
+  padding: 10px 0;
+}
+.forecast-item {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 4px 8px;
+  padding: 0 17px;
+  border-right: 1px solid #dce3d5;
+}
+.forecast-item:last-child {
+  border: 0;
+}
+.forecast-date {
+  font-size: 12px;
+  text-transform: capitalize;
+}
+.weather-symbol {
+  grid-row: span 2;
+  justify-self: end;
+  font-size: 30px;
+  color: #537664;
+}
+.forecast-item strong {
+  font-size: 18px;
+  font-weight: 550;
+  white-space: nowrap;
+}
+.forecast-item small {
+  color: #718374;
+  font-size: 13px;
+  font-weight: 400;
+}
+.rain {
+  grid-column: 1 / -1;
+  font-size: 11px;
+  color: #627568;
+}
+.astronomy {
+  display: flex;
+  gap: 30px;
+  justify-content: center;
+  padding-top: 14px;
+  font-size: 12px;
+  color: #627568;
+}
+.astronomy strong {
+  font-weight: 550;
+  color: #334f40;
+}
+footer {
+  margin-top: 12px;
+}
+footer a {
+  color: inherit;
+}
+.forecast-note {
+  font-size: 12px;
+  padding: 8px 0;
+  color: #765629;
+}
+@media (max-width: 700px) {
+  .dashboard {
+    padding: 18px;
+  }
+  .outdoor {
+    min-height: 250px;
+  }
+  .outdoor-details {
+    min-width: 0;
+    max-width: 160px;
+  }
+  .outdoor-temperature {
+    font-size: 66px;
+  }
+  .forecast-items {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px 0;
+  }
+  .forecast-heading {
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+  .astronomy {
+    flex-wrap: wrap;
+    gap: 10px 20px;
+  }
+}

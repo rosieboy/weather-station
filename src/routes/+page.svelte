@@ -1,4 +1,33 @@
 <script lang="ts">
+  import type { PageData } from './$types';
+  let { data }: { data: PageData } = $props();
+  import { conditions, moons } from '$lib/weather/labels';
+  let forecastMode = $state<'daily' | 'hourly'>('daily');
+  const dayKey = (date: string) =>
+    new Date(date).toLocaleDateString('sv-SE', {
+      timeZone: 'Europe/Stockholm'
+    });
+  const forecastLabel = (date: string, hourly: boolean) =>
+    new Date(date).toLocaleString('sv-SE', {
+      timeZone: 'Europe/Stockholm',
+      ...(hourly
+        ? ({ hour: '2-digit', minute: '2-digit' } as const)
+        : ({ weekday: 'short', day: 'numeric' } as const))
+    });
+  const symbol = (condition: string) =>
+    conditions[condition] || ['—', 'Väderuppgift saknas'];
+  let items = $derived(
+    (forecastMode === 'daily'
+      ? data.weather.details.daily.filter(
+          (f) => dayKey(f.datetime) >= dayKey(data.weather.fetchedAt)
+        )
+      : data.weather.details.hourly.filter(
+          (f) =>
+            Date.parse(f.datetime) >=
+            Date.parse(data.weather.fetchedAt) - 3600000
+        )
+    ).slice(0, 6)
+  );
   import { onMount } from 'svelte';
   import { invalidateAll } from '$app/navigation';
   let refreshFailed = $state(false);
@@ -30,8 +59,6 @@
           minute: '2-digit'
         })
       : 'Saknas';
-  import type { PageData } from './$types';
-  let { data }: { data: PageData } = $props();
   const number = (value: number | null, digits = 0) =>
     value === null
       ? '—'
@@ -95,8 +122,13 @@
     </svg>
     <div class="outdoor-details">
       <div>
-        <span class="label">Luftfuktighet</span>
+        <span class="label">Din sensor · Luftfuktighet</span>
         <p>{number(data.weather.outdoor.humidity)} <span>%</span></p>
+      </div>
+      <div class="met-current">
+        <span class="label">met.no · beräknad temperatur</span>
+        <p>{number(data.weather.details.temperature, 1)} <span>°C</span></p>
+        <span class="label">{symbol(data.weather.details.condition)[1]}</span>
       </div>
     </div>
   </section>
@@ -124,8 +156,64 @@
       {/each}
     </div>
   </section>
+  <section class="forecast" aria-labelledby="forecast-heading">
+    <div class="forecast-heading">
+      <h2 id="forecast-heading">Vädret framåt</h2>
+      <div class="forecast-switch" aria-label="Prognosperiod">
+        <button
+          aria-pressed={forecastMode === 'daily'}
+          onclick={() => (forecastMode = 'daily')}>Kommande dagar</button
+        ><button
+          aria-pressed={forecastMode === 'hourly'}
+          onclick={() => (forecastMode = 'hourly')}>Timme för timme</button
+        >
+      </div>
+    </div>
+    {#if data.weather.details.error}<p class="forecast-note" role="status">
+        {data.weather.details.error}
+      </p>{/if}
+    {#if items.length}<div class="forecast-items">
+        {#each items as item (item.datetime)}<article class="forecast-item">
+            <span class="forecast-date"
+              >{forecastLabel(item.datetime, forecastMode === 'hourly')}</span
+            ><span
+              class="weather-symbol"
+              role="img"
+              aria-label={symbol(item.condition)[1]}
+              title={symbol(item.condition)[1]}
+              >{symbol(item.condition)[0]}</span
+            ><strong
+              >{number(item.temperature)}°{#if forecastMode === 'daily'}
+                <small>/ {number(item.low)}°</small>{/if}</strong
+            ><span class="rain" title="Sannolikhet för nederbörd"
+              >Regn {number(item.rainProbability)} %</span
+            >
+          </article>{/each}
+      </div>{:else}<p class="forecast-note">
+        Ingen {forecastMode === 'daily' ? 'dygnsprognos' : 'timprognos'} tillgänglig.
+      </p>{/if}
+  </section>
+  <div class="astronomy">
+    <span
+      >☀ ↑ Nästa soluppgång <strong>{time(data.weather.details.sunrise)}</strong
+      ></span
+    ><span
+      >☀ ↓ Nästa solnedgång <strong>{time(data.weather.details.sunset)}</strong
+      ></span
+    ><span
+      >{moons[data.weather.details.moon || '']?.[0] || '☾'}
+      <strong
+        >{moons[data.weather.details.moon || '']?.[1] ||
+          'Månfas saknas'}</strong
+      ></span
+    >
+  </div>
   <footer>
-    <span>En liten överblick över hemma.</span><span
+    <span
+      >Prognos: <a href="https://www.met.no/" target="_blank" rel="noreferrer"
+        >met.no · Meteorologisk institutt</a
+      ></span
+    ><span
       >{data.weather.source === 'mock'
         ? 'Exempelvärden · Inga sensorer anslutna'
         : `Hämtat ${time(data.weather.fetchedAt)} · Uppdateras var 30:e sekund`}</span
