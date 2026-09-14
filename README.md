@@ -4,6 +4,8 @@ Svensk dashboard för temperatur och luftfuktighet, byggd med SvelteKit, Svelte 
 och TypeScript. Layouten är anpassad till 1280 × 720 och staplar rumskorten på
 mindre skärmar. Balkong visas som huvudvärde, med Vardagsrum och Sovrum under.
 
+![Bild på prototyp](./static/screenshot.png "Tidig prototyp")
+
 Dokumentationen beskriver implementationen och den verifierade Mac-installationen
 per **2026-09-14**. Raspberry Pi-drift är planerad och ännu inte verifierad.
 
