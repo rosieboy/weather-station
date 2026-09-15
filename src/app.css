@@ -162,7 +162,7 @@ h2 {
 }
 .rooms {
   display: grid;
-  grid-template-columns: repeat(2, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 16px;
 }
 .room {
@@ -480,5 +480,122 @@ footer a {
   .astronomy {
     flex-wrap: wrap;
     gap: 10px 20px;
+  }
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.theme-toggle {
+  min-height: 44px;
+  padding: 0 16px;
+  border: 1px solid #bccabe;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 12px;
+  cursor: pointer;
+}
+.theme-toggle:focus-visible {
+  outline: 3px solid #95732e;
+  outline-offset: 2px;
+}
+.met-measures {
+  display: flex;
+  gap: 16px;
+  font-size: 13px;
+  margin-top: 7px;
+}
+.met-time {
+  display: block;
+  font-size: 11px;
+  color: #b7cbb8;
+  margin-top: 5px;
+}
+:root[data-theme='night'] {
+  color-scheme: dark;
+  background: #100d0d;
+  color: #d8a69b;
+}
+[data-theme='night'] .outdoor,
+[data-theme='night'] .room,
+[data-theme='night'] .forecast-items {
+  background: #1c1414;
+  color: #e2ada0;
+  border-color: #49302d;
+}
+[data-theme='night'] .source {
+  background: #2c1d1b;
+}
+[data-theme='night'] .source > span {
+  background: #bc806c;
+}
+[data-theme='night'] .brand-icon,
+[data-theme='night'] .theme-toggle,
+[data-theme='night'] .outdoor-details,
+[data-theme='night'] .met-current,
+[data-theme='night'] .room-humidity,
+[data-theme='night'] .forecast-item {
+  border-color: #49302d;
+}
+[data-theme='night'] .label,
+[data-theme='night'] .caption,
+[data-theme='night'] .met-time,
+[data-theme='night'] .eyebrow,
+[data-theme='night'] .outdoor-temperature span,
+[data-theme='night'] .outdoor-details p span,
+[data-theme='night'] .section-heading > span,
+[data-theme='night'] .room-number,
+[data-theme='night'] .room-temperature > span,
+[data-theme='night'] .room-humidity,
+[data-theme='night'] .reading-time,
+[data-theme='night'] .rain,
+[data-theme='night'] .forecast-item small,
+[data-theme='night'] .astronomy,
+[data-theme='night'] footer {
+  color: #b98b80;
+}
+[data-theme='night'] .room-humidity strong,
+[data-theme='night'] .astronomy strong {
+  color: #d8a69b;
+}
+[data-theme='night'] .forecast-switch button {
+  border-color: #69463e;
+  color: #d8a69b;
+}
+[data-theme='night'] .forecast-switch button[aria-pressed='true'] {
+  background: #54352e;
+  color: #f1c3b5;
+}
+[data-theme='night'] .landscape {
+  filter: grayscale(1) sepia(1) saturate(2);
+  opacity: 0.18;
+}
+[data-theme='night'] .weather-symbol {
+  color: #ca998a;
+  filter: grayscale(1) sepia(1);
+}
+[data-theme='night'] .error {
+  background: #38221b;
+  color: #e2ada0;
+}
+[data-theme='night'] .forecast-note {
+  color: #d8a69b;
+}
+@media (max-width: 700px) {
+  .header-controls {
+    gap: 6px;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+  }
+  .source {
+    display: none;
+  }
+  .met-measures {
+    flex-wrap: wrap;
+    gap: 4px 10px;
   }
 }

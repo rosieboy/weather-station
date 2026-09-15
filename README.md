@@ -295,3 +295,21 @@ Vid framtida reverse proxy måste `/api/events` kunna strömmas utan buffring oc
 utan kort timeout. Endpointen skickar `X-Accel-Buffering: no` och cacheförbud.
 En flerprocessinstallation får en Home Assistant-anslutning per process;
 nuvarande Docker-installation kör en process.
+
+## Dag- och nattläge samt kompletterande väderdata
+
+Knappen i sidhuvudet växlar Auto → Natt → Dag. Valet sparas lokalt i webbläsaren.
+Auto använder `sun.sun`: under horisonten ger nattläge, över horisonten dagläge.
+Saknas solstatus används dagläge. Vid anslutningsavbrott behålls senast mottagna
+solstatus tills anslutningen återkommer. Nattläget har mörk bakgrund och varma,
+dämpade rödtoner; det ändrar färgerna, inte skärmens hårdvaruljusstyrka.
+
+met.no-panelen visar även lufttryck i hPa, vind i m/s och kompassriktning (varifrån
+vinden blåser). Kända enheter konverteras; saknade/okända enheter visas som streck.
+Tiden ”Värde ändrat” kommer från väderentitetens `last_updated`, inte från
+prognosmodellens körtid eller en garanterad tid för senaste hämtning.
+
+Stora panelen heter nu Utetemperatur men använder fortfarande den riktiga
+balkongsensorn. Raden Hemma innehåller Vardagsrum, Sovrum och Balkong.
+Balkong i denna rad är uttryckligen märkt Mockdata: fasta 18,4 °C och 62 %,
+utan uppdateringstid. Byt ut detta exempel när en separat utomhussensor finns.

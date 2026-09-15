@@ -1,5 +1,6 @@
 /** Temperature in °C and relative humidity in %. Null means unavailable. */
 export interface SensorReading {
+  mock?: boolean;
   id: string;
   name: string;
   temperature: number | null;
@@ -24,6 +25,10 @@ export interface ForecastItem {
   rainProbability: number | null;
 }
 export interface WeatherDetails {
+  pressure: number | null;
+  windSpeed: number | null;
+  windBearing: number | null;
+  sunAboveHorizon: boolean | null;
   temperature: number | null;
   condition: string;
   updatedAt: string | null;

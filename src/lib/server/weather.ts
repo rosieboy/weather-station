@@ -5,7 +5,12 @@ import type { SensorReading, WeatherSnapshot } from '$lib/weather/types';
 
 export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
   const locations = [
-    ['balcony', 'Balkong', env.HA_BALCONY_TEMPERATURE, env.HA_BALCONY_HUMIDITY],
+    [
+      'balcony',
+      'Utetemperatur',
+      env.HA_BALCONY_TEMPERATURE,
+      env.HA_BALCONY_HUMIDITY
+    ],
     [
       'living-room',
       env.HA_ROOM_NAME || 'Vardagsrum',
@@ -23,6 +28,10 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
   }));
   const snapshot: WeatherSnapshot = {
     details: {
+      pressure: null,
+      windSpeed: null,
+      windBearing: null,
+      sunAboveHorizon: null,
       temperature: null,
       condition: '',
       updatedAt: null,
@@ -35,7 +44,17 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
     },
     source: 'home-assistant',
     outdoor: readings[0],
-    rooms: readings.slice(1),
+    rooms: [
+      ...readings.slice(1),
+      {
+        id: 'balcony-mock',
+        name: 'Balkong',
+        temperature: 18.4,
+        humidity: 62,
+        updatedAt: null,
+        mock: true
+      }
+    ],
     fetchedAt: new Date().toISOString(),
     error: null
   };
@@ -54,6 +73,12 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
     );
     const date = (v: unknown) =>
       typeof v === 'string' && Number.isFinite(Date.parse(v)) ? v : null;
+    snapshot.details.sunAboveHorizon =
+      sun?.state === 'above_horizon'
+        ? true
+        : sun?.state === 'below_horizon'
+          ? false
+          : null;
     snapshot.details.sunrise = date(sun?.attributes?.next_rising);
     snapshot.details.sunset = date(sun?.attributes?.next_setting);
     snapshot.details.moon = moon?.state ?? null;
@@ -62,6 +87,33 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
         weather.attributes?.temperature,
         weather.attributes?.temperature_unit
       );
+      const numeric = (v: unknown) =>
+        typeof v === 'number' && Number.isFinite(v) ? v : null;
+      const pressure = numeric(weather.attributes.pressure);
+      const pressureFactors: Record<string, number> = {
+        hPa: 1,
+        mbar: 1,
+        Pa: 0.01,
+        kPa: 10,
+        inHg: 33.8639,
+        mmHg: 1.33322
+      };
+      const pf = pressureFactors[String(weather.attributes.pressure_unit)];
+      snapshot.details.pressure =
+        pressure !== null && pressure >= 0 && pf ? pressure * pf : null;
+      const speed = numeric(weather.attributes.wind_speed);
+      const speedFactors: Record<string, number> = {
+        'm/s': 1,
+        'km/h': 1 / 3.6,
+        mph: 0.44704,
+        kn: 0.514444
+      };
+      const sf = speedFactors[String(weather.attributes.wind_speed_unit)];
+      snapshot.details.windSpeed =
+        speed !== null && speed >= 0 && sf ? speed * sf : null;
+      const bearing = numeric(weather.attributes.wind_bearing);
+      snapshot.details.windBearing =
+        bearing !== null ? ((bearing % 360) + 360) % 360 : null;
       snapshot.details.condition = weather.state;
       snapshot.details.updatedAt = date(weather.last_updated);
       const forecast = await getForecasts(weather.attributes?.temperature_unit);

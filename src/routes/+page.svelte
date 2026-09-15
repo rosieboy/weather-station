@@ -4,6 +4,43 @@
   let live = $state<WeatherSnapshot | null>(null);
   let weather = $derived(live ?? data.weather);
   import { conditions, moons } from '$lib/weather/labels';
+  let theme = $state<'auto' | 'night' | 'day'>('auto');
+  let night = $derived(
+    theme === 'night' ||
+      (theme === 'auto' && weather.details.sunAboveHorizon === false)
+  );
+  const direction = (bearing: number | null) =>
+    bearing === null
+      ? '—'
+      : [
+          'N',
+          'NNO',
+          'NO',
+          'ONO',
+          'O',
+          'OSO',
+          'SO',
+          'SSO',
+          'S',
+          'SSV',
+          'SV',
+          'VSV',
+          'V',
+          'VNV',
+          'NV',
+          'NNV'
+        ][Math.round(bearing / 22.5) % 16];
+  function changeTheme() {
+    theme = theme === 'auto' ? 'night' : theme === 'night' ? 'day' : 'auto';
+    try {
+      localStorage.setItem('weather-theme', theme);
+    } catch {
+      /* Storage is optional. */
+    }
+  }
+  $effect(() => {
+    document.documentElement.dataset.theme = night ? 'night' : 'day';
+  });
   let forecastMode = $state<'daily' | 'hourly'>('daily');
   const dayKey = (date: string) =>
     new Date(date).toLocaleDateString('sv-SE', {
@@ -33,6 +70,12 @@
   import type { WeatherSnapshot } from '$lib/weather/types';
   let refreshFailed = $state(false);
   onMount(() => {
+    try {
+      const saved = localStorage.getItem('weather-theme');
+      if (saved === 'day' || saved === 'night') theme = saved;
+    } catch {
+      /* Storage is optional. */
+    }
     const events = new EventSource('/api/events');
     events.onmessage = (event) => {
       try {
@@ -86,11 +129,24 @@
         <h1>Väderstation</h1>
       </div>
     </div>
-    <span class="source"
-      ><span aria-hidden="true"></span>{weather.source === 'mock'
-        ? 'Demoläge · Mockdata'
-        : 'Home Assistant'}</span
-    >
+    <div class="header-controls">
+      <button
+        class="theme-toggle"
+        onclick={changeTheme}
+        title="Växla Auto → Natt → Dag"
+        aria-label="Byt visningsläge. Nu: {theme}"
+        >{theme === 'auto'
+          ? `Auto · ${night ? 'Natt' : 'Dag'}`
+          : theme === 'night'
+            ? 'Natt'
+            : 'Dag'}</button
+      >
+      <span class="source"
+        ><span aria-hidden="true"></span>{weather.source === 'mock'
+          ? 'Demoläge · Mockdata'
+          : 'Home Assistant'}</span
+      >
+    </div>
   </header>
 
   {#if weather.error || refreshFailed}<p class="error" role="status">
@@ -130,21 +186,34 @@
         <span class="label">met.no · beräknad temperatur</span>
         <p>{number(weather.details.temperature, 1)} <span>°C</span></p>
         <span class="label">{symbol(weather.details.condition)[1]}</span>
+        <div class="met-measures">
+          <span>{number(weather.details.pressure)} hPa</span><span
+            title="Vindriktningen anger varifrån vinden blåser"
+            >{number(weather.details.windSpeed, 1)} m/s · {direction(
+              weather.details.windBearing
+            )}</span
+          >
+        </div>
+        <span class="met-time"
+          >Värde ändrat: {time(weather.details.updatedAt)}</span
+        >
       </div>
     </div>
   </section>
 
   <section class="indoors" aria-labelledby="indoors-title">
     <div class="section-heading">
-      <h2 id="indoors-title">Inomhus</h2>
-      <span>Rum för rum</span>
+      <h2 id="indoors-title">Hemma</h2>
+      <span>Rum och balkong</span>
     </div>
     <div class="rooms">
       {#each weather.rooms as room, i (room.id)}
         <article class="room">
           <div class="room-heading">
             <h3>{room.name}</h3>
-            <span class="room-number" aria-hidden="true">0{i + 1}</span>
+            <span class="room-number"
+              >{room.mock ? 'Mockdata' : `0${i + 1}`}</span
+            >
           </div>
           <p class="room-temperature">
             {number(room.temperature, 1)}<span>°C</span>
@@ -152,7 +221,11 @@
           <div class="room-humidity">
             <span>Luftfuktighet</span><strong>{number(room.humidity)} %</strong>
           </div>
-          <p class="reading-time">Mätvärde ändrat: {time(room.updatedAt)}</p>
+          <p class="reading-time">
+            {room.mock
+              ? 'Exempelvärde · Ingen sensor'
+              : `Mätvärde ändrat: ${time(room.updatedAt)}`}
+          </p>
         </article>
       {/each}
     </div>
