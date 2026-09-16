@@ -436,9 +436,26 @@ header {
   display: flex;
   gap: 30px;
   justify-content: center;
-  padding-top: 14px;
+  align-items: center;
+  padding-top: 10px;
+  line-height: 20px;
   font-size: 12px;
   color: #627568;
+}
+.astronomy-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-height: 20px;
+}
+.astronomy-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 20px;
+  height: 20px;
+  font-size: 14px;
+  line-height: 1;
 }
 .astronomy strong {
   font-weight: 550;

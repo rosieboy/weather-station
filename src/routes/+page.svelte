@@ -308,18 +308,28 @@
       </p>{/if}
   </section>
   <div class="astronomy">
-    <span
-      >☀ ↑ Nästa soluppgång <strong>{time(weather.details.sunrise)}</strong
-      ></span
-    ><span
-      >☀ ↓ Nästa solnedgång <strong>{time(weather.details.sunset)}</strong
-      ></span
-    ><span
-      >{moons[weather.details.moon || '']?.[0] || '☾'}
+    <div class="astronomy-item">
+      <span class="astronomy-icon" aria-hidden="true">☀</span>
+      <span
+        >↑ Nästa soluppgång <strong>{time(weather.details.sunrise)}</strong
+        ></span
+      >
+    </div>
+    <div class="astronomy-item">
+      <span class="astronomy-icon" aria-hidden="true">☀</span>
+      <span
+        >↓ Nästa solnedgång <strong>{time(weather.details.sunset)}</strong
+        ></span
+      >
+    </div>
+    <div class="astronomy-item">
+      <span class="astronomy-icon" aria-hidden="true"
+        >{moons[weather.details.moon || '']?.[0] || '☾'}</span
+      >
       <strong
         >{moons[weather.details.moon || '']?.[1] || 'Månfas saknas'}</strong
-      ></span
-    >
+      >
+    </div>
   </div>
   <footer>
     <span
