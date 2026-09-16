@@ -26,6 +26,7 @@ export interface ForecastItem {
 }
 export interface WeatherDetails {
   pressure: number | null;
+  pressureDelta: number | null;
   windSpeed: number | null;
   windBearing: number | null;
   sunAboveHorizon: boolean | null;

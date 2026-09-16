@@ -599,3 +599,34 @@ footer a {
     gap: 4px 10px;
   }
 }
+
+.clock {
+  font-size: 20px;
+  font-weight: 400;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.5px;
+}
+.pressure-trend {
+  display: block;
+  margin-top: 4px;
+  font-size: 11px;
+  color: #b7cbb8;
+}
+.outdoor-details {
+  gap: 10px;
+}
+.met-current {
+  padding-top: 8px;
+}
+[data-theme='night'] .pressure-trend {
+  color: #b98b80;
+}
+[data-theme='night'] .weather-scene {
+  filter: sepia(0.7) saturate(0.6);
+  opacity: 0.55;
+}
+@media (max-width: 700px) {
+  .clock {
+    font-size: 16px;
+  }
+}

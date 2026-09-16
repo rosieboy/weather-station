@@ -1,3 +1,4 @@
+import { pressureHpa, pressureTrend } from './pressure';
 import { getHAStream } from './ha-stream';
 import { celsius, getForecasts } from './forecast';
 import { env } from '$env/dynamic/private';
@@ -29,6 +30,7 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
   const snapshot: WeatherSnapshot = {
     details: {
       pressure: null,
+      pressureDelta: null,
       windSpeed: null,
       windBearing: null,
       sunAboveHorizon: null,
@@ -89,18 +91,10 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
       );
       const numeric = (v: unknown) =>
         typeof v === 'number' && Number.isFinite(v) ? v : null;
-      const pressure = numeric(weather.attributes.pressure);
-      const pressureFactors: Record<string, number> = {
-        hPa: 1,
-        mbar: 1,
-        Pa: 0.01,
-        kPa: 10,
-        inHg: 33.8639,
-        mmHg: 1.33322
-      };
-      const pf = pressureFactors[String(weather.attributes.pressure_unit)];
-      snapshot.details.pressure =
-        pressure !== null && pressure >= 0 && pf ? pressure * pf : null;
+      snapshot.details.pressure = pressureHpa(
+        weather.attributes.pressure,
+        weather.attributes.pressure_unit
+      );
       const speed = numeric(weather.attributes.wind_speed);
       const speedFactors: Record<string, number> = {
         'm/s': 1,
@@ -116,7 +110,11 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
         bearing !== null ? ((bearing % 360) + 360) % 360 : null;
       snapshot.details.condition = weather.state;
       snapshot.details.updatedAt = date(weather.last_updated);
-      const forecast = await getForecasts(weather.attributes?.temperature_unit);
+      const [forecast, delta] = await Promise.all([
+        getForecasts(weather.attributes?.temperature_unit),
+        pressureTrend(snapshot.details.pressure, snapshot.details.updatedAt)
+      ]);
+      snapshot.details.pressureDelta = delta;
       snapshot.details.daily = forecast.daily;
       snapshot.details.hourly = forecast.hourly;
       snapshot.details.error = forecast.error;
@@ -146,5 +144,6 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
   } catch {
     snapshot.error = 'Kunde inte sammanställa mätvärden från Home Assistant.';
   }
+  snapshot.fetchedAt = new Date().toISOString();
   return snapshot;
 }

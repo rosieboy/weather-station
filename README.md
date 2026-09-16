@@ -299,7 +299,7 @@ nuvarande Docker-installation kör en process.
 ## Dag- och nattläge samt kompletterande väderdata
 
 Knappen i sidhuvudet växlar Auto → Natt → Dag. Valet sparas lokalt i webbläsaren.
-Auto använder `sun.sun`: under horisonten ger nattläge, över horisonten dagläge.
+Auto använder solhändelserna i `sun.sun` (se detaljer nedan), med solstatus som reserv.
 Saknas solstatus används dagläge. Vid anslutningsavbrott behålls senast mottagna
 solstatus tills anslutningen återkommer. Nattläget har mörk bakgrund och varma,
 dämpade rödtoner; det ändrar färgerna, inte skärmens hårdvaruljusstyrka.
@@ -313,3 +313,37 @@ Stora panelen heter nu Utetemperatur men använder fortfarande den riktiga
 balkongsensorn. Raden Hemma innehåller Vardagsrum, Sovrum och Balkong.
 Balkong i denna rad är uttryckligen märkt Mockdata: fasta 18,4 °C och 62 %,
 utan uppdateringstid. Byt ut detta exempel när en separat utomhussensor finns.
+
+### Solstyrning, klocka, trycktrend och väderbild (2026-09-16)
+
+Auto följer i första hand `sun.sun.attributes.next_rising` och `next_setting`,
+inte enbart `sun.sun.state`. Alla jämförelser använder absoluta UTC-tidpunkter;
+klockan och solhändelserna formateras i Europe/Stockholm med automatisk sommartid.
+Skärmens klocka synkroniseras mot serverns `fetchedAt` vid varje SSE-meddelande och
+räknar vidare varje sekund. Växlingen sker vid solhändelsen, utan förskjutning,
+även om just det WebSocket-meddelandet dröjer. Saknas en användbar tidplan används
+solstatusen som reserv, och saknas även den används dagläge. En helt utgången
+plan extrapoleras inte till nästa dygn. Manuell färginställning påverkar inte
+landskapets faktiska dag/natt.
+
+Vid kontroll 16 september stämde Mac, Docker och Home Assistants klockor överens;
+HA:s tidszon var Europe/Stockholm. `sun.sun` rapporterade fortfarande
+`last_changed` från 14 september och `below_horizon`, trots uppdaterade solattribut.
+Det är en konstaterad avvikelse i solstatusen; orsaken till att den fastnat är
+inte fastställd. Den kan förklara tidigt nattläge i den tidigare implementationen.
+
+Trycktrenden hämtar Recorder-historik för samma met.no-entitet tre timmar före
+det aktuella vädervärdets `last_updated`. Resultatet är hPa-differensen: mer än
++0,5 stigande, mindre än −0,5 fallande, annars stabilt. Historiksvaret cachelagras
+15 minuter per aktuellt värde, samtidiga anrop samordnas. Det kräver historik med
+tryckattribut i HA; saknad historik, API-fel eller ett aktuellt värde äldre än
+90 minuter ger ”Trycktrend saknas”. Inget separat datalager behövs på dashboarden.
+Trenden beskriver met.no-värden, inte en lokal barometer eller en vädervarning.
+
+`WeatherScene.svelte` är stilla SVG med samma landskap och färgpalett som tidigare.
+Den visar sol/måne, stjärnor, moln, regn, snö/hagel, dimma, vind och åska efter
+met.no:s väderkod samt soltid. Månformen är en stiliserad tolkning av månfasen,
+inte en astronomiskt exakt återgivning. Okänt väder visar en neutral miljö.
+Grafiken ändras bara när dess indata ändras, utan animation eller egna nätanrop.
+Befintlig 15-minutersuppdatering och livehändelser används; solväxlingen väntar
+inte på nästa 15-minutersintervall.

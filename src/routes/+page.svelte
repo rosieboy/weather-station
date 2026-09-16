@@ -1,13 +1,30 @@
 <script lang="ts">
+  import WeatherScene from '$lib/components/WeatherScene.svelte';
+  import { solarDay } from '$lib/weather/solar';
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
   let live = $state<WeatherSnapshot | null>(null);
   let weather = $derived(live ?? data.weather);
   import { conditions, moons } from '$lib/weather/labels';
   let theme = $state<'auto' | 'night' | 'day'>('auto');
+  let now = $state(untrack(() => Date.parse(data.weather.fetchedAt)));
+  let daylight = $derived(
+    solarDay(
+      now,
+      weather.details.sunrise,
+      weather.details.sunset,
+      weather.details.sunAboveHorizon
+    )
+  );
+  let clock = $derived(
+    new Date(now).toLocaleTimeString('sv-SE', {
+      timeZone: 'Europe/Stockholm',
+      hour: '2-digit',
+      minute: '2-digit'
+    })
+  );
   let night = $derived(
-    theme === 'night' ||
-      (theme === 'auto' && weather.details.sunAboveHorizon === false)
+    theme === 'night' || (theme === 'auto' && daylight === false)
   );
   const direction = (bearing: number | null) =>
     bearing === null
@@ -66,10 +83,16 @@
         )
     ).slice(0, 6)
   );
-  import { onMount } from 'svelte';
+  import { onMount, untrack } from 'svelte';
   import type { WeatherSnapshot } from '$lib/weather/types';
   let refreshFailed = $state(false);
   onMount(() => {
+    let offset = Date.parse(weather.fetchedAt) - Date.now();
+    const tick = () => {
+      now = Date.now() + offset;
+    };
+    const clockTimer = setInterval(tick, 1000);
+    document.addEventListener('visibilitychange', tick);
     try {
       const saved = localStorage.getItem('weather-theme');
       if (saved === 'day' || saved === 'night') theme = saved;
@@ -80,6 +103,8 @@
     events.onmessage = (event) => {
       try {
         live = JSON.parse(event.data) as WeatherSnapshot;
+        offset = Date.parse(live.fetchedAt) - Date.now();
+        tick();
         refreshFailed = false;
       } catch {
         refreshFailed = true;
@@ -91,7 +116,11 @@
     events.addEventListener('stream-error', () => {
       refreshFailed = true;
     });
-    return () => events.close();
+    return () => {
+      events.close();
+      clearInterval(clockTimer);
+      document.removeEventListener('visibilitychange', tick);
+    };
   });
   const time = (value: string | null) =>
     value
@@ -130,6 +159,11 @@
       </div>
     </div>
     <div class="header-controls">
+      <time
+        class="clock"
+        title="Europe/Stockholm · synkroniserad med dashboardservern"
+        >{clock}</time
+      >
       <button
         class="theme-toggle"
         onclick={changeTheme}
@@ -164,19 +198,11 @@
         Mätvärde ändrat: {time(weather.outdoor.updatedAt)}
       </p>
     </div>
-    <svg class="landscape" viewBox="0 0 500 320" fill="none" aria-hidden="true">
-      <circle cx="345" cy="93" r="43" fill="#e6c886" />
-      <path d="M0 261Q115 81 256 237T530 204V320H0Z" fill="#315c4b" />
-      <path d="M-30 303Q155 162 300 268T550 237V320H-30Z" fill="#49705b" />
-      <path d="M160 320Q336 226 510 289V320Z" fill="#779074" />
-      <path
-        d="M234 109h57m-81 16h64"
-        stroke="#bfd0ba"
-        stroke-width="3"
-        stroke-linecap="round"
-        opacity=".5"
-      />
-    </svg>
+    <WeatherScene
+      condition={weather.details.condition}
+      {daylight}
+      moon={weather.details.moon}
+    />
     <div class="outdoor-details">
       <div>
         <span class="label">Din sensor · Luftfuktighet</span>
@@ -187,13 +213,27 @@
         <p>{number(weather.details.temperature, 1)} <span>°C</span></p>
         <span class="label">{symbol(weather.details.condition)[1]}</span>
         <div class="met-measures">
-          <span>{number(weather.details.pressure)} hPa</span><span
-            title="Vindriktningen anger varifrån vinden blåser"
+          <span
+            title="Förändring jämfört med Home Assistants registrerade lufttryck tre timmar före det aktuella värdet"
+            >{number(weather.details.pressure)} hPa {weather.details
+              .pressureDelta === null
+              ? ''
+              : weather.details.pressureDelta > 0.5
+                ? '↗'
+                : weather.details.pressureDelta < -0.5
+                  ? '↘'
+                  : '→'}</span
+          ><span title="Vindriktningen anger varifrån vinden blåser"
             >{number(weather.details.windSpeed, 1)} m/s · {direction(
               weather.details.windBearing
             )}</span
           >
         </div>
+        <span class="pressure-trend"
+          >{weather.details.pressureDelta === null
+            ? 'Trycktrend saknas · behöver historik'
+            : `${weather.details.pressureDelta > 0.5 ? 'Stigande' : weather.details.pressureDelta < -0.5 ? 'Fallande' : 'Stabilt'} · ${weather.details.pressureDelta > 0 ? '+' : ''}${number(weather.details.pressureDelta, 1)} hPa / 3 h`}</span
+        >
         <span class="met-time"
           >Värde ändrat: {time(weather.details.updatedAt)}</span
         >
