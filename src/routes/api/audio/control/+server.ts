@@ -1,3 +1,4 @@
+import { sendAudioCommand } from '$lib/server/audio-request';
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { getHomeSnapshot } from '$lib/server/home';
@@ -39,32 +40,12 @@ export const POST: RequestHandler = async ({ request, url }) => {
         },
         { status: 400 }
       );
-    const response = await fetch(
-      new URL(
-        `/api/services/media_player/${command.action}`,
-        env.HOME_ASSISTANT_URL
-      ),
-      {
-        method: 'POST',
-        headers: {
-          Authorization: `Bearer ${env.HOME_ASSISTANT_TOKEN}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(command.data),
-        signal: AbortSignal.timeout(8000),
-        redirect: 'error'
-      }
+    const result = await sendAudioCommand(
+      env.HOME_ASSISTANT_URL || '',
+      env.HOME_ASSISTANT_TOKEN || '',
+      command
     );
-    if (!response.ok) throw Error();
-    return json({ ok: true });
-  } catch {
-    return json(
-      {
-        error:
-          'Svaret från Sonos uteblev. Kontrollera status innan du försöker igen.'
-      },
-      { status: 502 }
-    );
+    return json(result.body, { status: result.status });
   } finally {
     active = false;
   }

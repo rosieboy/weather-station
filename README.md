@@ -441,3 +441,24 @@ Verifierat: 14 automatiska tester och produktionsbygge, layout i 1280 × 720,
 gruppering av två vilande Sonos-enheter följt av urgruppering samt volymändring
 5 → 6 → 5 % i köket, med återrapporterad status. Uppspelning och källbyte har inte
 provats med hörbart ljud under utvecklingen; tillgängliga källor har lästs från HA.
+
+### Sonos-felsökning 2026-09-17
+
+Vid fastnad låtinformation visade HA:s REST-tillstånd och dashboardens SSE samma
+äldre låt, artist och källa. Omladdning av enbart Sonos-integrationen gav ny
+låtinformation direkt. Loggen innehöll utgångna Sonos-prenumerationer som inte
+kunde förnyas. HA:s UTC-klocka låg samtidigt cirka 76 minuter efter Macen;
+orsaken till tidsavvikelsen är ännu inte löst. Den kan påverka prenumerationer
+men ett orsakssamband är inte verifierat. Upprepad REST-hämtning av tillstånd eller
+`homeassistant.update_entity` återställde inte informationen före omladdningen.
+
+Vissa källbyten gav dessutom Sonos UPnP-fel 402 (Invalid Args). Användaren har
+identifierat utgången TuneIn-åtkomst för vissa favoriter och rensar dem i Sonos.
+Appen väljer bara bland HA:s aktuella lista och kan inte kontrollera abonnemang.
+
+Källbyten tillåts nu ta 35 sekunder på servern (tidigare 8), övriga ljudkommandon
+15 sekunder. Klienten väntar upp till 45 sekunder. Ett avvisat serviceanrop visas
+som avvisat, medan timeout/nätfel markeras som osäkert resultat: kommandot kan
+fortfarande utföras av HA. Inga automatiska återförsök skickas. Ett lyckat svar
+bekräftar behandlat kommando, inte att nya låtuppgifter har mottagits. Tester
+skiljer avvisade svar från osäkra timeout-resultat och kontrollerar källbytets tidsgräns.

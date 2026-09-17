@@ -50,17 +50,27 @@
     if (busy || blocked) return;
     busy = true;
     failed = false;
-    feedback = 'Skickar till Sonos…';
+    feedback =
+      action === 'select_source'
+        ? `Byter till ${extra.source}… Det kan ta en stund.`
+        : 'Skickar till Sonos…';
     try {
       const response = await fetch('/api/audio/control', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ entityId: s.id, action, ...extra }),
-        signal: AbortSignal.timeout(12000)
+        signal: AbortSignal.timeout(45000)
       });
       const result = await response.json();
-      if (!response.ok) throw Error(result.error || 'Kommandot misslyckades.');
-      feedback = 'Kommandot skickat till Sonos.';
+      if (!response.ok) {
+        failed = !result.uncertain;
+        feedback = result.error || 'Kommandot misslyckades.';
+        return;
+      }
+      feedback =
+        action === 'select_source'
+          ? `Källbytet till ${extra.source} har behandlats. Kortet visar senast rapporterade information från Sonos.`
+          : 'Kommandot har behandlats. Kortet visar senast rapporterade status från Sonos.';
       if (action === 'join') {
         groupId = null;
         chosen = [];
@@ -70,7 +80,7 @@
       feedback =
         e instanceof Error && e.name !== 'TimeoutError'
           ? e.message
-          : 'Svaret dröjer. Kontrollera status innan du försöker igen.';
+          : 'Bekräftelsen dröjer. Kommandot kan fortfarande genomföras. Vänta innan du försöker igen.';
     } finally {
       busy = false;
     }
