@@ -1,3 +1,4 @@
+import { getHomeSnapshot } from './home';
 import { pressureHpa, pressureTrend } from './pressure';
 import { getHAStream } from './ha-stream';
 import { celsius, getForecasts } from './forecast';
@@ -28,6 +29,7 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
     updatedAt: null
   }));
   const snapshot: WeatherSnapshot = {
+    home: { rooms: [], error: null },
     details: {
       pressure: null,
       pressureDelta: null,
@@ -62,10 +64,12 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
   };
   if (!env.HOME_ASSISTANT_URL || !env.HOME_ASSISTANT_TOKEN) {
     snapshot.error = 'Home Assistant är inte konfigurerad.';
+    snapshot.home.error = snapshot.error;
     return snapshot;
   }
   try {
     const stream = getHAStream();
+    snapshot.home = await getHomeSnapshot();
     const states = [...stream.states.values()];
     snapshot.error = stream.error;
     const weather = states.find((s) => s.entity_id === env.HA_WEATHER_ENTITY);

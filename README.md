@@ -7,16 +7,16 @@ mindre skärmar. Balkong visas som huvudvärde, med Vardagsrum och Sovrum under.
 ![Bild på prototyp](./static/screenshot2.png 'Tidig prototyp')
 
 Dokumentationen beskriver implementationen och den verifierade Mac-installationen
-per **2026-09-14**. Raspberry Pi-drift är planerad och ännu inte verifierad.
+per **2026-09-17**. Raspberry Pi-drift är planerad och ännu inte verifierad.
 
 ## Status och genomförda val
 
 - Projektet började med mockdata för ute, vardagsrum, sovrum och kontor.
   Nu hämtas riktiga värden från tre TIMMERFLOTTE-sensorer via Home Assistant.
-- Slutliga områden är **Balkong, Vardagsrum och Sovrum**. Den givare som först
+- Temperaturgivarna finns i **Balkong, Vardagsrum och Sovrum**. Den givare som först
   kallades Kök används som Vardagsrum, enligt bekräftad mappning i Home Assistant.
-- Lufttryck har tagits bort eftersom våra givare bara tillhandahåller temperatur
-  och luftfuktighet. Landskapsbilden är dekorativ. En separat prognosrad visar vädret från met.no.
+- De egna givarna tillhandahåller temperatur och luftfuktighet. met.no bidrar med
+  jämförelsetemperatur, lufttryck, trycktrend, vind och prognos. Landskapsbilden följer väder och soltid.
 - Dashboarden kör i Docker Desktop. Home Assistant OS kör separat i VirtualBox.
   Det ursprungliga förslaget att även köra Home Assistant i Docker ersattes av
   Home Assistant OS för installationen med Matter.
@@ -48,8 +48,8 @@ Home Assistant, aldrig direkt med Apple Hem, DIRIGERA eller sensorerna.
 1. En gemensam anslutning per serverprocess öppnas mot Home Assistants
    `/api/websocket` och autentiseras med token på servern.
 2. Servern prenumererar på `state_changed` och läser därefter `get_states`.
-   Händelser under inläsningen buffras. Bara konfigurerade sensorer, väder, sol
-   och måne lagras i minnet; borttagna entiteter tas bort ur cachen.
+   Händelser under inläsningen buffras. Konfigurerade väderentiteter samt lampor, brytare, knapphändelser, mediaspelare
+   och temperatur-/fuktsensorer lagras i minnet; borttagna entiteter tas bort ur cachen.
 3. `+page.server.ts` ger sidan ett första läge. Vid kallstart kan anslutningen
    fortfarande pågå; nästa strömmade uppdatering fyller i värdena.
 4. Webbläsaren öppnar `EventSource('/api/events')`. Server-Sent Events (SSE)
@@ -99,7 +99,9 @@ docker-compose.yml
 ### Datamodell och felbeteende
 
 `SensorReading` innehåller `id`, `name`, `temperature`, `humidity` och `updatedAt`.
-`WeatherSnapshot` innehåller `source`, `outdoor`, `rooms`, `fetchedAt` och `error`.
+`WeatherSnapshot` samlar sensorer, väder, prognoser, astronomi, hämtningstid och fel
+samt `home` med rum och lampkontroller. `HomeSnapshot` och `HomeRoom` finns i
+`src/lib/home/types.ts`.
 
 - Temperatur anges i °C; °F konverteras. Andra temperaturenheter avvisas.
 - Luftfuktighet måste anges i % och ligga mellan 0 och 100.
@@ -347,3 +349,57 @@ inte en astronomiskt exakt återgivning. Okänt väder visar en neutral miljö.
 Grafiken ändras bara när dess indata ändras, utan animation eller egna nätanrop.
 Befintlig 15-minutersuppdatering och livehändelser används; solväxlingen väntar
 inte på nästa 15-minutersintervall.
+
+## Rum och lampkontroller (2026-09-17)
+
+Knapparna **Väder / Rum** byter skärm. Ett horisontellt svep åt vänster öppnar
+rummen och åt höger återgår till vädret. Svep byter inte skärm när en rumsdialog
+är öppen eller när gesten börjar på ett reglage. Vyn återgår till väder vid omladdning.
+Dag-/nattläget gäller båda vyerna och dialogerna.
+
+Rumsöversikten hämtas från Home Assistants områdes-, enhets- och entitetsregister.
+Entitetens uttryckliga område prioriteras före enhetens område. Ändra namn och
+placering i Home Assistant; ingen separat rumskonfiguration behövs i `.env`.
+Registret cachas i 60 sekunder och läses därefter om vid nästa datauppdatering,
+sidöppning eller kontrollkommando. Tillstånd uppdateras löpande via den gemensamma
+WebSocket-anslutningen och SSE. Registerändringar har ingen egen prenumeration.
+
+Vid kontroll finns åtta rum och 14 lamp-uttag: Kök, Vardagsrum, Balkong, Sovrum,
+Ellens rum, Matrum, Hall och Gång. TV-rum har tagits bort i HA och visas inte separat.
+Rum utan lampor visas också. Styrbara enheter utan område hamnar under **Utan rum**.
+Temperatur och fukt på rumskorten kommer från rummets första giltiga sensor per
+mätstorhet. Balkongens värden här är riktiga, till skillnad från mockkortet i vädervyn.
+
+Tryck på ett rum för att öppna dess dialog. Där finns individuella på/av-reglage
+samt **Tänd alla / Släck alla**. Styrbara enheter är `light.*` och Matter-brytare
+med klassen `outlet`, eftersom installationens uttag används till lampor.
+Dolda, avaktiverade och diagnostik-/konfigurationsentiteter filtreras bort.
+Sonos-inställningsbrytare inkluderas inte. Om uttag för andra apparater tillkommer
+måste urvalet anpassas innan de används här.
+
+Fjärrkontroller räknas per fysisk enhet utifrån knapphändelser; de visas inte som
+styrbara lampor. Deras befintliga kopplingar och automationer ändras inte.
+Sonos visas som antal högtalarenheter per rum; musikstyrning är ännu inte byggd.
+
+### Kommandon och felhantering
+
+`POST /api/home/control` accepterar bara `turn_on` eller `turn_off` för en känd
+lampa eller ett känt rum. Servern skickar motsvarande REST-action till HA;
+reglagens tillstånd bekräftas genom WebSocket-flödet, utan optimistisk uppdatering.
+Enheter utan kontakt hoppas över vid gruppkommandon. Kontroller blockeras vid
+anslutningsfel och medan ett kommando skickas. Ett delvis misslyckat gruppkommando
+kan ha påverkat några enheter; dialogen ber då användaren kontrollera status.
+
+Token stannar på servern. Endpointen kontrollerar samma ursprung och accepterar
+inte godtyckliga serviceanrop. `ORIGIN` måste matcha adressen som används för
+produktionsappen, exempelvis `http://localhost:3000` eller Pi:ns framtida adress.
+Appen saknar egen inloggning och är avsedd för det betrodda hemnätverket; besökare
+som når dashboarden kan styra de valda lamporna.
+
+- `src/lib/server/home-model.ts`: rumsurval, enhetsmappning och tillåtna mål.
+- `src/lib/server/home.ts`: registerhämtning över befintlig WebSocket och cache.
+- `src/lib/components/RoomsView.svelte`: rumskort, dialoger och reglage.
+- `src/routes/api/home/control/+server.ts`: validering och HA-kommandon.
+- `tests/home.test.mjs`: urval, områdesprioritet, fjärrkontrollräkning och målval.
+
+`npm test` omfattar även registerkommandon och avbrott i WebSocket-transporten.

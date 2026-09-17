@@ -17,6 +17,51 @@ export class HAStream {
   private started = false;
   private delay = 1000;
   private nextId = 3;
+  private requests = new Map<
+    number,
+    {
+      resolve: (value: unknown) => void;
+      reject: (error: Error) => void;
+      timer: ReturnType<typeof setTimeout>;
+    }
+  >();
+  command(type: string): Promise<unknown> {
+    const socket = this.socket;
+    if (this.error || !socket)
+      return Promise.reject(new Error('Home Assistant disconnected'));
+    const id = this.nextId++;
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.requests.delete(id);
+        reject(new Error('Home Assistant timeout'));
+      }, 5000);
+      this.requests.set(id, { resolve, reject, timer });
+      try {
+        socket.send(JSON.stringify({ id, type }));
+      } catch {
+        clearTimeout(timer);
+        this.requests.delete(id);
+        reject(new Error('Home Assistant disconnected'));
+      }
+    });
+  }
+  private clearRequests() {
+    for (const request of this.requests.values()) {
+      clearTimeout(request.timer);
+      request.reject(new Error('Home Assistant disconnected'));
+    }
+    this.requests.clear();
+  }
+  private tracked(id: string, state?: HAState | null) {
+    return (
+      this.ids.has(id) ||
+      /^(light|switch|event|media_player)\./.test(id) ||
+      (id.startsWith('sensor.') &&
+        ['temperature', 'humidity'].includes(
+          String(state?.attributes?.device_class)
+        ))
+    );
+  }
   private awaitingPong = false;
   private buffered = new Map<string, HAState | null>();
   constructor(
@@ -41,6 +86,7 @@ export class HAStream {
   }
   stop() {
     this.started = false;
+    this.clearRequests();
     clearTimeout(this.retry);
     clearTimeout(this.deadline);
     clearInterval(this.heartbeat);
@@ -74,6 +120,14 @@ export class HAStream {
       if (this.socket !== socket) return;
       try {
         const msg = JSON.parse(String(event.data));
+        const request = this.requests.get(msg.id);
+        if (msg.type === 'result' && request) {
+          clearTimeout(request.timer);
+          this.requests.delete(msg.id);
+          if (msg.success) request.resolve(msg.result);
+          else request.reject(new Error('Home Assistant command rejected'));
+          return;
+        }
         if (msg.type === 'auth_required')
           socket.send(
             JSON.stringify({ type: 'auth', access_token: this.token })
@@ -104,7 +158,7 @@ export class HAStream {
           }
           this.states.clear();
           for (const state of msg.result)
-            if (this.ids.has(state.entity_id))
+            if (this.tracked(state.entity_id, state))
               this.states.set(state.entity_id, state);
           for (const [id, state] of this.buffered) {
             if (state) this.states.set(id, state);
@@ -128,7 +182,12 @@ export class HAStream {
         } else if (msg.type === 'pong') this.awaitingPong = false;
         else if (msg.type === 'event' && msg.id === 1) {
           const d = msg.event?.data;
-          if (!d || !this.ids.has(d.entity_id)) return;
+          if (
+            !d ||
+            (!this.tracked(d.entity_id, d.new_state) &&
+              !this.states.has(d.entity_id))
+          )
+            return;
           if (!initialized) this.buffered.set(d.entity_id, d.new_state);
           else {
             if (d.new_state) this.states.set(d.entity_id, d.new_state);
@@ -148,6 +207,7 @@ export class HAStream {
     };
   }
   private reconnect() {
+    this.clearRequests();
     clearTimeout(this.deadline);
     clearInterval(this.heartbeat);
     if (!this.started) return;

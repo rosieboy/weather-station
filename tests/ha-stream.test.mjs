@@ -150,3 +150,29 @@ test('authentication failures are explicit and never expose credentials', () => 
     stream.stop();
   }
 });
+
+test('registry commands share connection, resolve results and reject on disconnect', async () => {
+  const socket = new Socket();
+  const stream = new HAStream(
+    'http://homeassistant.test',
+    'secret',
+    new Set(['sensor.test']),
+    () => socket
+  );
+  stream.start();
+  initialize(socket);
+  const pending = stream.command('config/area_registry/list');
+  const command = socket.sent.at(-1);
+  socket.message({
+    type: 'result',
+    id: command.id,
+    success: true,
+    result: [{ area_id: 'hall', name: 'Hall' }]
+  });
+  assert.deepEqual(await pending, [{ area_id: 'hall', name: 'Hall' }]);
+  const disconnected = stream.command('config/device_registry/list');
+  const rejection = assert.rejects(disconnected, /disconnected/);
+  socket.close();
+  await rejection;
+  stream.stop();
+});

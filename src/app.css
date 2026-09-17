@@ -647,3 +647,408 @@ footer a {
     font-size: 16px;
   }
 }
+
+/* Room controls share the weather palette and keep touch targets generous. */
+.dashboard {
+  touch-action: pan-y;
+}
+.view-nav {
+  display: flex;
+  gap: 4px;
+  padding: 4px;
+  border: 1px solid #c6d2c4;
+  border-radius: 16px;
+}
+.view-nav button {
+  min-height: 38px;
+  padding: 0 24px;
+  border: 0;
+  border-radius: 12px;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.view-nav button[aria-current] {
+  background: #233d35;
+  color: #f6f7ef;
+}
+.home-intro {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 30px 0 24px;
+}
+.home-intro h2 {
+  font-size: 32px;
+  margin-top: 7px;
+}
+.home-description {
+  font-size: 14px;
+  color: #627568;
+  margin-top: 8px;
+}
+.home-total {
+  display: grid;
+  gap: 4px;
+  text-align: right;
+  font-size: 12px;
+  color: #627568;
+}
+.home-total strong {
+  font-size: 35px;
+  font-weight: 450;
+  color: #233d35;
+}
+.home-total strong span {
+  font-size: 22px;
+  color: #718374;
+}
+.home-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 16px;
+}
+.home-card {
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  border: 1px solid #d7dfd2;
+  border-radius: 20px;
+  background: #f6f7ef;
+  padding: 20px;
+  cursor: pointer;
+  min-height: 195px;
+}
+.home-card.has-light {
+  background: #e1e9dc;
+  border-color: #b6c7ae;
+}
+.home-card:hover {
+  border-color: #778b60;
+}
+.home-card-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 18px;
+}
+.room-art {
+  display: inline-flex;
+  width: 40px;
+  height: 40px;
+  color: #537664;
+  flex-shrink: 0;
+}
+.room-art svg,
+.device-art svg {
+  width: 100%;
+  height: 100%;
+}
+.room-status {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 11px;
+  color: #627568;
+}
+.room-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: #a7b2a5;
+}
+.room-dot.lit {
+  background: #738344;
+  box-shadow: 0 0 0 4px #73834415;
+}
+.home-card h3 {
+  font-size: 19px;
+}
+.home-card-count {
+  font-size: 11px;
+  color: #627568;
+  margin-top: 7px;
+  min-height: 28px;
+  line-height: 1.4;
+}
+.home-card-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  padding-top: 12px;
+  margin-top: 8px;
+  border-top: 1px solid #d7dfd2;
+  font-size: 12px;
+}
+.room-humidity-mini,
+.home-hint {
+  color: #627568;
+}
+.home-hint {
+  text-align: center;
+  font-size: 12px;
+  margin-top: 24px;
+}
+.room-dialog {
+  width: min(820px, calc(100vw - 48px));
+  max-height: calc(100dvh - 48px);
+  padding: 28px;
+  border: 1px solid #b6c7ae;
+  border-radius: 24px;
+  color: #233d35;
+  background: #e9ede7;
+  box-shadow: 0 24px 100px #0005;
+}
+.room-dialog::backdrop {
+  background: #0a1612a6;
+  backdrop-filter: blur(5px);
+}
+.room-dialog-heading,
+.dialog-room-title,
+.room-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+.dialog-room-title {
+  justify-content: flex-start;
+}
+.dialog-room-title h2 {
+  font-size: 28px;
+  margin-top: 4px;
+}
+.dialog-close {
+  width: 44px;
+  height: 44px;
+  border: 1px solid #bccabe;
+  border-radius: 50%;
+  color: inherit;
+  background: transparent;
+  font-size: 20px;
+  cursor: pointer;
+}
+.room-summary {
+  color: #627568;
+  font-size: 13px;
+  margin: 22px 0;
+  flex-wrap: wrap;
+}
+.room-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.room-actions button {
+  min-height: 44px;
+  padding: 0 22px;
+  border: 1px solid #bccabe;
+  border-radius: 12px;
+  background: #f6f7ef;
+  color: inherit;
+  font: inherit;
+  font-size: 13px;
+  cursor: pointer;
+}
+.room-actions button:first-child {
+  background: #233d35;
+  color: #f6f7ef;
+  border-color: #233d35;
+}
+.device-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+}
+.device-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 95px;
+  padding: 16px;
+  background: #f6f7ef;
+  border: 1px solid #d7dfd2;
+  border-radius: 16px;
+}
+.device-art {
+  width: 30px;
+  height: 36px;
+  flex-shrink: 0;
+  color: #718374;
+}
+.device-on .device-art {
+  color: #8e783c;
+}
+.device-label {
+  flex: 1;
+  min-width: 0;
+}
+.device-label h3 {
+  font-size: 14px;
+  overflow-wrap: anywhere;
+}
+.device-label > span {
+  display: block;
+  margin-top: 5px;
+  font-size: 11px;
+  color: #627568;
+}
+.device-toggle {
+  flex: 0 0 52px;
+  height: 44px;
+  padding: 0 5px;
+  border: 0;
+  border-radius: 24px;
+  background: #c4cfc0;
+  cursor: pointer;
+}
+.device-toggle span {
+  display: block;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #f6f7ef;
+}
+.device-toggle[aria-checked='true'] {
+  background: #537664;
+}
+.device-toggle[aria-checked='true'] span {
+  margin-left: 18px;
+}
+.room-dialog button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+.control-feedback {
+  min-height: 32px;
+  margin-top: 14px;
+  font-size: 12px;
+  line-height: 1.5;
+  color: #627568;
+}
+.control-failed {
+  color: #9a3929;
+}
+.room-extras {
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+  color: #627568;
+  border-top: 1px solid #c6d2c4;
+  padding-top: 14px;
+  font-size: 12px;
+}
+.home-empty {
+  padding: 24px 0;
+  color: #627568;
+  font-size: 14px;
+  line-height: 1.8;
+}
+.home-card:focus-visible,
+.view-nav button:focus-visible,
+.room-dialog button:focus-visible {
+  outline: 3px solid #95732e;
+  outline-offset: 3px;
+}
+[data-theme='night'] .view-nav,
+[data-theme='night'] .room-dialog,
+[data-theme='night'] .dialog-close,
+[data-theme='night'] .room-extras {
+  border-color: #49302d;
+}
+[data-theme='night'] .view-nav button[aria-current],
+[data-theme='night'] .room-actions button:first-child {
+  background: #54352e;
+  color: #f1c3b5;
+}
+[data-theme='night'] .home-card,
+[data-theme='night'] .device-row,
+[data-theme='night'] .room-actions button {
+  background: #1c1414;
+  color: #d8a69b;
+  border-color: #49302d;
+}
+[data-theme='night'] .home-card.has-light {
+  background: #2c1d1b;
+  border-color: #69463e;
+}
+[data-theme='night'] .room-dialog {
+  background: #100d0d;
+  color: #d8a69b;
+}
+[data-theme='night'] .home-total strong {
+  color: #d8a69b;
+}
+[data-theme='night'] .home-description,
+[data-theme='night'] .home-total,
+[data-theme='night'] .home-total strong span,
+[data-theme='night'] .room-status,
+[data-theme='night'] .home-card-count,
+[data-theme='night'] .room-humidity-mini,
+[data-theme='night'] .home-hint,
+[data-theme='night'] .room-summary,
+[data-theme='night'] .device-label > span,
+[data-theme='night'] .control-feedback,
+[data-theme='night'] .room-extras,
+[data-theme='night'] .home-empty,
+[data-theme='night'] .room-art,
+[data-theme='night'] .device-art {
+  color: #b98b80;
+}
+[data-theme='night'] .home-card-bottom {
+  border-color: #49302d;
+}
+[data-theme='night'] .room-dot.lit {
+  background: #d8a080;
+}
+[data-theme='night'] .device-toggle {
+  background: #49302d;
+}
+[data-theme='night'] .device-toggle[aria-checked='true'] {
+  background: #9f6859;
+}
+[data-theme='night'] .device-toggle span {
+  background: #e2b7a9;
+}
+[data-theme='night'] .control-failed {
+  color: #efab92;
+}
+@media (max-width: 900px) {
+  .home-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  header .source {
+    display: none;
+  }
+}
+@media (max-width: 700px) {
+  header {
+    flex-wrap: wrap;
+  }
+  .view-nav {
+    order: 3;
+    width: 100%;
+  }
+  .view-nav button {
+    flex: 1;
+  }
+  .home-intro {
+    margin-top: 20px;
+  }
+  .home-card {
+    padding: 15px;
+  }
+  .device-grid {
+    grid-template-columns: 1fr;
+  }
+  .room-dialog {
+    padding: 20px;
+  }
+}
+@media (max-width: 380px) {
+  .home-grid {
+    grid-template-columns: 1fr;
+  }
+}

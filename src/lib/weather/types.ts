@@ -1,3 +1,4 @@
+import type { HomeSnapshot } from '../home/types';
 /** Temperature in °C and relative humidity in %. Null means unavailable. */
 export interface SensorReading {
   mock?: boolean;
@@ -9,6 +10,7 @@ export interface SensorReading {
   updatedAt: string | null;
 }
 export interface WeatherSnapshot {
+  home: HomeSnapshot;
   details: WeatherDetails;
   source: 'mock' | 'home-assistant';
   outdoor: SensorReading;
