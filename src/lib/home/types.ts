@@ -1,3 +1,4 @@
+import type { Speaker } from './audio';
 export interface HomeControl {
   id: string;
   name: string;
@@ -14,6 +15,7 @@ export interface HomeRoom {
   humidity: number | null;
 }
 export interface HomeSnapshot {
+  speakers: Speaker[];
   rooms: HomeRoom[];
   error: string | null;
 }

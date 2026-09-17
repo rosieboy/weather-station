@@ -140,7 +140,7 @@
     {/each}
   </div>
   <p class="home-hint">
-    Välj ett rum för att styra lamporna · Svep åt höger för vädret
+    Välj ett rum för att styra lamporna · Svep höger för väder, vänster för ljud
   </p>
 </section>
 <dialog
@@ -238,7 +238,7 @@
             ? 'fysisk fjärrkontroll'
             : 'fysiska fjärrkontroller'}</span
         >{/if}{#if selected.speakerCount}<span
-          >{selected.speakerCount} Sonos · Musikstyrning kommer senare</span
+          >{selected.speakerCount} Sonos · Styrs i Ljud-vyn</span
         >{/if}
     </div>
   {/if}

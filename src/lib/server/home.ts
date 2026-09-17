@@ -1,3 +1,4 @@
+import { buildSpeakers } from './audio-model';
 import { getHAStream } from './ha-stream';
 import {
   buildRooms,
@@ -41,6 +42,7 @@ export async function getHomeSnapshot(): Promise<HomeSnapshot> {
     await pending;
   }
   return {
+    speakers: registry ? buildSpeakers(registry, stream.states) : [],
     rooms: registry ? buildRooms(registry, stream.states) : [],
     error: stream.error || registryError
   };

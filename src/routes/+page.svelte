@@ -1,10 +1,11 @@
 <script lang="ts">
+  import AudioView from '$lib/components/AudioView.svelte';
   import RoomsView from '$lib/components/RoomsView.svelte';
   import WeatherScene from '$lib/components/WeatherScene.svelte';
   import { solarDay } from '$lib/weather/solar';
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
-  let view = $state<'weather' | 'rooms'>('weather');
+  let view = $state<'weather' | 'rooms' | 'audio'>('weather');
   let roomOpen = $state(false);
   let suppressClickUntil = 0;
   let swipeStart: { x: number; y: number; id: number } | null = null;
@@ -27,7 +28,11 @@
       dy = event.clientY - start.y;
     if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       suppressClickUntil = Date.now() + 500;
-      view = dx < 0 ? 'rooms' : 'weather';
+      const views = ['weather', 'rooms', 'audio'] as const;
+      view =
+        views[
+          Math.max(0, Math.min(2, views.indexOf(view) + (dx < 0 ? 1 : -1)))
+        ];
     }
   }
   let live = $state<WeatherSnapshot | null>(null);
@@ -196,7 +201,13 @@
       <span class="brand-icon" aria-hidden="true">⌂</span>
       <div>
         <p class="eyebrow">HEMMA</p>
-        <h1>{view === 'weather' ? 'Väderstation' : 'Hemkontroll'}</h1>
+        <h1>
+          {view === 'weather'
+            ? 'Väderstation'
+            : view === 'rooms'
+              ? 'Hemkontroll'
+              : 'Ljud hemma'}
+        </h1>
       </div>
     </div>
     <nav class="view-nav" aria-label="Skärmvyer">
@@ -206,6 +217,10 @@
       ><button
         aria-current={view === 'rooms' ? 'page' : undefined}
         onclick={() => (view = 'rooms')}>Rum</button
+      >
+      <button
+        aria-current={view === 'audio' ? 'page' : undefined}
+        onclick={() => (view = 'audio')}>Ljud</button
       >
     </nav>
     <div class="header-controls">
@@ -237,7 +252,13 @@
       {weather.error ||
         'Kontakt med skärmen bröts. Visar tidigare värden; återansluter…'}
     </p>{/if}
-  {#if view === 'rooms'}
+  {#if view === 'audio'}
+    <AudioView
+      home={weather.home}
+      disconnected={refreshFailed || !!weather.error}
+      onmodal={(open) => (roomOpen = open)}
+    />
+  {:else if view === 'rooms'}
     <RoomsView
       home={weather.home}
       disconnected={refreshFailed || !!weather.error}

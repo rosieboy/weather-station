@@ -29,7 +29,7 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
     updatedAt: null
   }));
   const snapshot: WeatherSnapshot = {
-    home: { rooms: [], error: null },
+    home: { rooms: [], speakers: [], error: null },
     details: {
       pressure: null,
       pressureDelta: null,

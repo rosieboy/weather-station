@@ -352,7 +352,7 @@ inte på nästa 15-minutersintervall.
 
 ## Rum och lampkontroller (2026-09-17)
 
-Knapparna **Väder / Rum** byter skärm. Ett horisontellt svep åt vänster öppnar
+Knapparna **Väder / Rum / Ljud** byter skärm. Ett horisontellt svep åt vänster öppnar
 rummen och åt höger återgår till vädret. Svep byter inte skärm när en rumsdialog
 är öppen eller när gesten börjar på ett reglage. Vyn återgår till väder vid omladdning.
 Dag-/nattläget gäller båda vyerna och dialogerna.
@@ -379,7 +379,7 @@ måste urvalet anpassas innan de används här.
 
 Fjärrkontroller räknas per fysisk enhet utifrån knapphändelser; de visas inte som
 styrbara lampor. Deras befintliga kopplingar och automationer ändras inte.
-Sonos visas som antal högtalarenheter per rum; musikstyrning är ännu inte byggd.
+Sonos visas som antal högtalarenheter per rum; musikstyrning finns i Ljud-vyn.
 
 ### Kommandon och felhantering
 
@@ -403,3 +403,41 @@ som når dashboarden kan styra de valda lamporna.
 - `tests/home.test.mjs`: urval, områdesprioritet, fjärrkontrollräkning och målval.
 
 `npm test` omfattar även registerkommandon och avbrott i WebSocket-transporten.
+
+## Ljud och Sonos (2026-09-17)
+
+Den tredje vyn visar ett kort per aktiv, synlig Sonos-mediaspelare i HA-registret.
+Apple TV filtreras bort. Kortens områden följer HA; enhetens eget namn kan avvika
+(exempelvis Sonos-namnet TV-rum i området Vardagsrum). Inga nya miljövariabler krävs.
+Svep går stegvis mellan Väder → Rum → Ljud, utan att slå runt i ändarna.
+
+- Spela/pausa, föregående/nästa spår, tystning och individuell volym 0–100 %.
+  Volymanrop skickas när reglaget släpps, inte kontinuerligt under dragningen.
+- Källmenyn använder enhetens `source_list`: i denna installation ingår Sonos-
+  favoriter, radiostationer och spellistor samt TV/Line-in på enheter som erbjuder det.
+  Att välja en källa kan starta uppspelning. Detta är ingen fullständig musiksökning;
+  konton och favoritlistor hanteras fortfarande i Sonos-appen.
+- **Gruppera** öppnar en dialog där andra högtalare läggs till i vald spelares
+  befintliga grupp. Den befintliga gruppledarens ljud används. **Lämna** kopplar
+  loss en högtalare. Volymen gäller respektive enhet; ingen gemensam gruppvolym finns.
+- Uppspelning och källval riktas till gruppledaren (först i `group_members`).
+  Gruppstatus, spår och volym kommer från samma WebSocket/SSE-flöde som övrig data.
+  Grupperingen visas först när HA rapporterar den; ett skickat kommando är inte
+  i sig en bekräftelse på ändrad uppspelning.
+
+`src/lib/server/audio-model.ts` normaliserar ett begränsat antal offentliga fält
+och validerar varje kommando. `/api/audio/control` accepterar endast kända Sonos-
+enheter, stödda funktioner, giltig volym och källor ur aktuell lista. Gruppmedlemmar
+valideras också. Samma ursprung krävs, token stannar på servern, inga godtyckliga
+medie-URL:er eller serviceanrop vidarebefordras. Avbrott blockerar kontrollerna.
+
+`AudioView.svelte` innehåller kort och gruppdialog. Grafiken är CSS, utan externa
+omslagsbilder eller nya bibliotek. Dag-/nattläget följer resten av dashboarden.
+Tester täcker enhetsurval, validering, gruppledare och otillgängliga gruppmedlemmar.
+Dokumentation: [Sonos](https://www.home-assistant.io/integrations/sonos/) och
+[Media player](https://www.home-assistant.io/integrations/media_player/).
+
+Verifierat: 14 automatiska tester och produktionsbygge, layout i 1280 × 720,
+gruppering av två vilande Sonos-enheter följt av urgruppering samt volymändring
+5 → 6 → 5 % i köket, med återrapporterad status. Uppspelning och källbyte har inte
+provats med hörbart ljud under utvecklingen; tillgängliga källor har lästs från HA.
