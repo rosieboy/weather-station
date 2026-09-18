@@ -98,6 +98,7 @@
       <button
         class="home-card"
         class:has-light={on > 0}
+        class:has-unavailable={unavailable > 0}
         onclick={() => open(room.id)}
         aria-haspopup="dialog"
         aria-label={`${room.name}, ${room.controls.length} lampor, ${on} tända. Öppna rum.`}

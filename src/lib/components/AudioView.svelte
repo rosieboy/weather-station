@@ -292,10 +292,13 @@
       </article>
     {/each}
   </div>
-  <p class="audio-feedback" class:control-failed={failed} role="status">
-    {feedback ||
-      'Volymen gäller varje högtalare · uppspelning och källa gäller hela gruppen'}
-  </p>
+  {#if feedback}<p
+      class="audio-feedback"
+      class:control-failed={failed}
+      role="status"
+    >
+      {feedback}
+    </p>{/if}
 </section>
 <dialog
   class="room-dialog audio-dialog"
