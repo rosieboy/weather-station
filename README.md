@@ -18,6 +18,8 @@ per **2026-09-17**. Raspberry Pi-drift är planerad och ännu inte verifierad.
 [GEMINI.md](GEMINI.md) bevarar samtalet med Gemini, med separata faktakommentarer,
 designreferenser och förslag kring en framtida fysisk volymkontroll.
 
+[COPILOT.md](COPILOT.md) beskriver en granskning av projektet.
+
 ## Status och genomförda val
 
 - Projektet började med mockdata för ute, vardagsrum, sovrum och kontor.
