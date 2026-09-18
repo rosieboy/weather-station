@@ -23,22 +23,22 @@
   font-weight: 400;
 }
 :root[data-theme='night'] {
-  --bg: #100c0e;
-  --bg-soft: #191114;
-  --panel: rgba(36, 19, 23, 0.78);
-  --panel-strong: rgba(42, 22, 26, 0.9);
-  --panel-alt: rgba(61, 28, 31, 0.86);
-  --line: rgba(224, 163, 153, 0.14);
-  --line-strong: rgba(224, 163, 153, 0.22);
-  --text: #efd4cd;
-  --muted: #b98e8a;
-  --muted-strong: #d1aaa2;
-  --accent: #713b3d;
-  --accent-soft: #a45d58;
-  --accent-warm: #c77c6e;
-  --success: #9b9d7c;
-  --shadow: rgba(0, 0, 0, 0.36);
-  --badge: rgba(190, 94, 88, 0.08);
+  --bg: #050507;
+  --bg-soft: #0b080a;
+  --panel: rgba(32, 7, 13, 0.72);
+  --panel-strong: #180b0f;
+  --panel-alt: #240b12;
+  --line: rgba(255, 83, 99, 0.16);
+  --line-strong: rgba(255, 101, 112, 0.28);
+  --text: #f4d4d1;
+  --muted: #ad686c;
+  --muted-strong: #d58a8a;
+  --accent: #941f38;
+  --accent-soft: #d7354d;
+  --accent-warm: #ff5967;
+  --success: #c93b50;
+  --shadow: rgba(0, 0, 0, 0.52);
+  --badge: rgba(190, 35, 61, 0.1);
   color-scheme: dark;
 }
 * {
@@ -883,30 +883,30 @@ progress {
 [data-theme='night'] .speaker-card,
 [data-theme='night'] .room-dialog,
 [data-theme='night'] .group-options label {
-  background: rgba(74, 34, 39, 0.28);
+  background: rgba(36, 8, 15, 0.62);
 }
 [data-theme='night'] .view-nav button[aria-current='page'],
 [data-theme='night'] .forecast-switch button[aria-pressed='true'],
 [data-theme='night'] .room-actions button:first-child {
-  background: #f2d6bc;
-  color: #1d1a19;
+  background: #c62c47;
+  color: #fff0ed;
 }
 [data-theme='night'] .source > span {
-  background: #c77c57;
+  background: #e24658;
 }
 [data-theme='night'] .room-dot.lit {
-  background: #dca57a;
+  background: #ed4a5e;
 }
 [data-theme='night'] .weather-symbol {
-  color: #d1a17a;
+  color: #e65361;
 }
 [data-theme='night'] .outdoor {
   background: linear-gradient(
     135deg,
-    rgba(34, 18, 23, 0.98),
-    rgba(76, 31, 37, 0.92)
+    rgba(5, 5, 8, 0.99),
+    rgba(55, 7, 19, 0.94)
   );
-  border-color: rgba(224, 163, 153, 0.18);
+  border-color: rgba(255, 83, 99, 0.2);
 }
 [data-theme='night'] .brand-icon,
 [data-theme='night'] .room-art,
@@ -918,27 +918,27 @@ progress {
 [data-theme='night'] .transport button,
 [data-theme='night'] .dialog-close,
 [data-theme='night'] .device-toggle {
-  border-color: rgba(206, 170, 146, 0.2);
+  border-color: rgba(255, 83, 99, 0.22);
 }
 [data-theme='night'] .home-card,
 [data-theme='night'] .speaker-card,
 [data-theme='night'] .room,
 [data-theme='night'] .forecast-items {
-  border-color: rgba(224, 163, 153, 0.16);
-  background: rgba(57, 26, 31, 0.3);
+  border-color: rgba(255, 83, 99, 0.16);
+  background: rgba(28, 5, 11, 0.38);
 }
 [data-theme='night'] body {
   background:
     radial-gradient(
       circle at 75% 0%,
-      rgba(121, 49, 54, 0.16),
+      rgba(139, 17, 39, 0.12),
       transparent 34rem
     ),
     var(--bg);
 }
 [data-theme='night'] .weather-scene {
-  filter: sepia(0.7) saturate(0.55) brightness(0.7);
-  opacity: 0.5;
+  filter: sepia(0.8) saturate(0.8) hue-rotate(300deg) brightness(0.48);
+  opacity: 0.38;
 }
 @media (min-width: 1280px) {
   body {
@@ -1035,5 +1035,268 @@ progress {
   }
   .home-grid {
     grid-template-columns: 1fr;
+  }
+}
+
+/* The primary device is a 1280 x 720 landscape display. */
+@media (min-width: 1000px) and (max-height: 800px) {
+  html,
+  body {
+    height: 720px;
+    overflow: hidden;
+  }
+
+  .dashboard {
+    width: 100%;
+    height: 720px;
+    min-height: 0;
+    padding: 16px 40px 12px;
+  }
+
+  header {
+    height: 48px;
+    margin-bottom: 12px;
+  }
+
+  .brand-icon {
+    width: 36px;
+    height: 36px;
+    font-size: 24px;
+  }
+
+  .view-nav button {
+    min-height: 36px;
+  }
+
+  .theme-toggle {
+    min-height: 36px;
+  }
+
+  .source {
+    min-height: 32px;
+  }
+
+  .error {
+    margin-bottom: 8px;
+    padding: 7px 10px;
+  }
+
+  .outdoor {
+    min-height: 196px;
+    padding: 18px 22px;
+  }
+
+  .outdoor h2 {
+    margin-top: 8px;
+  }
+
+  .outdoor-temperature {
+    margin-top: 7px;
+    font-size: 5.2rem;
+  }
+
+  .caption {
+    margin-top: 8px;
+  }
+
+  .outdoor-details {
+    gap: 8px;
+  }
+
+  .outdoor-details p {
+    font-size: 1.65rem;
+  }
+
+  .met-current {
+    padding-top: 7px;
+  }
+
+  .met-measures,
+  .pressure-trend,
+  .met-time {
+    margin-top: 5px;
+  }
+
+  .section-heading {
+    margin: 12px 0 7px;
+  }
+
+  .rooms {
+    gap: 10px;
+  }
+
+  .room {
+    padding: 11px 16px 9px;
+  }
+
+  .room-temperature {
+    margin-top: 4px;
+    font-size: 2.55rem;
+  }
+
+  .room-humidity {
+    padding-top: 7px;
+    margin-top: 4px;
+  }
+
+  .reading-time {
+    margin-top: 4px;
+  }
+
+  .forecast {
+    margin-top: 12px;
+  }
+
+  .forecast-heading {
+    margin-bottom: 6px;
+  }
+
+  .forecast-switch button {
+    min-height: 34px;
+  }
+
+  .forecast-item {
+    min-height: 82px;
+    padding: 10px 11px 8px;
+  }
+
+  .astronomy {
+    margin-top: 7px;
+    padding-top: 6px;
+  }
+
+  footer {
+    margin-top: 8px;
+  }
+
+  .home-intro,
+  .audio-intro {
+    margin: 13px 0 10px;
+  }
+
+  .rooms-active .home-intro {
+    margin: 5px 0 6px;
+  }
+
+  .rooms-active .home-intro .eyebrow {
+    font-size: 9px;
+    letter-spacing: 1.7px;
+  }
+
+  .rooms-active .home-intro h2 {
+    font-size: 1.7rem;
+  }
+
+  .rooms-active .home-description {
+    margin-top: 2px;
+    font-size: 0.7rem;
+  }
+
+  .rooms-active .home-total {
+    gap: 1px;
+    font-size: 0.65rem;
+  }
+
+  .rooms-active .home-total strong {
+    font-size: 1.65rem;
+  }
+
+  .home-grid,
+  .audio-grid {
+    gap: 10px;
+  }
+
+  .rooms-active .home-grid {
+    gap: 8px 10px;
+  }
+
+  .home-card {
+    min-height: 0;
+    padding: 12px 14px 10px;
+  }
+
+  .rooms-active .home-card {
+    padding: 8px 14px 7px;
+  }
+
+  .home-card-top {
+    margin-bottom: 10px;
+  }
+
+  .rooms-active .home-card-top {
+    margin-bottom: 6px;
+  }
+
+  .rooms-active .room-art {
+    width: 28px;
+    height: 28px;
+  }
+
+  .rooms-active .room-art svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .rooms-active .room-status {
+    min-height: 22px;
+    padding: 0 8px;
+    font-size: 0.64rem;
+  }
+
+  .rooms-active .home-card h3 {
+    font-size: 1.05rem;
+  }
+
+  .rooms-active .home-card-count {
+    margin-top: 2px;
+    font-size: 0.65rem;
+  }
+
+  .home-card-bottom {
+    margin-top: 10px;
+    padding-top: 7px;
+  }
+
+  .rooms-active .home-card-bottom {
+    margin-top: 6px;
+    padding-top: 5px;
+    font-size: 0.65rem;
+  }
+
+  .home-hint {
+    margin-top: 8px;
+  }
+
+  .rooms-active .home-hint {
+    margin-top: 5px;
+    font-size: 0.64rem;
+  }
+
+  .speaker-card {
+    padding: 12px 14px 10px;
+  }
+
+  .speaker-track {
+    gap: 10px;
+    margin-top: 10px;
+  }
+
+  .record-art {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+  }
+
+  .speaker-volume {
+    margin-top: 9px;
+    padding-top: 8px;
+  }
+
+  .speaker-footer {
+    margin-top: 7px;
+  }
+
+  .audio-feedback {
+    margin-top: 7px;
   }
 }
