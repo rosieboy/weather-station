@@ -1181,7 +1181,7 @@ footer a {
 }
 .transport button {
   height: 44px;
-  min-width: 34px;
+  min-width: 44px;
   background: transparent;
   border: 0;
   font-size: 19px;
@@ -1409,4 +1409,64 @@ footer a {
 }
 [data-theme='night'] .track-progress progress::-moz-progress-bar {
   background: #bd8a78;
+}
+
+/* Consistent media icons and a quiet, visible playing state. */
+.transport {
+  flex-shrink: 0;
+}
+.transport button {
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+.transport svg {
+  width: 22px;
+  height: 22px;
+}
+.transport button:enabled:hover {
+  background: #233d3512;
+}
+.transport .play-button:enabled:hover {
+  background: #36594b;
+}
+.transport button:focus-visible {
+  outline: 2px solid currentColor;
+  outline-offset: 3px;
+}
+.speaker-card.playing {
+  background: #eef3e6;
+  border-color: #78947b;
+  box-shadow: inset 3px 0 0 #52755a;
+}
+.speaker-state {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 20px;
+}
+.playing .speaker-state {
+  background: #dbe8d5;
+  color: #31593c;
+  font-weight: 600;
+}
+.playing-mark {
+  width: 14px;
+  height: 14px;
+}
+[data-theme='night'] .speaker-card.playing {
+  background: #2b1d19;
+  border-color: #996b58;
+  box-shadow: inset 3px 0 0 #bd8a78;
+}
+[data-theme='night'] .playing .speaker-state {
+  background: #4b3027;
+  color: #ecc0b0;
+}
+[data-theme='night'] .transport button:enabled:hover {
+  background: #ecc0b012;
+}
+[data-theme='night'] .transport .play-button:enabled:hover {
+  background: #805443;
 }

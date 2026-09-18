@@ -117,13 +117,28 @@
       {@const main = leader(s)}
       {@const position = playbackPosition(main, now, blocked)}
       {@const disabled = blocked || busy || !available(s)}
-      <article class="speaker-card" class:playing={main.state === 'playing'}>
+      {@const playing = !blocked && available(s) && main.state === 'playing'}
+      <article class="speaker-card" class:playing>
         <div class="speaker-heading">
           <div>
             <p class="eyebrow">{s.room}</p>
             <h3>{s.name}</h3>
           </div>
-          <span class="speaker-state">{status(s)}</span>
+          <span class="speaker-state"
+            >{#if playing}<svg
+                class="playing-mark"
+                viewBox="0 0 16 16"
+                fill="currentColor"
+                aria-hidden="true"
+                ><rect x="1" y="6" width="3" height="7" rx="1.5" /><rect
+                  x="6.5"
+                  y="2"
+                  width="3"
+                  height="12"
+                  rx="1.5"
+                /><rect x="12" y="4" width="3" height="9" rx="1.5" /></svg
+              >{/if}{playing ? 'Spelar' : status(s)}</span
+          >
         </div>
         <div class="speaker-track">
           <div
@@ -151,7 +166,12 @@
               disabled={disabled ||
                 !available(main) ||
                 !supports(main, 'media_previous_track')}
-              onclick={() => command(main, 'media_previous_track')}>Ⅰ‹</button
+              onclick={() => command(main, 'media_previous_track')}
+              ><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                ><rect x="5" y="5" width="2.5" height="14" rx="1" /><path
+                  d="M18 5.8a.8.8 0 0 0-1.25-.66l-8 6.2a.84.84 0 0 0 0 1.32l8 6.2A.8.8 0 0 0 18 18.2Z"
+                /></svg
+              ></button
             ><button
               class="play-button"
               aria-label={`${main.state === 'playing' ? 'Pausa' : 'Spela'}, ${s.name}`}
@@ -165,13 +185,35 @@
                 command(
                   main,
                   main.state === 'playing' ? 'media_pause' : 'media_play'
-                )}>{main.state === 'playing' ? 'Ⅱ' : '▶'}</button
+                )}
+              ><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                >{#if main.state === 'playing'}<rect
+                    x="6"
+                    y="5"
+                    width="4"
+                    height="14"
+                    rx="1"
+                  /><rect
+                    x="14"
+                    y="5"
+                    width="4"
+                    height="14"
+                    rx="1"
+                  />{:else}<path
+                    d="M8 4.8a1 1 0 0 0-1.5.86v12.68a1 1 0 0 0 1.5.86l11-6.34a1 1 0 0 0 0-1.72Z"
+                  />{/if}</svg
+              ></button
             ><button
               aria-label={`Nästa spår, ${s.name}`}
               disabled={disabled ||
                 !available(main) ||
                 !supports(main, 'media_next_track')}
-              onclick={() => command(main, 'media_next_track')}>›Ⅰ</button
+              onclick={() => command(main, 'media_next_track')}
+              ><svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"
+                ><rect x="16.5" y="5" width="2.5" height="14" rx="1" /><path
+                  d="M6 5.8a.8.8 0 0 1 1.25-.66l8 6.2a.84.84 0 0 1 0 1.32l-8 6.2A.8.8 0 0 1 6 18.2Z"
+                /></svg
+              ></button
             >
           </div>
         </div>
