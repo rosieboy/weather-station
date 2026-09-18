@@ -1,13 +1,20 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import type { HomeSnapshot } from '$lib/home/types';
-  import { supports, type Speaker } from '$lib/home/audio';
+  import {
+    supports,
+    playbackPosition,
+    trackTime,
+    type Speaker
+  } from '$lib/home/audio';
   let {
     home,
+    now,
     disconnected = false,
     onmodal = (_open: boolean) => {}
   }: {
     home: HomeSnapshot;
+    now: number;
     disconnected?: boolean;
     onmodal?: (open: boolean) => void;
   } = $props();
@@ -108,6 +115,7 @@
   <div class="audio-grid">
     {#each home.speakers as s, i (s.id)}
       {@const main = leader(s)}
+      {@const position = playbackPosition(main, now, blocked)}
       {@const disabled = blocked || busy || !available(s)}
       <article class="speaker-card" class:playing={main.state === 'playing'}>
         <div class="speaker-heading">
@@ -166,6 +174,22 @@
               onclick={() => command(main, 'media_next_track')}>›Ⅰ</button
             >
           </div>
+        </div>
+        <div class="track-progress">
+          {#if position !== null && main.duration !== null}
+            <span>{trackTime(position)}</span>
+            <progress
+              max={main.duration}
+              value={position}
+              aria-label={`Spelad tid, ${s.name}`}
+            ></progress>
+            <span>{trackTime(main.duration)}</span>
+          {:else}<span class="track-no-time"
+              >{main.source === 'TV'
+                ? 'TV-ljud · tidsinformation saknas'
+                : 'Tidsinformation saknas'}</span
+            >{/if}
+          {#if main.metadataFrom}<small>Via {main.metadataFrom}</small>{/if}
         </div>
         <div class="speaker-volume">
           <button

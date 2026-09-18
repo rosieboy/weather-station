@@ -467,3 +467,31 @@ som avvisat, medan timeout/nätfel markeras som osäkert resultat: kommandot kan
 fortfarande utföras av HA. Inga automatiska återförsök skickas. Ett lyckat svar
 bekräftar behandlat kommando, inte att nya låtuppgifter har mottagits. Tester
 skiljer avvisade svar från osäkra timeout-resultat och kontrollerar källbytets tidsgräns.
+
+### Låtinformation och tidsrad (2026-09-18)
+
+Ljudkorten visar gruppledarens låt och artist även när uppspelningen startas utanför
+panelen, förutsatt att HA rapporterar metadata. Grupptext och gruppledare behålls.
+En tidsrad utan sökfunktion visar spelad tid och total längd från `media_position`,
+`media_position_updated_at` och `media_duration`. Sidan räknar vidare varje sekund
+under uppspelning med den befintliga serversynkroniserade klockan och korrigerar
+vid nya HA-händelser. Paus och anslutningsfel stoppar framräkningen; positionen
+begränsas till låtens längd. Saknas giltig längd/position visas att tidsinformation
+saknas. Detta är en uppskattning mellan rapporter, inte ljudsynkron exakt tid.
+
+När Sonos tar emot TV-ljud kan dess metadata enbart vara ”TV”. För en bekräftad
+Apple TV → TV → Sonos-koppling finns två frivilliga inställningar:
+
+- `HA_SONOS_TV_ENTITY`: Sonos-enheten som tar emot TV-ljudet.
+- `HA_TV_METADATA_ENTITY`: Apple TV-mediaspelaren i HA.
+
+Båda lämnas tomma om kopplingen inte är känd. Vi gissar inte från rumsnamn eller
+vilken app som råkar spela. När den konfigurerade Sonos-enhetens källa är TV och
+Apple TV är playing/paused med titel, används dess låtmetadata och tidsuppgifter,
+märkt ”Via Apple TV”. Gruppmedlemmarna visar samma information via gruppledaren.
+Källval, volym och uppspelningskommandon fortsätter gå till Sonos som tidigare.
+Om TV:n byter till en annan ingång medan Apple TV fortsätter spela kan den explicita
+kopplingen visa fel metadata; ingen TV-ingångsstatus är integrerad ännu.
+
+Aktiverad och bekräftad koppling: `media_player.tv_rum_tv_rum` tar TV-ljudet;
+`media_player.vardagsrum_vardagsrum` lämnar Apple TV-metadata.

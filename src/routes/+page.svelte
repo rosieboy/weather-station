@@ -254,6 +254,7 @@
     </p>{/if}
   {#if view === 'audio'}
     <AudioView
+      {now}
       home={weather.home}
       disconnected={refreshFailed || !!weather.error}
       onmodal={(open) => (roomOpen = open)}

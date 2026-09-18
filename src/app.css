@@ -1352,3 +1352,61 @@ footer a {
     display: none;
   }
 }
+
+/* Read-only playback timeline, separate from the volume control. */
+.track-progress {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  height: 20px;
+  font-size: 10px;
+  font-variant-numeric: tabular-nums;
+  opacity: 0.7;
+}
+.track-progress progress {
+  flex: 1;
+  min-width: 20px;
+  height: 4px;
+  border: 0;
+  border-radius: 4px;
+  overflow: hidden;
+  appearance: none;
+  background: #dce1d5;
+}
+.track-progress progress::-webkit-progress-bar {
+  background: #dce1d5;
+}
+.track-progress progress::-webkit-progress-value {
+  background: #6b8572;
+}
+.track-progress progress::-moz-progress-bar {
+  background: #6b8572;
+}
+.track-progress small {
+  font-size: 9px;
+  white-space: nowrap;
+}
+.track-no-time {
+  flex: 1;
+}
+.audio-intro {
+  margin-bottom: 14px;
+}
+.speaker-card {
+  padding-top: 10px;
+  padding-bottom: 10px;
+}
+.speaker-track {
+  margin-top: 6px;
+  margin-bottom: 4px;
+}
+[data-theme='night'] .track-progress progress,
+[data-theme='night'] .track-progress progress::-webkit-progress-bar {
+  background: #49342e;
+}
+[data-theme='night'] .track-progress progress::-webkit-progress-value {
+  background: #bd8a78;
+}
+[data-theme='night'] .track-progress progress::-moz-progress-bar {
+  background: #bd8a78;
+}

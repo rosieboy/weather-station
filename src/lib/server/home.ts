@@ -1,4 +1,5 @@
-import { buildSpeakers } from './audio-model';
+import { env } from '$env/dynamic/private';
+import { buildSpeakers, withTVMetadata } from './audio-model';
 import { getHAStream } from './ha-stream';
 import {
   buildRooms,
@@ -42,7 +43,14 @@ export async function getHomeSnapshot(): Promise<HomeSnapshot> {
     await pending;
   }
   return {
-    speakers: registry ? buildSpeakers(registry, stream.states) : [],
+    speakers: registry
+      ? withTVMetadata(
+          buildSpeakers(registry, stream.states),
+          stream.states,
+          env.HA_SONOS_TV_ENTITY || '',
+          env.HA_TV_METADATA_ENTITY || ''
+        )
+      : [],
     rooms: registry ? buildRooms(registry, stream.states) : [],
     error: stream.error || registryError
   };

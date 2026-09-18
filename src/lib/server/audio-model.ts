@@ -56,6 +56,25 @@ export function buildSpeakers(
         muted: a.is_volume_muted === true,
         title: text(a.media_title),
         artist: text(a.media_artist),
+        duration:
+          typeof a.media_duration === 'number' &&
+          Number.isFinite(a.media_duration) &&
+          a.media_duration > 0
+            ? a.media_duration
+            : null,
+        position:
+          typeof a.media_position === 'number' &&
+          Number.isFinite(a.media_position) &&
+          a.media_position >= 0
+            ? a.media_position
+            : null,
+        positionUpdatedAt:
+          typeof a.media_position_updated_at === 'string' &&
+          Number.isFinite(Date.parse(a.media_position_updated_at))
+            ? a.media_position_updated_at
+            : null,
+        metadataFrom: null,
+        playbackState: s?.state || 'unavailable',
         source: text(a.source),
         sources: strings(a.source_list),
         members: strings(a.group_members).filter((id) => ids.has(id)),
@@ -125,4 +144,52 @@ export function audioCommand(
     data.group_members = members;
   }
   return { action: b.action, data };
+}
+
+/** Explicit physical TV routing, never guess from a matching room or active app. */
+export function withTVMetadata(
+  speakers: Speaker[],
+  states: Map<string, HAState>,
+  sonosId: string,
+  sourceId: string
+): Speaker[] {
+  const target = speakers.find((s) => s.id === sonosId);
+  const source = states.get(sourceId);
+  if (
+    !target ||
+    target.source !== 'TV' ||
+    !source ||
+    !['playing', 'paused'].includes(source.state)
+  )
+    return speakers;
+  const a = source.attributes;
+  if (!text(a.media_title)) return speakers;
+  return speakers.map((s) =>
+    s.id !== sonosId
+      ? s
+      : {
+          ...s,
+          title: text(a.media_title),
+          artist: text(a.media_artist),
+          duration:
+            typeof a.media_duration === 'number' &&
+            Number.isFinite(a.media_duration) &&
+            a.media_duration > 0
+              ? a.media_duration
+              : null,
+          position:
+            typeof a.media_position === 'number' &&
+            Number.isFinite(a.media_position) &&
+            a.media_position >= 0
+              ? a.media_position
+              : null,
+          positionUpdatedAt:
+            typeof a.media_position_updated_at === 'string' &&
+            Number.isFinite(Date.parse(a.media_position_updated_at))
+              ? a.media_position_updated_at
+              : null,
+          metadataFrom: 'Apple TV',
+          playbackState: source.state
+        }
+  );
 }
