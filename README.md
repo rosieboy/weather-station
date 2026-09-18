@@ -39,6 +39,37 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 
 ![Visualisering av väderpresentation](./static/visualisering.png 'Visualisering av väderpresentation')
 
+## UI-redesign på `design/quiet-home-ui`
+
+Den här branchen innehåller en UI-only-redesign för dashboardens primära målskärm:
+
+- **1280 × 720, liggande display** är dimensioneringsmålet för alla tre vyer: Väder, Rum och Ljud.
+- Header, navigation, kort, prognos och Sonos-paneler har fått tätare och mer förutsägbara höjder så att innehållet ryms på målskärmen.
+- Rumsöversikten har förenklats med mindre ikoner, tydligare status för tända/släckta lampor och en kompaktare introduktion.
+- Rumsdialogen behåller både "Tänd alla"/"Släck alla" och individuella switchar för varje lampa eller uttag.
+- Sonosvyn visar främst högtalare, uppspelning, status, transportkontroller, tidslinje när den finns, volym och källa. Redundant hjälp- och teknisk metadata är nedtonad eller borttagen från normalvyn.
+- Nattläget använder en ambient röd-på-svart-palett med nästan svart bakgrund, dämpade crimson-paneler och röd accent för aktiva lägen.
+- Mobil och mindre skärmar har kvar sin responsiva fallback; målskärmsreglerna ligger i ett separat desktoplager.
+
+### Scope för branchen
+
+Branchen är avsiktligt begränsad till presentation och styling. Home Assistant-integration,
+API-kontrakt, datamodell och befintliga kontrollflöden ska inte ändras som en del av denna
+redesign. Nya funktioner, scenes och backendarbete hör hemma i separata branches.
+
+### Verifiering
+
+Efter UI-ändringar körs:
+
+```sh
+npm run check
+npm test
+npm run format:check
+docker compose up -d --build
+```
+
+Senast verifierat: Svelte-check utan fel, 18 tester passerar och Docker-bygget startar korrekt.
+
 ## Arkitektur
 
 ```mermaid
