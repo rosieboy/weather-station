@@ -9,6 +9,11 @@ mindre skärmar. Balkong visas som huvudvärde, med Vardagsrum och Sovrum under.
 Dokumentationen beskriver implementationen och den verifierade Mac-installationen
 per **2026-09-17**. Raspberry Pi-drift är planerad och ännu inte verifierad.
 
+## Idéer och vägval
+
+[GEMINI.md](GEMINI.md) bevarar samtalet med Gemini, med separata faktakommentarer,
+designreferenser och förslag kring en framtida fysisk volymkontroll.
+
 ## Status och genomförda val
 
 - Projektet började med mockdata för ute, vardagsrum, sovrum och kontor.
