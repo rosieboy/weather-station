@@ -176,3 +176,42 @@ test('registry commands share connection, resolve results and reject on disconne
   await rejection;
   stream.stop();
 });
+
+test('external light and outlet changes emit updates without a dashboard command', () => {
+  const socket = new Socket();
+  const stream = new HAStream(
+    'http://homeassistant.test',
+    'secret',
+    new Set(),
+    () => socket
+  );
+  let updates = 0;
+  stream.onChange(() => updates++);
+  try {
+    stream.start();
+    initialize(socket);
+    const initial = updates;
+    for (const id of ['switch.lamp', 'light.lamp']) {
+      for (const value of ['on', 'off', 'unavailable']) {
+        socket.message({
+          type: 'event',
+          id: 1,
+          event: {
+            data: {
+              entity_id: id,
+              new_state: { ...state(value), entity_id: id }
+            }
+          }
+        });
+        assert.equal(stream.states.get(id).state, value);
+      }
+    }
+    assert.equal(updates, initial + 6);
+    assert.equal(
+      socket.sent.some((s) => s.type === 'call_service'),
+      false
+    );
+  } finally {
+    stream.stop();
+  }
+});
