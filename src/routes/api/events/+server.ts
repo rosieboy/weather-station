@@ -35,8 +35,8 @@ export const GET: RequestHandler = ({ request }) => {
       };
       const unsubscribe = getHAStream().onChange(() => void publish());
       const heartbeat = setInterval(() => send(': heartbeat\n\n'), 15000);
-      // Forecasts advance even when no sensor events arrive.
-      const forecastTimer = setInterval(() => void publish(), 15 * 60_000);
+      // Sky positions advance each minute; forecast requests retain their own cache.
+      const forecastTimer = setInterval(() => void publish(), 60_000);
       cleanup = () => {
         if (closed) return;
         closed = true;

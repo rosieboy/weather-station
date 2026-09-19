@@ -1,3 +1,4 @@
+import { getSky } from './astronomy';
 import { getHomeSnapshot } from './home';
 import { pressureHpa, pressureTrend } from './pressure';
 import { getHAStream } from './ha-stream';
@@ -31,6 +32,7 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
   const snapshot: WeatherSnapshot = {
     home: { rooms: [], speakers: [], error: null },
     details: {
+      sky: null,
       pressure: null,
       pressureDelta: null,
       windSpeed: null,
@@ -70,6 +72,7 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
   try {
     const stream = getHAStream();
     snapshot.home = await getHomeSnapshot();
+    snapshot.details.sky = await getSky();
     const states = [...stream.states.values()];
     snapshot.error = stream.error;
     const weather = states.find((s) => s.entity_id === env.HA_WEATHER_ENTITY);

@@ -501,3 +501,11 @@ kopplingen visa fel metadata; ingen TV-ingångsstatus är integrerad ännu.
 
 Aktiverad och bekräftad koppling: `media_player.tv_rum_tv_rum` tar TV-ljudet;
 `media_player.vardagsrum_vardagsrum` lämnar Apple TV-metadata.
+
+### Levande väderscen
+
+SVG-scenen har långsamt drivande moln, regn/snö, dimma och vattenrörelse. Met.no:s tillstånd styr illustrationen och vindstyrkan påverkar molnhastigheten. Ingen väderfilm eller extern bildtjänst används. Reducerad rörelse respekteras och animationerna pausas när webbsidan är dold; scenen avmonteras i Rum/Ljud.
+
+Solens och månens positioner och månfas beräknas på servern med [SunCalc 1.9](https://github.com/mourner/suncalc/tree/v1.9.0). HA:s `get_config` ger Hem-positionen, som cachas i en timme. Koordinater skickas inte till webbläsaren. Positioner uppdateras via SSE minst varje minut och interpoleras visuellt. Prognosens befintliga cache gäller fortfarande. Om platsen inte kan hämtas visas inga gissade himlakroppar.
+
+Illustrationen är ett stiliserat panorama: azimut 45–315° går från vänster till höger, nordliga riktningar kläms till kanterna och höjd över horisonten styr vertikalleden. Det är inte en exakt fönsterutsikt. Månen kan synas även dagtid och döljs under horisonten. Solens synlighet använder −0,83° som ungefärlig soluppgångsgräns. Landskap och moln kan skymma kropparna. Positionerna är astronomiska approximationer, inte observationer; terräng ingår inte. Pi-prestanda återstår att verifiera på hårdvaran.

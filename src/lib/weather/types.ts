@@ -26,7 +26,17 @@ export interface ForecastItem {
   low: number | null;
   rainProbability: number | null;
 }
+export interface SkyPosition {
+  altitude: number;
+  azimuth: number;
+}
+export interface Sky {
+  sun: SkyPosition;
+  moon: SkyPosition;
+  phase: number;
+}
 export interface WeatherDetails {
+  sky: Sky | null;
   pressure: number | null;
   pressureDelta: number | null;
   windSpeed: number | null;

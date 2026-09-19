@@ -280,7 +280,8 @@
       <WeatherScene
         condition={weather.details.condition}
         {daylight}
-        moon={weather.details.moon}
+        sky={weather.details.sky}
+        wind={weather.details.windSpeed}
       />
       <div class="outdoor-details">
         <div>

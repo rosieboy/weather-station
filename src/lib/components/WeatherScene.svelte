@@ -1,171 +1,297 @@
 <script lang="ts">
+  import { onMount } from 'svelte';
+  import type { Sky, SkyPosition } from '$lib/weather/types';
   let {
     condition,
     daylight,
-    moon
-  }: { condition: string; daylight: boolean | null; moon: string | null } =
-    $props();
+    sky,
+    wind
+  }: {
+    condition: string;
+    daylight: boolean | null;
+    sky: Sky | null;
+    wind: number | null;
+  } = $props();
   const id = $props.id();
-  let isNight = $derived(daylight === false);
-  let known = $derived(
-    [
-      'sunny',
-      'clear-night',
-      'partlycloudy',
-      'cloudy',
-      'rainy',
-      'pouring',
-      'snowy',
-      'snowy-rainy',
-      'hail',
-      'lightning',
-      'lightning-rainy',
-      'fog',
-      'windy',
-      'windy-variant',
-      'exceptional'
-    ].includes(condition)
+  let hidden = $state(false);
+  onMount(() => {
+    const update = () => (hidden = document.hidden);
+    update();
+    document.addEventListener('visibilitychange', update);
+    return () => document.removeEventListener('visibilitychange', update);
+  });
+  const point = (p: SkyPosition) => ({
+    // Panoramic E–S–W projection, with northern bearings clamped to the edges.
+    x: 45 + Math.max(0, Math.min(1, (p.azimuth - 45) / 270)) * 410,
+    y: 248 - (Math.max(0, Math.min(90, p.altitude)) / 90) * 205
+  });
+  let night = $derived(sky ? sky.sun.altitude < -6 : daylight === false);
+  let twilight = $derived(
+    sky ? Math.max(0, 1 - Math.abs(sky.sun.altitude) / 12) : 0
   );
-  let clouds = $derived(
-    [
-      'partlycloudy',
-      'cloudy',
-      'rainy',
-      'pouring',
-      'snowy',
-      'snowy-rainy',
-      'hail',
-      'lightning',
-      'lightning-rainy',
-      'windy-variant'
-    ].includes(condition)
+  let sun = $derived(sky ? point(sky.sun) : null);
+  let moon = $derived(sky ? point(sky.moon) : null);
+  let cloudy = $derived(
+    !['sunny', 'clear-night', 'windy', ''].includes(condition)
   );
   let rain = $derived(
-    ['rainy', 'pouring', 'snowy-rainy', 'lightning-rainy'].includes(condition)
+    ['rainy', 'pouring', 'lightning-rainy', 'snowy-rainy'].includes(condition)
   );
   let snow = $derived(['snowy', 'snowy-rainy', 'hail'].includes(condition));
-  let storm = $derived(['lightning', 'lightning-rainy'].includes(condition));
-  let clear = $derived(
-    ['sunny', 'clear-night', 'partlycloudy', 'windy'].includes(condition)
-  );
+  let heavy = $derived(cloudy && condition !== 'partlycloudy');
+  let phase = $derived(sky?.phase ?? 0);
+  let crescent = $derived(Math.abs(Math.cos(phase * Math.PI * 2)) * 22);
 </script>
 
 <svg
-  class="landscape weather-scene"
-  class:scene-night={isNight}
+  class="landscape weather-scene living-sky"
+  class:night
+  class:paused={hidden}
   viewBox="0 0 500 320"
   fill="none"
   aria-hidden="true"
+  style={`--cloud-speed:${Math.max(25, 100 - (wind ?? 2) * 5)}s`}
 >
   <defs>
-    <mask id="{id}-moon"
-      ><circle
-        cx="335"
-        cy="87"
-        r="29"
-        fill="white"
-      />{#if moon !== 'full_moon'}<ellipse
-          cx={moon === 'new_moon'
-            ? 335
-            : moon?.startsWith('waning') || moon === 'last_quarter'
-              ? 349
-              : 321}
-          cy="80"
-          rx={moon === 'new_moon' ? 38 : moon?.includes('gibbous') ? 13 : 26}
-          ry="32"
-          fill="black"
-        />{/if}</mask
+    <linearGradient id="{id}-sky" x2="0" y2="1"
+      ><stop stop-color={night ? '#142f40' : '#5c9eaa'} /><stop
+        offset="1"
+        stop-color={night ? '#53646a' : '#d5d6aa'}
+      /></linearGradient
     >
+    <radialGradient id="{id}-glow"
+      ><stop stop-color="#edbc83" stop-opacity=".7" /><stop
+        offset="1"
+        stop-color="#edbc83"
+        stop-opacity="0"
+      /></radialGradient
+    >
+    <linearGradient id="{id}-fade"
+      ><stop stop-color="white" stop-opacity="0" /><stop
+        offset=".2"
+        stop-color="white"
+      /><stop offset=".88" stop-color="white" /><stop
+        offset="1"
+        stop-color="white"
+        stop-opacity="0"
+      /></linearGradient
+    >
+    <mask id="{id}-edge"
+      ><rect width="500" height="320" fill="url(#{id}-fade)" /></mask
+    >
+    <clipPath id="{id}-moon"><circle r="22" /></clipPath>
   </defs>
-  {#if known && daylight !== null}
-    {#if isNight && clear}<g fill="#cbd5cb" opacity=".55"
-        >{#each [[150, 53], [224, 82], [284, 37], [402, 52], [443, 127], [184, 135]] as [x, y]}<circle
-            cx={x}
-            cy={y}
-            r="1.5"
-          />{/each}</g
-      >{/if}
-    {#if clear}
-      {#if isNight}<circle
-          cx="335"
-          cy="87"
-          r="29"
-          fill="#d6d9be"
-          mask="url(#{id}-moon)"
-        />
-      {:else}<circle
-          cx="335"
-          cy="87"
-          r="51"
-          fill="#e6c886"
-          opacity=".05"
-        /><circle cx="335" cy="87" r="37" fill="#e6c886" />{/if}
-    {/if}
-    {#if clouds}<g
-        fill={isNight ? '#68777c' : '#9eb7ac'}
-        opacity={condition === 'partlycloudy' ? 0.65 : 0.85}
+  <g mask="url(#{id}-edge)">
+    <rect width="500" height="320" fill="url(#{id}-sky)" opacity=".35" />
+    <ellipse
+      cx={sun?.x ?? 250}
+      cy="245"
+      rx="270"
+      ry="150"
+      fill="url(#{id}-glow)"
+      opacity={twilight}
+    />
+    <g class="stars" opacity={night && !heavy ? 0.65 : 0} fill="#e5e4cb">
+      {#each Array.from({ length: 18 }, (_, i) => i) as i}<circle
+          cx={35 + ((i * 97) % 440)}
+          cy={20 + ((i * 43) % 150)}
+          r={i % 3 === 0 ? 1.3 : 0.7}
+        />{/each}
+    </g>
+    {#if sun && sky}
+      <g
+        class="celestial"
+        style={`transform:translate(${sun.x}px,${sun.y}px)`}
+        opacity={sky.sun.altitude >= -0.83 ? 1 : 0}
       >
-        <path
-          d="M206 127a23 23 0 0 1 18-37 35 35 0 0 1 66-10 27 27 0 0 1 43 32 18 18 0 0 1-4 35H222a20 20 0 0 1-16-20Z"
-        />
-        {#if condition !== 'partlycloudy'}<path
-            d="M304 155a20 20 0 0 1 17-32 30 30 0 0 1 56-5 23 23 0 0 1 42 19 17 17 0 0 1-3 33h-95a17 17 0 0 1-17-15Z"
-            opacity=".55"
-          />{/if}
+        <circle r="64" fill="url(#{id}-glow)" /><circle r="24" fill="#efd394" />
+      </g>
+    {/if}
+    {#if moon && sky}
+      <g
+        class="celestial"
+        style={`transform:translate(${moon.x}px,${moon.y}px)`}
+        opacity={sky.moon.altitude > 0 ? (night ? 0.95 : 0.5) : 0}
+      >
+        <circle r="22" fill="#718087" opacity=".35" />
+        <g clip-path="url(#{id}-moon)" fill="#e0dfc5">
+          <path
+            d={phase < 0.5
+              ? 'M0-22A22 22 0 0 1 0 22Z'
+              : 'M0-22A22 22 0 0 0 0 22Z'}
+          />
+          <ellipse
+            rx={crescent}
+            ry="22"
+            fill={phase > 0.25 && phase < 0.75 ? '#e0dfc5' : '#526167'}
+          />
+        </g>
+      </g>
+    {/if}
+    <g
+      class="cloud-layer"
+      opacity={cloudy ? 0.9 : 0.12}
+      fill={night ? '#63747b' : '#becbc0'}
+    >
+      <g class="cloud cloud-back"
+        ><path
+          d="M80 115C60 115 62 86 86 85C88 56 133 51 147 78C173 62 194 84 188 103C211 112 201 130 184 130H91Z"
+        /></g
+      >
+      <g class="cloud cloud-front"
+        ><path
+          d="M236 146C210 147 204 115 227 105C223 68 277 59 291 91C319 69 350 96 338 118C369 121 365 153 338 155H247Z"
+        /></g
+      >
+      <g class="cloud cloud-low" opacity={heavy ? 0.65 : 0}
+        ><path
+          d="M320 179C294 175 307 145 331 147C342 117 379 130 383 149C413 135 438 158 421 179Z"
+        /></g
+      >
+    </g>
+    {#if rain || snow}<g class="precipitation">
+        {#each Array.from({ length: snow ? 24 : 32 }, (_, i) => i) as i}
+          <g
+            class:flake={snow && i % 2 === 0}
+            class:drop={!snow || i % 2 !== 0}
+            style={`animation-delay:-${i * 0.37}s;animation-duration:${snow && i % 2 === 0 ? 5 + (i % 4) : 0.9 + (i % 3) * 0.2}s`}
+          >
+            {#if snow && i % 2 === 0}<circle
+                cx={70 + ((i * 47) % 360)}
+                cy={100 + ((i * 31) % 170)}
+                r={1 + (i % 3) * 0.4}
+                fill="#dfebe3"
+              />{:else}<path
+                d={`M${70 + ((i * 47) % 360)} ${90 + ((i * 31) % 170)}l${-2 - (wind ?? 2)} 13`}
+                stroke="#b0cfd2"
+                stroke-width="1.2"
+              />{/if}
+          </g>
+        {/each}
       </g>{/if}
-    {#if rain}<g
-        stroke="#94b7b5"
-        stroke-width="2.5"
-        stroke-linecap="round"
-        opacity=".7"
-        >{#each [225, 256, 287, 318, 349, 380] as x}<path
-            d="M{x} 178l-7 16m-5 15-5 12"
-          />{/each}</g
-      >{/if}
-    {#if snow}<g
-        stroke="#d9e0ce"
-        stroke-width="2"
-        stroke-linecap="round"
-        opacity=".8"
-        >{#each [[230, 179], [272, 211], [312, 181], [355, 216], [390, 190]] as [x, y]}<path
-            d="M{x - 4} {y}h8m-4-4v8"
-          />{/each}</g
-      >{/if}
-    {#if storm}<path
-        d="m297 149-15 28h15l-9 26 32-39h-18l9-15Z"
-        fill="#d3bc82"
-        opacity=".8"
-      />{/if}
-    {#if condition === 'fog'}<g
-        stroke="#a8b9ac"
-        stroke-width="6"
-        stroke-linecap="round"
-        opacity=".35"
-        ><path d="M171 106h192m-166 25h219m-246 25h173m-149 25h192" /></g
-      >{/if}
-    {#if condition.startsWith('windy')}<g
-        stroke="#b8cabc"
-        stroke-width="3"
-        stroke-linecap="round"
-        opacity=".5"
-        ><path d="M180 155h121q22 0 15-17m-112 42h150q25 0 16 17" /></g
-      >{/if}
-  {/if}
-  <path
-    d="M0 281Q115 121 256 247T530 224V320H0Z"
-    fill={isNight ? '#263c42' : '#315c4b'}
-  />
-  <path
-    d="M-30 313Q155 192 300 278T550 247V320H-30Z"
-    fill={isNight ? '#354c50' : '#49705b'}
-  />
-  <path
-    d="M160 320Q336 246 510 299V320Z"
-    fill={isNight ? '#4c6061' : '#779074'}
-  />
-  {#if condition === 'snowy'}<path
-      d="M45 234q82-91 164-23l-31-7-22 8-28-13-25 14-22-1Z"
-      fill="#c8d4c4"
+    <path
+      d="M0 257Q70 162 153 213T308 239T510 201V320H0Z"
+      fill={night ? '#293e43' : '#426d60'}
+    />
+    <path
+      d="M-20 290Q88 210 215 260T510 252V320H0Z"
+      fill={night ? '#354d50' : '#608371'}
+    />
+    <path
+      d="M70 320Q220 259 510 282V320Z"
+      fill={night ? '#597070' : '#90aaa0'}
       opacity=".7"
-    />{/if}
+    />
+    <g
+      class="water"
+      stroke={night ? '#a7b6aa' : '#d4debd'}
+      stroke-linecap="round"
+      opacity=".25"><path d="M245 289h63m24 8h75m-231 9h112m51 6h92" /></g
+    >
+    <g
+      class="mist"
+      opacity={condition === 'fog' ? 0.45 : 0.06}
+      stroke="#c9d3c5"
+      stroke-width="14"
+      stroke-linecap="round"><path d="M40 218h260m-190 23h310m-280 24h210" /></g
+    >
+  </g>
 </svg>
+
+<style>
+  .living-sky {
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .celestial {
+    transition:
+      transform 60s linear,
+      opacity 5s ease;
+  }
+  .cloud-layer,
+  .cloud-low,
+  .stars,
+  .mist {
+    transition: opacity 5s ease;
+  }
+  .cloud {
+    animation: drift var(--cloud-speed) ease-in-out infinite alternate;
+  }
+  .cloud-back {
+    opacity: 0.5;
+    animation-delay: -30s;
+  }
+  .cloud-front {
+    animation-direction: alternate-reverse;
+  }
+  .cloud-low {
+    animation-delay: -15s;
+  }
+  .drop {
+    animation: rain linear infinite;
+    opacity: 0.5;
+  }
+  .flake {
+    animation: snow linear infinite;
+    opacity: 0.7;
+  }
+  .mist {
+    animation: drift 35s ease-in-out infinite alternate;
+  }
+  .water {
+    animation: ripple 12s ease-in-out infinite alternate;
+  }
+  @keyframes drift {
+    from {
+      transform: translateX(-22px);
+    }
+    to {
+      transform: translateX(24px);
+    }
+  }
+  @keyframes rain {
+    from {
+      transform: translate(4px, -25px);
+      opacity: 0;
+    }
+    20% {
+      opacity: 0.5;
+    }
+    to {
+      transform: translate(-8px, 45px);
+      opacity: 0;
+    }
+  }
+  @keyframes snow {
+    from {
+      transform: translate(-8px, -20px);
+      opacity: 0;
+    }
+    25% {
+      opacity: 0.7;
+    }
+    to {
+      transform: translate(14px, 60px);
+      opacity: 0;
+    }
+  }
+  @keyframes ripple {
+    from {
+      transform: translateX(-5px);
+      opacity: 0.15;
+    }
+    to {
+      transform: translateX(6px);
+      opacity: 0.35;
+    }
+  }
+  .paused * {
+    animation-play-state: paused !important;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .living-sky * {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+</style>
