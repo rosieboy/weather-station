@@ -229,9 +229,8 @@ docker compose down         # Stoppa och ta bort dashboardcontainern
 för att applicera konfigurationen; en vanlig omstart läser inte in en ändrad fil.
 
 Dockerfilen bygger med `node:22-bookworm-slim`, installerar med `npm ci`, kör
-kontroll och bygge, och kopierar endast `build/` och `package.json` till runtime-steget.
-Alla nuvarande appberoenden bundlas. Om externa produktionsberoenden tillkommer måste
-runtime-steget även installera dem. Basimagen är en rörlig Node 22-tagg, inte låst
+kontroll och bygge, tar bort utvecklingsberoenden och kopierar `build/`,
+`package.json` samt produktionsberoenden (bland annat SunCalc) till runtime-steget. Basimagen är en rörlig Node 22-tagg, inte låst
 med digest. Bygget använder värdmaskinens arkitektur; basimagen finns för ARM64/AMD64.
 
 Containern kör som användaren `node`, lyssnar på `0.0.0.0:3000` och har
@@ -522,3 +521,8 @@ Nivån skickas när reglaget släpps, och bekräftat värde hämtas via WebSocke
 Släckta lampor visar 0 %; att dra reglaget tänder dem på vald nivå. Av/på-knappen
 används för att släcka. Uttag får inga dimmerkommandon. Färgtemperatur och färg
 ändras inte av reglaget.
+
+## Installation på Raspberry Pi
+
+Se [RASPBERRY-PI.md](RASPBERRY-PI.md) för Raspberry Pi OS 64-bit med skrivbord,
+Docker, privat konfiguration, LAN-åtkomst och automatisk kioskvisning.
