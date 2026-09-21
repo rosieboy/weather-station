@@ -401,9 +401,12 @@ Enheter utan kontakt hoppas över vid gruppkommandon. Kontroller blockeras vid
 anslutningsfel och medan ett kommando skickas. Ett delvis misslyckat gruppkommando
 kan ha påverkat några enheter; dialogen ber då användaren kontrollera status.
 
-Token stannar på servern. Endpointen kontrollerar samma ursprung och accepterar
-inte godtyckliga serviceanrop. `ORIGIN` måste matcha adressen som används för
-produktionsappen, exempelvis `http://localhost:3000` eller Pi:ns framtida adress.
+Token stannar på servern. Endpointen accepterar endast appens `ORIGIN` samt adresser som uttryckligen anges
+i `CONTROL_ALLOWED_ORIGINS` (kommaseparerade fullständiga ursprung, med protokoll
+och port, utan sökväg). Exempel: `http://192.168.1.10:3000`. Då fungerar både
+localhost och den angivna LAN-adressen. Inga jokertecken tillåts. Starta om
+Docker med `docker compose up -d` efter konfigurationsändring. Detta är
+CSRF-skydd, inte inloggning. Godtyckliga serviceanrop accepteras inte.
 Appen saknar egen inloggning och är avsedd för det betrodda hemnätverket; besökare
 som når dashboarden kan styra de valda lamporna.
 
@@ -509,3 +512,13 @@ SVG-scenen har långsamt drivande moln, regn/snö, dimma och vattenrörelse. Met
 Solens och månens positioner och månfas beräknas på servern med [SunCalc 1.9](https://github.com/mourner/suncalc/tree/v1.9.0). HA:s `get_config` ger Hem-positionen, som cachas i en timme. Koordinater skickas inte till webbläsaren. Positioner uppdateras via SSE minst varje minut och interpoleras visuellt. Prognosens befintliga cache gäller fortfarande. Om platsen inte kan hämtas visas inga gissade himlakroppar.
 
 Illustrationen är ett stiliserat panorama: azimut 45–315° går från vänster till höger, nordliga riktningar kläms till kanterna och höjd över horisonten styr vertikalleden. Det är inte en exakt fönsterutsikt. Månen kan synas även dagtid och döljs under horisonten. Solens synlighet använder −0,83° som ungefärlig soluppgångsgräns. Landskap och moln kan skymma kropparna. Positionerna är astronomiska approximationer, inte observationer; terräng ingår inte. Pi-prestanda återstår att verifiera på hårdvaran.
+
+### Dimning av lampor och ljusgrupper
+
+Rumsvyn visar ett reglage 1–100 % för `light`-enheter vars `supported_color_modes`
+anger stöd för ljusstyrka. Detta gäller också HA-ljusgrupper, exempelvis
+`light.kokso_tak`: gruppen får ett enda `light.turn_on` med `brightness_pct`.
+Nivån skickas när reglaget släpps, och bekräftat värde hämtas via WebSocket.
+Släckta lampor visar 0 %; att dra reglaget tänder dem på vald nivå. Av/på-knappen
+används för att släcka. Uttag får inga dimmerkommandon. Färgtemperatur och färg
+ändras inte av reglaget.

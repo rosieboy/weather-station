@@ -1,3 +1,4 @@
+import { allowedControlOrigin } from '$lib/server/control-origin';
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { getHomeSnapshot } from '$lib/server/home';
@@ -6,7 +7,13 @@ import type { RequestHandler } from './$types';
 let active = false;
 export const POST: RequestHandler = async ({ request, url }) => {
   // No arbitrary service/entity forwarding and no cross-origin device control.
-  if (request.headers.get('origin') !== url.origin)
+  if (
+    !allowedControlOrigin(
+      request.headers.get('origin'),
+      url.origin,
+      env.CONTROL_ALLOWED_ORIGINS
+    )
+  )
     return json({ error: 'Otillåtet ursprung.' }, { status: 403 });
   if (!request.headers.get('content-type')?.startsWith('application/json'))
     return json({ error: 'Ogiltig begäran.' }, { status: 415 });
@@ -63,7 +70,12 @@ export const POST: RequestHandler = async ({ request, url }) => {
                 Authorization: `Bearer ${env.HOME_ASSISTANT_TOKEN}`,
                 'Content-Type': 'application/json'
               },
-              body: JSON.stringify({ entity_id: ids }),
+              body: JSON.stringify({
+                entity_id: ids,
+                ...(target.brightness !== undefined
+                  ? { brightness_pct: target.brightness }
+                  : {})
+              }),
               signal: AbortSignal.timeout(8000),
               redirect: 'error'
             }

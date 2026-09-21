@@ -3,6 +3,8 @@ export interface HomeControl {
   id: string;
   name: string;
   kind: 'light' | 'outlet';
+  dimmable: boolean;
+  brightness: number | null;
   state: 'on' | 'off' | 'unavailable';
 }
 export interface HomeRoom {

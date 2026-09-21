@@ -43,7 +43,7 @@
   }
   async function control(
     action: 'turn_on' | 'turn_off',
-    target: { entityId: string } | { roomId: string }
+    target: { entityId: string; brightness?: number } | { roomId: string }
   ) {
     if (busy || blocked) return;
     busy = true;
@@ -206,6 +206,31 @@
                   ? 'Lamp-uttag'
                   : 'Lampa'}</span
               >
+              {#if device.dimmable}
+                <label class="brightness-control">
+                  <span
+                    >Ljusstyrka <strong
+                      >{device.brightness === null
+                        ? '—'
+                        : `${device.brightness} %`}</strong
+                    ></span
+                  >
+                  <input
+                    type="range"
+                    min="1"
+                    max="100"
+                    step="1"
+                    aria-label={`Ljusstyrka, ${device.name}`}
+                    value={Math.max(1, device.brightness ?? 1)}
+                    disabled={busy || blocked || device.state === 'unavailable'}
+                    onchange={(event) =>
+                      control('turn_on', {
+                        entityId: device.id,
+                        brightness: Number(event.currentTarget.value)
+                      })}
+                  />
+                </label>
+              {/if}
             </div>
             <button
               class="device-toggle"

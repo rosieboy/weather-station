@@ -78,6 +78,30 @@ export function buildRooms(
         id: e.entity_id,
         name,
         kind: domain === 'light' ? 'light' : 'outlet',
+        dimmable:
+          domain === 'light' &&
+          Array.isArray(s?.attributes.supported_color_modes) &&
+          s.attributes.supported_color_modes.some((mode) =>
+            [
+              'brightness',
+              'color_temp',
+              'hs',
+              'xy',
+              'rgb',
+              'rgbw',
+              'rgbww',
+              'white'
+            ].includes(String(mode))
+          ),
+        brightness:
+          s?.state === 'off'
+            ? 0
+            : typeof s?.attributes.brightness === 'number' &&
+                Number.isFinite(s.attributes.brightness) &&
+                s.attributes.brightness >= 0 &&
+                s.attributes.brightness <= 255
+              ? Math.round((s.attributes.brightness / 255) * 100)
+              : null,
         state: s?.state === 'on' || s?.state === 'off' ? s.state : 'unavailable'
       });
     }
@@ -134,7 +158,11 @@ export function buildRooms(
 export function selectTargets(
   rooms: HomeRoom[],
   input: unknown
-): { action: 'turn_on' | 'turn_off'; controls: HomeControl[] } | null {
+): {
+  action: 'turn_on' | 'turn_off';
+  controls: HomeControl[];
+  brightness?: number;
+} | null {
   if (!input || typeof input !== 'object') return null;
   const b = input as Record<string, unknown>;
   if (b.action !== 'turn_on' && b.action !== 'turn_off') return null;
@@ -145,7 +173,19 @@ export function selectTargets(
       ? rooms.find((r) => r.id === b.roomId)?.controls
       : rooms.flatMap((r) => r.controls).filter((c) => c.id === b.entityId);
   if (!controls?.length) return null;
+  if (
+    'brightness' in b &&
+    (b.action !== 'turn_on' ||
+      typeof b.entityId !== 'string' ||
+      typeof b.brightness !== 'number' ||
+      !Number.isInteger(b.brightness) ||
+      b.brightness < 1 ||
+      b.brightness > 100 ||
+      controls.some((c) => c.kind !== 'light' || !c.dimmable))
+  )
+    return null;
   return {
+    ...('brightness' in b ? { brightness: b.brightness as number } : {}),
     action: b.action,
     controls: controls.filter((c) => c.state !== 'unavailable')
   };

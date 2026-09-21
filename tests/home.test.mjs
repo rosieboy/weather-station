@@ -106,3 +106,67 @@ test('control selection allows only listed lights and explicit on/off commands',
   ])
     assert.equal(selectTargets(rooms, body), null);
 });
+
+test('brightness for light groups is discovered and validated, never sent to outlets', () => {
+  const registry = fixture();
+  registry.entities.push(entity('light.group'));
+  const rooms = buildRooms(
+    registry,
+    new Map([
+      [
+        'light.group',
+        state('light.group', 'on', {
+          supported_color_modes: ['color_temp'],
+          brightness: 115
+        })
+      ],
+      ['switch.lamp', state('switch.lamp', 'on', { device_class: 'outlet' })]
+    ])
+  );
+  const light = rooms
+    .flatMap((r) => r.controls)
+    .find((c) => c.id === 'light.group');
+  assert.equal(light.dimmable, true);
+  assert.equal(light.brightness, 45);
+  assert.equal(
+    selectTargets(rooms, {
+      entityId: light.id,
+      action: 'turn_on',
+      brightness: 45
+    }).brightness,
+    45
+  );
+  for (const brightness of [0, 101, -1, NaN, Infinity, 1.5, '45'])
+    assert.equal(
+      selectTargets(rooms, {
+        entityId: light.id,
+        action: 'turn_on',
+        brightness
+      }),
+      null
+    );
+  assert.equal(
+    selectTargets(rooms, {
+      entityId: 'switch.lamp',
+      action: 'turn_on',
+      brightness: 45
+    }),
+    null
+  );
+  assert.equal(
+    selectTargets(rooms, {
+      roomId: 'kitchen',
+      action: 'turn_on',
+      brightness: 45
+    }),
+    null
+  );
+  assert.equal(
+    selectTargets(rooms, {
+      entityId: light.id,
+      action: 'turn_off',
+      brightness: 45
+    }),
+    null
+  );
+});

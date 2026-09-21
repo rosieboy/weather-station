@@ -1,3 +1,4 @@
+import { allowedControlOrigin } from '$lib/server/control-origin';
 import { sendAudioCommand } from '$lib/server/audio-request';
 import { json } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
@@ -6,7 +7,13 @@ import { audioCommand } from '$lib/server/audio-model';
 import type { RequestHandler } from './$types';
 let active = false;
 export const POST: RequestHandler = async ({ request, url }) => {
-  if (request.headers.get('origin') !== url.origin)
+  if (
+    !allowedControlOrigin(
+      request.headers.get('origin'),
+      url.origin,
+      env.CONTROL_ALLOWED_ORIGINS
+    )
+  )
     return json({ error: 'Otillåtet ursprung.' }, { status: 403 });
   if (!request.headers.get('content-type')?.startsWith('application/json'))
     return json({ error: 'Ogiltig begäran.' }, { status: 415 });
