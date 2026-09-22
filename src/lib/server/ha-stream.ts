@@ -92,7 +92,15 @@ export class HAStream {
     clearInterval(this.heartbeat);
     const socket = this.socket;
     this.socket = undefined;
-    socket?.close();
+    if (socket) {
+      socket.onerror = null;
+      socket.onclose = null;
+      try {
+        socket.close();
+      } catch {
+        /* Already failed. */
+      }
+    }
   }
   private connect() {
     if (!this.url || !this.token) {
@@ -113,9 +121,23 @@ export class HAStream {
       this.reconnect();
       return;
     }
+    // Node may synchronously emit another error when close() aborts a handshake.
+    // Detach before closing and schedule recovery exactly once.
+    const disconnect = () => {
+      if (this.socket !== socket) return;
+      this.socket = undefined;
+      socket.onerror = null;
+      socket.onclose = null;
+      try {
+        socket.close();
+      } catch {
+        /* Already failed. */
+      }
+      this.reconnect();
+    };
     let initialized = false;
     this.buffered.clear();
-    this.deadline = setTimeout(() => socket.close(), 10000);
+    this.deadline = setTimeout(() => disconnect(), 10000);
     socket.onmessage = (event) => {
       if (this.socket !== socket) return;
       try {
@@ -136,7 +158,7 @@ export class HAStream {
           this.error =
             'Home Assistant avvisade token. Kontrollera konfigurationen.';
           this.emit();
-          socket.close();
+          disconnect();
         } else if (msg.type === 'auth_ok')
           socket.send(
             JSON.stringify({
@@ -147,13 +169,13 @@ export class HAStream {
           );
         else if (msg.type === 'result' && msg.id === 1) {
           if (!msg.success) {
-            socket.close();
+            disconnect();
             return;
           }
           socket.send(JSON.stringify({ id: 2, type: 'get_states' }));
         } else if (msg.type === 'result' && msg.id === 2) {
           if (!msg.success || !Array.isArray(msg.result)) {
-            socket.close();
+            disconnect();
             return;
           }
           this.states.clear();
@@ -172,7 +194,7 @@ export class HAStream {
           clearTimeout(this.deadline);
           this.heartbeat = setInterval(() => {
             if (this.awaitingPong) {
-              socket.close();
+              disconnect();
               return;
             }
             this.awaitingPong = true;
@@ -196,16 +218,13 @@ export class HAStream {
           }
         }
       } catch {
-        socket.close();
+        disconnect();
       }
     };
-    socket.onerror = () => socket.close();
-    socket.onclose = () => {
-      if (this.socket !== socket) return;
-      this.socket = undefined;
-      this.reconnect();
-    };
+    socket.onerror = disconnect;
+    socket.onclose = disconnect;
   }
+
   private reconnect() {
     this.clearRequests();
     clearTimeout(this.deadline);

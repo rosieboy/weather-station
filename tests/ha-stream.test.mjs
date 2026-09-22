@@ -215,3 +215,33 @@ test('external light and outlet changes emit updates without a dashboard command
     stream.stop();
   }
 });
+
+test('closing a failed handshake cannot recursively emit errors or crash the server', async () => {
+  const sockets = [];
+  class FailingSocket extends Socket {
+    closes = 0;
+    close() {
+      this.closes++;
+      if (this.closes > 2) throw new Error('recursive close');
+      this.onerror?.();
+      this.onclose?.();
+    }
+  }
+  const stream = new HAStream('http://ha.test', 'secret', new Set(), () => {
+    const s = new FailingSocket();
+    sockets.push(s);
+    return s;
+  });
+  try {
+    stream.start();
+    assert.doesNotThrow(() => sockets[0].onerror());
+    assert.equal(sockets[0].closes, 1);
+    assert.ok(stream.error);
+    await new Promise((r) => setTimeout(r, 1100));
+    assert.equal(sockets.length, 2);
+    initialize(sockets[1]);
+    assert.equal(stream.error, null);
+  } finally {
+    stream.stop();
+  }
+});
