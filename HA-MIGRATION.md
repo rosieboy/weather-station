@@ -63,7 +63,7 @@ utanför Git och alla fem delarkiv validerade med återställningsnyckeln.
 Verifierat: samtliga fem lampentiteter tillgängliga, alla tre TIMMERFLOTTE ger
 numeriska temperaturvärden, Sonos Kök/Balkong/TV-rum och Apple TV svarar,
 Pi-dashboardens SSE-flöde har error=null. Lilla Roam och Samsung rapporterades
-fortfarande otillgängliga. Fysiska kontrollkommandon och omstartstest återstår.
+fortfarande otillgängliga. Vid denna kontroll återstod fysiska kontrollkommandon och omstartstest; se uppföljning nedan.
 HA loggar även en Bluetooth-behörighetsvarning; lokal Bluetooth är inte konfigurerad.
 
 ## Slutstatus 2026-09-23
@@ -77,5 +77,8 @@ WebSocket-prenumeration är uppdaterade, byggda och verifierade i Pi:ns liveflö
 
 Mac-VM:ns klocka verifierades efter omstart till cirka 0,35 sekunders avvikelse.
 Den senare backupen 5087c284 har korrekt datum/tid. Säkerhetskopior och privata
-återställningsuppgifter ligger utanför repot. Omstartstest efter hela flytten,
-regelbunden extern backup och provåterställning återstår.
+återställningsuppgifter ligger utanför repot. Omstartstest efter hela flytten är nu bekräftat fungerande av användaren.
+Regelbunden extern backup och provåterställning återstår.
+
+Uppföljning: användaren rapporterar drygt fyra timmars stabil drift samt att
+minnesanvändning, temperatur och diskutrymme ser bra ut i egen diagnostik.

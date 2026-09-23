@@ -225,7 +225,7 @@ två raderna under markören `# weather-station kiosk` i
 - [ ] Kontroller fungerar från iPad via Pi:ns adress.
 - [ ] Skärm och touch är rättvända; alla vyer ryms.
 - [ ] Moln/nederbörd är mjuka utan hög kontinuerlig CPU-belastning.
-- [ ] App och helskärm återkommer efter omstart.
+- [x] App och helskärm återkommer efter omstart (bekräftat av användaren).
 - [ ] Återanslutning fungerar när Home Assistant startas om.
 
 Felsök på Pi:n:
@@ -267,4 +267,4 @@ lampor och ljud efteråt. En backup enbart på samma SD-kort räcker inte.
 
 Kiosken fungerar efter upplåsningfri start med `--password-store=basic` i sin
 separata profil. Inga lösenord ska sparas i den profilen. SSH-nycklar är separata.
-Fullständigt omstartstest efter HA-flytten återstår.
+Omstartstest efter HA-flytten är genomfört och fungerar enligt användaren.

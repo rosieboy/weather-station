@@ -65,6 +65,6 @@ Källor:
   migrering och stoppar HA innan inställningen ändras. Kör det inte rutinmässigt.
 - HA använder port 80. Matter WebSocket lyssnar på 127.0.0.1:5580.
 - Wi-Fi-profilens IPv6-metod ändrades från ignore till auto via NetworkManager.
-  Netplan rapporterade därefter dhcp6=true och Thread-rutter återkom. Verifiera
-  detta igen efter första omstarten; starta inte en ny parkoppling vid nätverksfel.
+  Netplan rapporterade därefter dhcp6=true och Thread-rutter återkom. Användaren har
+  bekräftat fungerande drift efter omstart. Starta inte en ny parkoppling vid nätverksfel.
 - MAC-installationen ska hållas stoppad. Vid återgång: stoppa först Pi-tjänsterna.

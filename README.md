@@ -268,7 +268,6 @@ kontroll, inte en aktuell säkerhetsgaranti. Appen sätter inga egna cookies.
 
 Återstående kontroller och framtida arbete:
 
-- Omstartstest av hela Pi-installationen efter HA-flytt och IPv6-ändring.
 - Återkommande backup utanför Pi:n och provåterställning.
 - Lokal Bluetooth är inte konfigurerad; nätverksanslutna enheter fungerar.
 - Fjärråtkomst utanför hemnätverket är inte installerad.
@@ -537,3 +536,10 @@ kopplade till `sensor.utetemperatur_temperatur` och
 `sensor.utetemperatur_luftfuktighet`. Balkongkortet använder de befintliga
 `HA_BALCONY_*`-entiteterna och visar riktiga TIMMERFLOTTE-värden. Det tidigare
 fasta mockkortet är borttaget. Båda givarna uppdateras via HA:s WebSocket.
+
+### Bekräftat omstartstest
+
+Användaren har bekräftat att omstart efter HA-flytten fungerar. Efter drygt fyra
+timmars drift såg allt bra ut; användarens diagnostik visade rimlig minnesanvändning,
+temperatur och gott om diskutrymme. Regelbunden övervakning är föreslagen men
+ännu inte installerad.
