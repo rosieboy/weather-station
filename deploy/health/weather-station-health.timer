@@ -1,0 +1,11 @@
+[Unit]
+Description=Check weather station health every five minutes
+
+[Timer]
+OnBootSec=3min
+OnUnitInactiveSec=5min
+AccuracySec=15s
+Unit=weather-station-health.service
+
+[Install]
+WantedBy=timers.target

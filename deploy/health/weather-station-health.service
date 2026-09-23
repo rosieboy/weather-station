@@ -1,0 +1,16 @@
+[Unit]
+Description=Weather station and Pi health check
+After=network-online.target docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/weather-station-health/pi-health.py
+StateDirectory=weather-station-health
+StateDirectoryMode=0700
+UMask=0077
+TimeoutStartSec=120
+Nice=10
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
