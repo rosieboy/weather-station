@@ -1,24 +1,19 @@
 # Väderstationen på Raspberry Pi
 
-Förberett 2026-09-21 för Raspberry Pi 5, Raspberry Pi OS 64-bit med skrivbord
-(Wayland/labwc), Docker Engine och Chromium. Guiden och skripten är förberedda
-på Macen; installation och uppstart på den fysiska Pi:n återstår.
+Installerat och verifierat 2026-09-23: Raspberry Pi 5, Raspberry Pi OS 64-bit
+med skrivbord (Wayland/labwc), Docker Engine och Chromium i kiosk.
 
-## Planen
+## Aktuell drift
 
-```text
-Sensorer / DIRIGERA / Sonos / Apple TV
-                  ↕
-       Home Assistant på Macen
-                  ↕ hemnätverket
-     Pi: Docker → vår dashboard → Chromium → pekskärmen
-```
+Sensorer och DIRIGERA → Matter Server på Pi → HA Container på Pi → dashboard → Chromium.
+Sonos, Apple TV och väderintegrationer hanteras av HA.
 
-Macen behöver vara vaken och Home Assistant-VM:n igång under denna etapp.
-Vi flyttar inte Matter-kopplingar eller Home Assistant nu. Spara en HA-backup
-via Inställningar → System → Säkerhetskopior inför en framtida flytt.
-Home Assistant OS ersätter ett operativsystem och är inte ett program som ska
-installeras ovanpå Pi-skrivbordet. Framtida samlokalisering kräver en egen plan.
+Dashboarden finns på `http://vaderstation.local:3000/`, HA på
+`http://vaderstation.local/` (port 80). Macens HA-VM är stoppad. Se
+[HA-MIGRATION.md](HA-MIGRATION.md) för backup, fel som löstes och verifiering.
+HA/Matter kör från `~/home-assistant`; dashboarden från `~/weather-station`.
+Följande installationssteg bevaras för ominstallation. HA OS ska inte skrivas
+till Pi:ns systemdisk eftersom det skulle ersätta skrivbordet och kiosken.
 
 ## Idag: val och förberedelser på Macen
 
@@ -201,6 +196,18 @@ bash scripts/pi/install-kiosk.sh
 Installationen sparar den befintliga labwc-autostarten och lägger till en enda
 startpost. Startaren väntar på HTTP-svar från appen och öppnar Chromium i helskärm
 med en separat profil. Temaval bevaras. Den startar inte flera kioskinstanser.
+
+Kioskprofilen använder `--password-store=basic` för att undvika dialogen
+**Unlock Keyring** vid automatisk skrivbordsinloggning. Använd profilen endast
+för dashboarden och spara inga lösenord i den: lagringen har inte nyckelringens
+krypteringsskydd. Pi:ns lösenord och övriga nyckelring påverkas inte.
+Home Assistant-token finns på servern, inte i kioskprofilen.
+Se [Chromiums dokumentation om lösenordslagring](https://chromium.googlesource.com/chromium/src/+/main/docs/linux/password_storage.md).
+
+Om en äldre installation visar dialogen: uppdatera repot och kör
+`bash scripts/pi/install-kiosk.sh` igen. Starta sedan om Pi:n och kontrollera
+att dashboarden öppnas utan lösenordsdialog. En vit skärm som kvarstår även
+utan dialog behöver felsökas separat via kioskloggen nedan.
 Den återstartar inte Chromium efter en manuell stängning eller krasch; logga in
 på nytt eller kör `~/.local/bin/weather-station-kiosk` från Pi-skrivbordets terminal.
 
@@ -233,7 +240,8 @@ vcgencmd get_throttled
 
 ”Otillåtet ursprung”: kontrollera exakt protokoll, servernamn/IP och port i
 `CONTROL_ALLOWED_ORIGINS`, och återskapa containern. Ingen sensoranslutning:
-kontrollera först att Macen är vaken och HA-VM:n kan nås från Pi:n.
+kontrollera `cd ~/home-assistant && sudo docker compose ps` samt HA-adressen.
+Dashboardens `.env` använder nu `HOME_ASSISTANT_URL=http://192.168.0.130`.
 
 För uppdatering: `git pull --ff-only` följt av `sudo docker compose up -d --build`.
 Ladda sedan om webbläsaren. Stäng av med `sudo poweroff` innan strömmen kopplas ur.
@@ -244,3 +252,19 @@ Ladda sedan om webbläsaren. Stäng av med `sudo poweroff` innan strömmen koppl
 - [Installation och Imager](https://www.raspberrypi.com/documentation/computers/getting-started.html)
 - [Raspberry Pis kioskguide för labwc](https://www.raspberrypi.com/tutorials/how-to-use-a-raspberry-pi-in-kiosk-mode/)
 - [Docker Engine på Debian ARM64](https://docs.docker.com/engine/install/debian/)
+
+## Löpande underhåll
+
+Administrera via SSH även när skärmen är i kiosk. Ta backup före uppdateringar.
+OS: `sudo apt update` följt av `sudo apt full-upgrade`; planera eventuell
+`sudo reboot` när ett kort avbrott passar. Kör inte automatisk OS-uppgradering
+mitt i en HA/Matter-flytt.
+
+Dashboard: `git pull --ff-only` och `sudo docker compose up -d --build` i
+`~/weather-station`. HA/Matter: se [driftguiden](deploy/home-assistant/README.md).
+Versionsändringar görs uttryckligen, en tjänst åt gången. Kontrollera sensorer,
+lampor och ljud efteråt. En backup enbart på samma SD-kort räcker inte.
+
+Kiosken fungerar efter upplåsningfri start med `--password-store=basic` i sin
+separata profil. Inga lösenord ska sparas i den profilen. SSH-nycklar är separata.
+Fullständigt omstartstest efter HA-flytten återstår.

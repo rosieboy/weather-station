@@ -2,7 +2,7 @@
 
 Svensk dashboard för temperatur och luftfuktighet, byggd med SvelteKit, Svelte 5
 och TypeScript. Layouten är anpassad till 1280 × 720 och staplar rumskorten på
-mindre skärmar. Balkong visas som huvudvärde, med Vardagsrum och Sovrum under.
+mindre skärmar. Utetemperatur visas som huvudvärde, med Vardagsrum, Sovrum och Balkong under.
 
 ![Bild på vädervy](./static/weather.png 'Väder- och temperaturvy')
 
@@ -10,8 +10,11 @@ mindre skärmar. Balkong visas som huvudvärde, med Vardagsrum och Sovrum under.
 
 ![Bild på vädervy](./static/sound.png 'Sonos ljudvy')
 
-Dokumentationen beskriver implementationen och den verifierade Mac-installationen
-per **2026-09-17**. Raspberry Pi-drift är planerad och ännu inte verifierad.
+Drift verifierad på Raspberry Pi per **2026-09-23**.
+Dashboard: http://vaderstation.local:3000/ · Home Assistant: http://vaderstation.local/
+
+Se [Pi-guiden](RASPBERRY-PI.md), [flytthistoriken](HA-MIGRATION.md) och
+[HA/Matter-drift](deploy/home-assistant/README.md).
 
 ## Idéer och vägval
 
@@ -23,14 +26,16 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 ## Status och genomförda val
 
 - Projektet började med mockdata för ute, vardagsrum, sovrum och kontor.
-  Nu hämtas riktiga värden från tre TIMMERFLOTTE-sensorer via Home Assistant.
+  Nu hämtas riktiga värden från tre TIMMERFLOTTE-sensorer och en separat
+  utomhusgivare via Home Assistant. Utomhusgivaren är tillagd via DIRIGERA;
+  exakt tillverkare/modell är inte verifierad.
 - Temperaturgivarna finns i **Balkong, Vardagsrum och Sovrum**. Den givare som först
   kallades Kök används som Vardagsrum, enligt bekräftad mappning i Home Assistant.
 - De egna givarna tillhandahåller temperatur och luftfuktighet. met.no bidrar med
   jämförelsetemperatur, lufttryck, trycktrend, vind och prognos. Landskapsbilden följer väder och soltid.
-- Dashboarden kör i Docker Desktop. Home Assistant OS kör separat i VirtualBox.
-  Det ursprungliga förslaget att även köra Home Assistant i Docker ersattes av
-  Home Assistant OS för installationen med Matter.
+- Dashboard, HA Container och Matter Server kör i separata containrar på Pi:n.
+  Macens tidigare HA OS i VirtualBox är stoppad och sparad för återgång.
+  Den får inte köras samtidigt med den återställda Pi-installationen.
 - Sensorflödet använder WebSocket och SSE sedan 2026-09-14. Ingen databas eller historiklagring finns. Prognoser cachas i 15 minuter på servern; sensorvärden uppdateras via händelser.
 - Mockleverantören är borttagen. Typen `source` och visningen har kvar stöd för
   etiketten `mock`, men ingen konfigurationsinställning aktiverar ett demoläge.
@@ -43,8 +48,9 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 
 ```mermaid
 flowchart LR
-    Sensors["3 × TIMMERFLOTTE"] -->|"Matter över Thread"| HA["Home Assistant OS\nVirtualBox på Mac"]
-    HA -->|"WebSocket: tillstånd + REST: prognos"| Server["SvelteKit-server\nDocker Desktop, port 3000"]
+    Sensors["Sensorer och DIRIGERA"] --> Matter["Matter Server 1.4.0 på Pi"]
+    Matter -->|"Lokal WebSocket"| HA["Home Assistant Container 2026.9.3 på Pi"]
+    HA -->|"WebSocket: tillstånd + REST: prognos"| Server["SvelteKit-server\nDocker på Pi, port 3000"]
     Server -->|"SSE: utvalda mätvärden"| Browser["Dashboard i webbläsaren"]
 ```
 
@@ -131,7 +137,7 @@ ha en gammal tidsstämpel. Ingen automatisk åldersgräns för gamla värden fin
 Tider visas i `Europe/Stockholm`, temperatur med en decimal och luftfuktighet
 avrundad till heltal.
 
-## Nuvarande Home Assistant-installation
+## Tidigare Home Assistant-installation på Mac (historik)
 
 - MacBook Pro med M3 Pro och 18 GB RAM.
 - VirtualBox 7.2.16 med Home Assistant OS 18.2, ARM64-VDI.
@@ -146,8 +152,9 @@ avrundad till heltal.
 
 VirtualBox-inställningar, HAOS-disk, sensorkopplingar, Home Assistant-konto och
 Home Assistant-backuper ingår inte i detta repo. De behöver hanteras separat.
-Docker Compose startar endast dashboarden. På Mac behöver även Home Assistant-VM:n
-vara igång och datorn vaken för kontinuerlig drift.
+Rotens Docker Compose startar endast dashboarden. HA och Matter hanteras nu
+separat i `~/home-assistant` på Pi:n; konfigurationen finns i `deploy/home-assistant`.
+Macen behöver inte vara vaken för den aktuella driften.
 
 Referenser: [Home Assistant på Mac](https://www.home-assistant.io/installation/macos/),
 [Matter](https://www.home-assistant.io/integrations/matter/),
@@ -163,6 +170,8 @@ platshållare; redigera sedan **`.env`** med rätt värden.
 | `ORIGIN`                 | Dashboardens externa adress: `http://localhost:3000`               |
 | `HOME_ASSISTANT_URL`     | Home Assistants basadress: `http://homeassistant.local`            |
 | `HOME_ASSISTANT_TOKEN`   | Långlivad åtkomsttoken från Home Assistant-profilen; endast lokalt |
+| `HA_OUTDOOR_TEMPERATURE` | Separata utomhusgivarens temperatur-entitet |
+| `HA_OUTDOOR_HUMIDITY` | Separata utomhusgivarens fukt-entitet |
 | `HA_BALCONY_TEMPERATURE` | Balkongens temperatur-entitet                                      |
 | `HA_BALCONY_HUMIDITY`    | Balkongens fukt-entitet                                            |
 | `HA_ROOM_NAME`           | `Vardagsrum`; standardvärdet i koden är också Vardagsrum           |
@@ -257,23 +266,19 @@ allvarlighetsgrad från SvelteKits indirekta `cookie`-beroende. Det är en dater
 kontroll, inte en aktuell säkerhetsgaranti. Appen sätter inga egna cookies.
 `npm audit fix --force` föreslog då en olämplig nedgradering.
 
-Återstår inför apparaten:
+Återstående kontroller och framtida arbete:
 
-- Välj driftupplägg på Raspberry Pi: dashboardens Linux/Docker-installation och
-  Home Assistant OS-installationen är separata upplägg och behöver planeras ihop.
-  Dagens Compose-fil installerar inte Home Assistant.
-- Verifiera bygge och drift på fysisk Pi, skärmrotation och faktisk skärmupplösning.
-- Konfigurera kioskstart och återstart efter strömavbrott.
-- Planera Home Assistant-backup/flytt och kontrollera entity-ID:n efter migrering.
-- Vid behov: utökad testsvit, historik och bättre indikering av
-  sensorernas tillgänglighet. Dessa funktioner finns inte i nuvarande version.
+- Omstartstest av hela Pi-installationen efter HA-flytt och IPv6-ändring.
+- Återkommande backup utanför Pi:n och provåterställning.
+- Lokal Bluetooth är inte konfigurerad; nätverksanslutna enheter fungerar.
+- Fjärråtkomst utanför hemnätverket är inte installerad.
 
 ## Prognos, jämförelsetemperatur och astronomi (2026-09-14)
 
 Den egna utomhussensorn är fortfarande huvudvärdet. met.no visas mindre bredvid,
 märkt **beräknad temperatur**, eftersom värdet inte är vår lokala mätning.
-Vid byte till Eve ändras `HA_BALCONY_TEMPERATURE` och `HA_BALCONY_HUMIDITY` till
-Eve-enheternas entity-ID:n; den egna sensorn behåller huvudrollen.
+Vid byte av utomhusgivare ändras `HA_OUTDOOR_TEMPERATURE` och `HA_OUTDOOR_HUMIDITY` till
+den nya givarens entity-ID:n; den egna sensorn behåller huvudrollen.
 
 - `HA_WEATHER_ENTITY=weather.forecast_hem` väljer den befintliga met.no-entiteten.
 - `HA_MOON_ENTITY=sensor.moon_fas` väljer Moon-sensorn. Home Assistants lokala
@@ -321,10 +326,8 @@ vinden blåser). Kända enheter konverteras; saknade/okända enheter visas som s
 Tiden ”Värde ändrat” kommer från väderentitetens `last_updated`, inte från
 prognosmodellens körtid eller en garanterad tid för senaste hämtning.
 
-Stora panelen heter nu Utetemperatur men använder fortfarande den riktiga
-balkongsensorn. Raden Hemma innehåller Vardagsrum, Sovrum och Balkong.
-Balkong i denna rad är uttryckligen märkt Mockdata: fasta 18,4 °C och 62 %,
-utan uppdateringstid. Byt ut detta exempel när en separat utomhussensor finns.
+Stora panelen visar den separata utomhusgivaren. Raden Hemma visar riktiga
+värden för Vardagsrum, Sovrum och Balkong.
 
 ### Solstyrning, klocka, trycktrend och väderbild (2026-09-16)
 
@@ -378,7 +381,7 @@ Vid kontroll finns åtta rum och 14 lamp-uttag: Kök, Vardagsrum, Balkong, Sovru
 Ellens rum, Matrum, Hall och Gång. TV-rum har tagits bort i HA och visas inte separat.
 Rum utan lampor visas också. Styrbara enheter utan område hamnar under **Utan rum**.
 Temperatur och fukt på rumskorten kommer från rummets första giltiga sensor per
-mätstorhet. Balkongens värden här är riktiga, till skillnad från mockkortet i vädervyn.
+mätstorhet. Balkongens värden är riktiga i både rumsvyn och vädervyn.
 
 Tryck på ett rum för att öppna dess dialog. Där finns individuella på/av-reglage
 samt **Tänd alla / Släck alla**. Styrbara enheter är `light.*` och Matter-brytare
@@ -526,3 +529,11 @@ används för att släcka. Uttag får inga dimmerkommandon. Färgtemperatur och 
 
 Se [RASPBERRY-PI.md](RASPBERRY-PI.md) för Raspberry Pi OS 64-bit med skrivbord,
 Docker, privat konfiguration, LAN-åtkomst och automatisk kioskvisning.
+
+## Separat utomhusgivare (2026-09-23)
+
+Huvudvärdet använder `HA_OUTDOOR_TEMPERATURE` och `HA_OUTDOOR_HUMIDITY`,
+kopplade till `sensor.utetemperatur_temperatur` och
+`sensor.utetemperatur_luftfuktighet`. Balkongkortet använder de befintliga
+`HA_BALCONY_*`-entiteterna och visar riktiga TIMMERFLOTTE-värden. Det tidigare
+fasta mockkortet är borttaget. Båda givarna uppdateras via HA:s WebSocket.

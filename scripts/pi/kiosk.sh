@@ -15,6 +15,9 @@ until curl --fail --silent --max-time 5 http://localhost:3000/ >/dev/null; do
   sleep 3
 done
 # A separate profile preserves the dashboard theme without disturbing normal browsing.
+# Dashboard-only profile: avoid a locked desktop keyring during autologin.
+# Never save passwords in this profile: basic storage has no keyring encryption.
 exec chromium --kiosk --no-first-run --ozone-platform=wayland \
+  --password-store=basic \
   --user-data-dir="$HOME/.local/share/weather-station-chromium" \
   http://localhost:3000/

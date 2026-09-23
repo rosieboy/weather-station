@@ -1,0 +1,44 @@
+name: home-assistant
+
+# Prepared separately from the dashboard. Do not start before migration.
+services:
+  homeassistant:
+    image: ghcr.io/home-assistant/home-assistant:2026.9.3
+    network_mode: host
+    restart: unless-stopped
+    stop_grace_period: 60s
+    environment:
+      TZ: Europe/Stockholm
+    volumes:
+      - ./data/homeassistant:/config
+      - ./data/share:/share
+      - ./data/ssl:/ssl:ro
+      - ./data/media:/media
+      - /etc/localtime:/etc/localtime:ro
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'
+
+  matter-server:
+    # HA app 9.2.0 uses matterjs-server 1.4.0 (different version numbering).
+    image: ghcr.io/matter-js/matterjs-server:1.4.0
+    network_mode: host
+    restart: unless-stopped
+    read_only: true
+    stop_grace_period: 60s
+    environment:
+      TZ: Europe/Stockholm
+      VENDOR_ID: "4939"
+      FABRIC_ID: "2"
+      STORAGE_PATH: /data
+      LISTEN_ADDRESS: 127.0.0.1
+      PRIMARY_INTERFACE: wlan0
+    volumes:
+      - ./data/matter-server:/data
+    logging:
+      driver: json-file
+      options:
+        max-size: '10m'
+        max-file: '3'

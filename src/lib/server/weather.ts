@@ -9,10 +9,10 @@ import type { SensorReading, WeatherSnapshot } from '$lib/weather/types';
 export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
   const locations = [
     [
-      'balcony',
+      'outdoor',
       'Utetemperatur',
-      env.HA_BALCONY_TEMPERATURE,
-      env.HA_BALCONY_HUMIDITY
+      env.HA_OUTDOOR_TEMPERATURE,
+      env.HA_OUTDOOR_HUMIDITY
     ],
     [
       'living-room',
@@ -20,7 +20,8 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
       env.HA_ROOM_TEMPERATURE,
       env.HA_ROOM_HUMIDITY
     ],
-    ['bedroom', 'Sovrum', env.HA_BEDROOM_TEMPERATURE, env.HA_BEDROOM_HUMIDITY]
+    ['bedroom', 'Sovrum', env.HA_BEDROOM_TEMPERATURE, env.HA_BEDROOM_HUMIDITY],
+    ['balcony', 'Balkong', env.HA_BALCONY_TEMPERATURE, env.HA_BALCONY_HUMIDITY]
   ];
   const readings: SensorReading[] = locations.map(([id, name]) => ({
     id: id!,
@@ -50,17 +51,7 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
     },
     source: 'home-assistant',
     outdoor: readings[0],
-    rooms: [
-      ...readings.slice(1),
-      {
-        id: 'balcony-mock',
-        name: 'Balkong',
-        temperature: 18.4,
-        humidity: 62,
-        updatedAt: null,
-        mock: true
-      }
-    ],
+    rooms: readings.slice(1),
     fetchedAt: new Date().toISOString(),
     error: null
   };
