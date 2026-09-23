@@ -27,8 +27,7 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 
 - Projektet började med mockdata för ute, vardagsrum, sovrum och kontor.
   Nu hämtas riktiga värden från tre TIMMERFLOTTE-sensorer och en separat
-  utomhusgivare via Home Assistant. Utomhusgivaren är tillagd via DIRIGERA;
-  exakt tillverkare/modell är inte verifierad.
+  utomhusgivare via Home Assistant: **Shelly BLU H&T ZB**, ansluten via DIRIGERA.
 - Temperaturgivarna finns i **Balkong, Vardagsrum och Sovrum**. Den givare som först
   kallades Kök används som Vardagsrum, enligt bekräftad mappning i Home Assistant.
 - De egna givarna tillhandahåller temperatur och luftfuktighet. met.no bidrar med
@@ -46,11 +45,91 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 
 ## Arkitektur
 
+### Aktuell installation – allt kör på Raspberry Pi
+
+```mermaid
+flowchart TB
+    subgraph Devices["Hemmet · givare och enheter"]
+        Shelly["Shelly BLU H&T ZB<br/>Utetemperatur + luftfuktighet"]
+        Dirigera["IKEA DIRIGERA<br/>Zigbee → Matter-brygga"]
+        Timmer["3 × TIMMERFLOTTE<br/>Balkong · Vardagsrum · Sovrum"]
+        Thread["Hemmets Thread-gränsrouter<br/>Exakt väg per givare ej verifierad"]
+        Lights["Lampor och uttag<br/>via DIRIGERA / Matter"]
+        Media["Sonos + Apple TV<br/>Uppspelning, grupper och metadata"]
+        Shelly -->|Zigbee| Dirigera
+        Timmer <-->|Matter över Thread| Thread
+        Lights <--> Dirigera
+    end
+
+    Met["met.no<br/>Prognos, vind och lufttryck"]
+
+    subgraph Pi["Raspberry Pi 5 · 4 GB · Raspberry Pi OS 64-bit med skrivbord"]
+        subgraph Docker["Docker Engine · tre separata containrar"]
+            Matter["Matter Server 1.4.0<br/>WebSocket endast lokalt :5580"]
+            HA["Home Assistant 2026.9.3<br/>HTTP :80 · integrationer och historik"]
+            App["Väderstation · SvelteKit + Svelte 5<br/>HTTP :3000 · HA-token endast på servern"]
+            Matter <-->|Lokal WebSocket| HA
+            HA -->|Tillstånd via WebSocket| App
+            App -->|REST: prognos och kontroller| HA
+        end
+        Storage[("Beständig lagring<br/>HA /config · Matter /data")]
+        Kiosk["Chromium i kiosk · pekskärm<br/>Väder · Rum · Ljud"]
+        Health["systemd-timer · var femte minut<br/>Resurser, tjänster och sensorflöde<br/>Lokala larm · inget mejl ännu"]
+        HA --- Storage
+        Matter --- Storage
+        App -->|SSE: livevärden| Kiosk
+        Kiosk -->|HTTP: användarens kommandon| App
+        Health -. kontrollerar .-> Docker
+    end
+
+    Dirigera <-->|Matter över hemnätverket| Matter
+    Thread <-->|IPv6 via hemnätverket| Matter
+    Media <-->|Lokala HA-integrationer| HA
+    Met -->|HA:s met.no-integration| HA
+    Clients["Mac · iPad · mobil<br/>Webbläsare på hemnätverket"]
+    App -->|SSE: livevärden| Clients
+    Clients -->|HTTP: användarens kommandon| App
+    Backup["Backup på Mac · utanför Git<br/>HA + Matter + återställningsnyckel"]
+    Storage -. manuell backup / återställning .-> Backup
+
+    classDef hardware fill:#eef1e7,stroke:#829578,color:#233e36
+    classDef service fill:#e2eee9,stroke:#527b6b,color:#203c33
+    classDef screen fill:#fff2da,stroke:#b49864,color:#483b27
+    class Shelly,Dirigera,Timmer,Thread,Lights,Media hardware
+    class Matter,HA,App service
+    class Kiosk,Clients screen
+```
+
+Dashboard: **http://vaderstation.local:3000/** · HA: **http://vaderstation.local/**.
+Macens tidigare HA-VM är stoppad och behövs inte för drift. Extern åtkomst och
+schemalagd extern backup är ännu inte installerade. Systemd-kontrollen har ingen
+extern mottagare och kan inte larma när Pi:n är strömlös.
+
+Modellnamnet är **Shelly BLU H&T ZB** (inte Shelby). Givaren stöder Zigbee och
+Bluetooth; i vår installation går den via DIRIGERA. Se
+[tillverkarens produktinformation](https://www.shelly.com/products/shelly-blu-h-t-zb).
+
+### Tidigare översiktsbild (bevarad)
+
+Den förenklade bilden nedan bevaras som tidigare dokumentationsversion.
+Den hade redan uppdaterats till Pi-drift; den ursprungliga Mac-arkitekturen visas
+separat under den.
+
+
 ```mermaid
 flowchart LR
     Sensors["Sensorer och DIRIGERA"] --> Matter["Matter Server 1.4.0 på Pi"]
     Matter -->|"Lokal WebSocket"| HA["Home Assistant Container 2026.9.3 på Pi"]
     HA -->|"WebSocket: tillstånd + REST: prognos"| Server["SvelteKit-server\nDocker på Pi, port 3000"]
+    Server -->|"SSE: utvalda mätvärden"| Browser["Dashboard i webbläsaren"]
+```
+
+### Ursprunglig utvecklingsmiljö på Mac (historik)
+
+```mermaid
+flowchart LR
+    Sensors["3 × TIMMERFLOTTE"] -->|"Matter över Thread"| HA["Home Assistant OS<br/>VirtualBox på Mac"]
+    HA -->|"WebSocket: tillstånd + REST: prognos"| Server["SvelteKit-server<br/>Docker Desktop, port 3000"]
     Server -->|"SSE: utvalda mätvärden"| Browser["Dashboard i webbläsaren"]
 ```
 

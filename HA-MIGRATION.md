@@ -82,3 +82,10 @@ Regelbunden extern backup och provåterställning återstår.
 
 Uppföljning: användaren rapporterar drygt fyra timmars stabil drift samt att
 minnesanvändning, temperatur och diskutrymme ser bra ut i egen diagnostik.
+
+## Kompletterad givarinventering
+
+Utomhusgivarens modell har bekräftats av användaren: **Shelly BLU H&T ZB**
+(tillverkarens stavning Shelly). Den är ansluten via DIRIGERA och används som
+huvudvärde i vädervyn. README innehåller nu en detaljerad bild av Pi-arkitekturen
+samt bevarade tidigare översikter.
