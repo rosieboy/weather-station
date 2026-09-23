@@ -274,4 +274,5 @@ Omstartstest efter HA-flytten är genomfört och fungerar enligt användaren.
 Systemd-timer och installationsskript finns i [deploy/health](deploy/health/README.md).
 Kontrollerna täcker resurser, containrar, HTTP och dashboardens sensorflöde.
 Tre fel i följd ger ett lokalt larm i journalen; mejl och automatisk reparation ingår inte.
-Installation är förberedd men ännu inte verifierad på Pi:n (SSH-nyckel behöver anges).
+Installerad och verifierad 2026-09-23: timern är aktiverad och första körningen
+godkände samtliga 11 kontroller.

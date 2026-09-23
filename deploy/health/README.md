@@ -1,7 +1,7 @@
 # Hälsokontroll på Pi:n
 
-Förberedd systemd-oneshot och timer. Installation på Pi:n återstår tills SSH-åtkomst
-är återställd. Inga mejl skickas och ingen automatisk omstart/reparation utförs.
+Installerad och verifierad på Pi:n 2026-09-23. Timern är aktiverad och första
+körningen slutfördes 20:55 CEST med alla 11 kontroller godkända. Inga mejl skickas och ingen automatisk omstart/reparation utförs.
 
 ## Installation
 

@@ -541,5 +541,5 @@ fasta mockkortet är borttaget. Båda givarna uppdateras via HA:s WebSocket.
 
 Användaren har bekräftat att omstart efter HA-flytten fungerar. Efter drygt fyra
 timmars drift såg allt bra ut; användarens diagnostik visade rimlig minnesanvändning,
-temperatur och gott om diskutrymme. Regelbunden övervakning är föreslagen men
-ännu inte installerad.
+temperatur och gott om diskutrymme. [Regelbunden hälsokontroll](deploy/health/README.md) är installerad och verifierad
+2026-09-23. Systemd-timern kör var femte minut och loggar lokala larm; mejl ingår inte.
