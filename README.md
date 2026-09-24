@@ -74,7 +74,7 @@ flowchart TB
         end
         Storage[("Beständig lagring<br/>HA /config · Matter /data")]
         Kiosk["Chromium i kiosk · pekskärm<br/>Väder · Rum · Ljud"]
-        Health["systemd-timer · var femte minut<br/>Resurser, tjänster och sensorflöde<br/>Lokala larm · inget mejl ännu"]
+        Health["systemd-timer · var femte minut<br/>Resurser, tjänster och sensorflöde<br/>Lokala larm + Gmail-utskick"]
         HA --- Storage
         Matter --- Storage
         App -->|SSE: livevärden| Kiosk
@@ -102,8 +102,8 @@ flowchart TB
 
 Dashboard: **http://vaderstation.local:3000/** · HA: **http://vaderstation.local/**.
 Macens tidigare HA-VM är stoppad och behövs inte för drift. Extern åtkomst och
-schemalagd extern backup är ännu inte installerade. Systemd-kontrollen har ingen
-extern mottagare och kan inte larma när Pi:n är strömlös.
+schemalagd extern backup är ännu inte installerade. Systemd-kontrollen mejlar larm och återhämtningar via Gmail, men kan inte
+larma när Pi:n är strömlös.
 
 Modellnamnet är **Shelly BLU H&T ZB** (inte Shelby). Givaren stöder Zigbee och
 Bluetooth; i vår installation går den via DIRIGERA. Se
@@ -621,4 +621,4 @@ fasta mockkortet är borttaget. Båda givarna uppdateras via HA:s WebSocket.
 Användaren har bekräftat att omstart efter HA-flytten fungerar. Efter drygt fyra
 timmars drift såg allt bra ut; användarens diagnostik visade rimlig minnesanvändning,
 temperatur och gott om diskutrymme. [Regelbunden hälsokontroll](deploy/health/README.md) är installerad och verifierad
-2026-09-23. Systemd-timern kör var femte minut och loggar lokala larm; mejl ingår inte.
+2026-09-23. Systemd-timern kör var femte minut och loggar lokala larm; Gmail-utskick är aktiverade och verifierade 2026-09-24.

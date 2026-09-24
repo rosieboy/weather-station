@@ -50,15 +50,16 @@ Kontrollen använder ingen HA-token, lagrar inga entitetsvärden och gör inga e
 nätverksanrop. Den kör som root för Docker-inspektion och vcgencmd; Docker-socketen
 innebär root-behörighet trots systemd-härdningen. Kör bara betrodd kod här.
 Ingen watchdog eller extern tillgänglighetskontroll ingår: en strömlös Pi kan inte
-köra kontrollen eller larma. Mejlleverans kan läggas till separat.
+köra kontrollen eller larma. Mejlleverans är nu aktiverad enligt avsnittet nedan.
 
 Avaktivera med `sudo systemctl disable --now weather-station-health.timer`.
 Ändra gränser/containernamn i pi-health.py och kör install.sh igen.
 
-## Gmail-utskick (förberett 2026-09-24)
+## Gmail-utskick (aktiverat 2026-09-24)
 
 SMTP-stöd finns nu, med avsändare redaretorget@gmail.com och mottagare
-androsen@gmail.com. Aktivering återstår: kör install.sh med sudo och sedan
+androsen@gmail.com. Aktivering och faktisk leverans är verifierade 2026-09-24 kl. 20:53 CEST.
+Vid ominstallation: kör install.sh med sudo och sedan
 `sudo python3 deploy/health/configure-mail.py` från repots rot på Pi:n.
 Applösenordet anges dolt och lagras i `/etc/weather-station-health/smtp.json`
 med rättighet 0600. Det får aldrig läggas i Git eller skickas i chatten.
@@ -77,5 +78,5 @@ sudo systemctl start weather-station-health.service
 journalctl -u weather-station-health.service -n 10 --no-pager
 ```
 
-Retry/TLS-test har körts med simulerad SMTP. Verklig Gmail-leverans ska verifieras
-efter att applösenordet angetts. Ingen permanent SMTP-process eller ny container behövs.
+Retry/TLS-test har körts med simulerad SMTP. Verklig Gmail-leverans är verifierad: användaren tog emot READY-mejlet,
+journalen visar Mail delivered, kön är tom och timern är aktiv. Ingen permanent SMTP-process eller ny container behövs.

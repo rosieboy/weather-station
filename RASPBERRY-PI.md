@@ -273,6 +273,7 @@ Omstartstest efter HA-flytten är genomfört och fungerar enligt användaren.
 
 Systemd-timer och installationsskript finns i [deploy/health](deploy/health/README.md).
 Kontrollerna täcker resurser, containrar, HTTP och dashboardens sensorflöde.
-Tre fel i följd ger ett lokalt larm i journalen; mejl och automatisk reparation ingår inte.
+Tre fel i följd ger larm i journalen och via Gmail; återhämtning meddelas också.
+Mejl verifierat 2026-09-24. Automatisk reparation ingår inte.
 Installerad och verifierad 2026-09-23: timern är aktiverad och första körningen
 godkände samtliga 11 kontroller.
