@@ -1,7 +1,7 @@
 # Hälsokontroll på Pi:n
 
 Installerad och verifierad på Pi:n 2026-09-23. Timern är aktiverad och första
-körningen slutfördes 20:55 CEST med alla 11 kontroller godkända. Inga mejl skickas och ingen automatisk omstart/reparation utförs.
+körningen slutfördes 20:55 CEST med alla 11 kontroller godkända. Mejl är valfritt och kräver separat aktivering nedan. Ingen automatisk omstart/reparation utförs.
 
 ## Installation
 
@@ -54,3 +54,28 @@ köra kontrollen eller larma. Mejlleverans kan läggas till separat.
 
 Avaktivera med `sudo systemctl disable --now weather-station-health.timer`.
 Ändra gränser/containernamn i pi-health.py och kör install.sh igen.
+
+## Gmail-utskick (förberett 2026-09-24)
+
+SMTP-stöd finns nu, med avsändare redaretorget@gmail.com och mottagare
+androsen@gmail.com. Aktivering återstår: kör install.sh med sudo och sedan
+`sudo python3 deploy/health/configure-mail.py` från repots rot på Pi:n.
+Applösenordet anges dolt och lagras i `/etc/weather-station-health/smtp.json`
+med rättighet 0600. Det får aldrig läggas i Git eller skickas i chatten.
+
+Första körningen efter konfigurering skickar ett startmeddelande. Nya ALERT och
+RECOVERED sparas i statusfilens utkorg före sändning, samlas i ett mejl per körning
+via smtp.gmail.com:587 med verifierad STARTTLS, och tas bort ur kön efter lyckad
+sändning. Misslyckad sändning provas igen vid nästa kontroll. En krasch precis
+mellan sändning och sparande kan ge ett dubbelt mejl. Inga gamla journalhändelser
+skickas retroaktivt. Utan SMTP-konfiguration fortsätter lokal övervakning som förut.
+
+```bash
+sudo bash deploy/health/install.sh
+sudo python3 deploy/health/configure-mail.py
+sudo systemctl start weather-station-health.service
+journalctl -u weather-station-health.service -n 10 --no-pager
+```
+
+Retry/TLS-test har körts med simulerad SMTP. Verklig Gmail-leverans ska verifieras
+efter att applösenordet angetts. Ingen permanent SMTP-process eller ny container behövs.

@@ -8,6 +8,7 @@ import shutil
 import subprocess
 import time
 import urllib.request
+from mail_delivery import deliver, CONFIG
 
 STATE = Path(os.environ.get('STATE_DIRECTORY', '/var/lib/weather-station-health'))
 CONTAINERS = ('weather-station-weather-station-1', 'home-assistant-homeassistant-1',
@@ -124,18 +125,33 @@ def main():
             return 'Expected sensor missing'
         # Unchanged values/last_updated are not an outage: HA emits state changes.
     check('sensor_data', sensors)
+    queue = old.get("mail_queue", [])
+    mail_initialized = old.get("mail_initialized", False)
+    now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
+    if CONFIG.exists() and not mail_initialized:
+        queue.append({"time": now, "event": "READY", "name": "Mejllarm", "message": "Mejl från Pi:ns hälsokontroll är aktiverat."})
+        mail_initialized = True
     checks = {}
     for name, problem in results.items():
         state, event = transition(old.get('checks', {}).get(name, {}), bool(problem))
         state['problem'] = problem
         checks[name] = state
+        if event and CONFIG.exists():
+            queue.append({"time": now, "event": event, "name": name, "message": problem or "Frisk igen"})
         if event:
             print(f'{event} {name}: {problem or "healthy again"}', flush=True)
     report = {'checked_at': time.strftime('%Y-%m-%dT%H:%M:%SZ', time.gmtime()),
-              'boot_id': boot, 'checks': checks, 'metrics': metrics}
+              'boot_id': boot, 'checks': checks, 'metrics': metrics,
+              'mail_queue': queue, 'mail_initialized': mail_initialized}
     tmp = path.with_suffix('.tmp')
     tmp.write_text(json.dumps(report, indent=2) + '\n')
     tmp.replace(path)
+    # Persist events before sending so a crash cannot silently discard an alert.
+    remaining = deliver(queue)
+    if len(remaining) != len(queue):
+        report['mail_queue'] = remaining
+        tmp.write_text(json.dumps(report, indent=2) + '\n')
+        tmp.replace(path)
     active = sum(x['active'] for x in checks.values())
     pending = sum(bool(x['problem']) and not x['active'] for x in checks.values())
     print(f'Health: {active} active, {pending} pending; metrics={json.dumps(metrics)}')
