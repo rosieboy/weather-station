@@ -9,7 +9,28 @@
   let roomOpen = $state(false);
   let suppressClickUntil = 0;
   let swipeStart: { x: number; y: number; id: number } | null = null;
+  let dragScroll: {
+    id: number;
+    y: number;
+    startY: number;
+    element: Element;
+  } | null = null;
   function startSwipe(event: PointerEvent) {
+    if (event.pointerType === 'mouse' && event.button === 0) {
+      const target = event.target as Element;
+      if (
+        !target.closest(
+          'input, select, textarea, a, .dialog-close, .device-toggle, .room-actions, .transport, .speaker-volume, .speaker-footer'
+        )
+      ) {
+        dragScroll = {
+          id: event.pointerId,
+          y: event.clientY,
+          startY: event.clientY,
+          element: target.closest('dialog') ?? document.scrollingElement!
+        };
+      }
+    }
     if (
       roomOpen ||
       !event.isPrimary ||
@@ -20,7 +41,20 @@
       return;
     swipeStart = { x: event.clientX, y: event.clientY, id: event.pointerId };
   }
+  function movePointer(event: PointerEvent) {
+    const drag = dragScroll;
+    if (!drag || drag.id !== event.pointerId || !(event.buttons & 1)) return;
+    const distance = Math.abs(event.clientY - drag.startY);
+    if (distance > 8 || Date.now() < suppressClickUntil) {
+      drag.element.scrollTop += drag.y - event.clientY;
+      drag.y = event.clientY;
+      suppressClickUntil = Date.now() + 500;
+      swipeStart = null;
+      event.preventDefault();
+    }
+  }
   function endSwipe(event: PointerEvent) {
+    dragScroll = null;
     const start = swipeStart;
     swipeStart = null;
     if (!start || start.id !== event.pointerId || roomOpen) return;
@@ -191,8 +225,12 @@
 
 <svelte:window
   onpointerdown={startSwipe}
+  onpointermove={movePointer}
   onpointerup={endSwipe}
-  onpointercancel={() => (swipeStart = null)}
+  onpointercancel={() => {
+    swipeStart = null;
+    dragScroll = null;
+  }}
 />
 
 <main class="dashboard" class:rooms-active={view === 'rooms'}>
@@ -268,7 +306,6 @@
   {:else}
     <section class="outdoor" aria-labelledby="outdoor-title">
       <div class="outdoor-main">
-        <p class="eyebrow">UTOMHUS</p>
         <h2 id="outdoor-title">{weather.outdoor.name}</h2>
         <p class="outdoor-temperature">
           {number(weather.outdoor.temperature, 1)}<span>°C</span>
@@ -321,11 +358,7 @@
       </div>
     </section>
 
-    <section class="indoors" aria-labelledby="indoors-title">
-      <div class="section-heading">
-        <h2 id="indoors-title">Hemma</h2>
-        <span>Rum och balkong</span>
-      </div>
+    <section class="indoors" aria-label="Rum och balkong">
       <div class="rooms">
         {#each weather.rooms as room, i (room.id)}
           <article class="room">

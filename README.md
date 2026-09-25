@@ -115,7 +115,6 @@ Den förenklade bilden nedan bevaras som tidigare dokumentationsversion.
 Den hade redan uppdaterats till Pi-drift; den ursprungliga Mac-arkitekturen visas
 separat under den.
 
-
 ```mermaid
 flowchart LR
     Sensors["Sensorer och DIRIGERA"] --> Matter["Matter Server 1.4.0 på Pi"]
@@ -249,8 +248,8 @@ platshållare; redigera sedan **`.env`** med rätt värden.
 | `ORIGIN`                 | Dashboardens externa adress: `http://localhost:3000`               |
 | `HOME_ASSISTANT_URL`     | Home Assistants basadress: `http://homeassistant.local`            |
 | `HOME_ASSISTANT_TOKEN`   | Långlivad åtkomsttoken från Home Assistant-profilen; endast lokalt |
-| `HA_OUTDOOR_TEMPERATURE` | Separata utomhusgivarens temperatur-entitet |
-| `HA_OUTDOOR_HUMIDITY` | Separata utomhusgivarens fukt-entitet |
+| `HA_OUTDOOR_TEMPERATURE` | Separata utomhusgivarens temperatur-entitet                        |
+| `HA_OUTDOOR_HUMIDITY`    | Separata utomhusgivarens fukt-entitet                              |
 | `HA_BALCONY_TEMPERATURE` | Balkongens temperatur-entitet                                      |
 | `HA_BALCONY_HUMIDITY`    | Balkongens fukt-entitet                                            |
 | `HA_ROOM_NAME`           | `Vardagsrum`; standardvärdet i koden är också Vardagsrum           |
@@ -607,6 +606,24 @@ används för att släcka. Uttag får inga dimmerkommandon. Färgtemperatur och 
 
 Se [RASPBERRY-PI.md](RASPBERRY-PI.md) för Raspberry Pi OS 64-bit med skrivbord,
 Docker, privat konfiguration, LAN-åtkomst och automatisk kioskvisning.
+
+### Ergonomi i gränssnittet (2026-09-25)
+
+Sekundär text och flera kontrollknappar har fått större text och tryckytor.
+Rums- och grupperingsdialogernas stängknappar använder centrerade SVG-kryss i
+stället för ett tecken vars placering varierar mellan typsnitt och plattformar.
+Sidor med fler rum eller högtalare kan rullas vertikalt; långa dialoger har egen
+touch-rullning och en rubrik som ligger kvar överst. På pekskärmar som skickar
+muspekare går det även att dra i bakgrunden eller på rumskort för att rulla.
+Svep i sidled byter fortfarande vy. Bekräfta gärna känslan på Pi-skärmen och iOS
+efter uppdatering, eftersom de enheterna inte kan simuleras fullt ut i bygget.
+På smala skärmar visas utomhusvärdet och väderdetaljerna i en kolumn. Den
+redundanta rubriken ovanför rumstemperaturerna är borttagen för att ge mer
+plats i 1280 × 720. På telefoner använder prognosen två kolumner och
+periodknapparna delar bredden. Utomhusscenen fyller kortets höjd, och rubriken
+”UTOMHUS” är borttagen till förmån för ett större temperaturvärde.
+I bred kioskvy fyller scenen mer av utrymmet mellan temperatur och väderdetaljer
+utan att himlakropparnas proportioner ändras.
 
 ## Separat utomhusgivare (2026-09-23)
 

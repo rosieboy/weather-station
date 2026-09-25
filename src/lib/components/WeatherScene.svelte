@@ -14,11 +14,19 @@
   } = $props();
   const id = $props.id();
   let hidden = $state(false);
+  let wide = $state(false);
   onMount(() => {
     const update = () => (hidden = document.hidden);
+    const desktop = window.matchMedia('(min-width: 701px)');
+    const updateWidth = () => (wide = desktop.matches);
     update();
+    updateWidth();
     document.addEventListener('visibilitychange', update);
-    return () => document.removeEventListener('visibilitychange', update);
+    desktop.addEventListener('change', updateWidth);
+    return () => {
+      document.removeEventListener('visibilitychange', update);
+      desktop.removeEventListener('change', updateWidth);
+    };
   });
   const point = (p: SkyPosition) => ({
     // Panoramic E–S–W projection, with northern bearings clamped to the edges.
@@ -48,6 +56,7 @@
   class:night
   class:paused={hidden}
   viewBox="0 0 500 320"
+  preserveAspectRatio={wide ? 'xMidYMid slice' : 'xMidYMid meet'}
   fill="none"
   aria-hidden="true"
   style={`--cloud-speed:${Math.max(25, 100 - (wind ?? 2) * 5)}s`}

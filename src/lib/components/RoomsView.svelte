@@ -158,9 +158,18 @@
           <h2 id="room-dialog-title">{selected.name}</h2>
         </div>
       </div>
-      <button class="dialog-close" onclick={close} aria-label="Stäng rum"
-        >✕</button
-      >
+      <button class="dialog-close" onclick={close} aria-label="Stäng rum">
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M5 5 19 19M19 5 5 19" />
+        </svg>
+      </button>
     </div>
     <div class="room-summary">
       <span

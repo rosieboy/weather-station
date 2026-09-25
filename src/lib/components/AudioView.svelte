@@ -311,8 +311,19 @@
       <button
         class="dialog-close"
         aria-label="Stäng gruppering"
-        onclick={() => (groupId = null)}>✕</button
+        onclick={() => (groupId = null)}
       >
+        <svg
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          aria-hidden="true"
+        >
+          <path d="M5 5 19 19M19 5 5 19" />
+        </svg>
+      </button>
     </div>
     <p class="group-description">
       Valda högtalare går över till {group.name}s ljud. Befintliga
