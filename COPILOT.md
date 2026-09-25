@@ -1,18 +1,21 @@
 # Granskningsfynd
 
-Senast granskad: 2026-09-18.
+Senast granskad: 2026-09-25.
 
-## Hög - åtkomst till dashboarden är inte autentiserad
+## Hög - styr-API:erna saknar autentisering på LAN
 
 `docker-compose.yml` publicerar port 3000 på samtliga nätverksinterface.
-Kontroll-API:erna för rum och ljud jämför endast HTTP-headern `Origin` med
-begärans origin. Det är ett skydd mot vanliga CSRF-anrop i webbläsare, men inte
-klientautentisering: en klient på det lokala nätverket kan själv ange matchande
-`Host`- och `Origin`-headers, läsa SSE-data och skicka tillåtna kommandon.
+Dashboarden och dess SSE-ström behöver vara tillgängliga för andra enheter på
+det lokala nätverket, så att samma vy kan visas på exempelvis iPhone, iPad och
+Mac. Den avsedda läsåtkomsten är därför inte i sig ett fynd. Risken är att
+kontroll-API:erna för rum och ljud endast jämför HTTP-headern `Origin` med
+begärans origin. Det skyddar mot vanliga CSRF-anrop i webbläsare, men är inte
+klientautentisering: en annan klient på LAN kan själv ange matchande `Host`-
+och `Origin`-headers och skicka tillåtna styrkommandon.
 
-Rekommenderad åtgärd: bind porten till `127.0.0.1` om dashboarden endast körs
-lokalt, eller använd autentisering via en reverse proxy innan den exponeras på
-LAN.
+Rekommenderad åtgärd: behåll LAN-åtkomsten för dashboard och SSE. Om det lokala
+nätverket inte betraktas som betrott, skydda de muterande kontrollendpunkterna
+med autentisering eller en nätverksbegränsning som inte blockerar visningsflödet.
 
 Berörda filer:
 
@@ -51,10 +54,9 @@ Berörd fil: `Dockerfile`
 
 ## Utförda kontroller
 
-- `npm test`: 18 tester passerade.
-- `npm run check`: inga fel eller varningar.
-- `npm run format:check`: godkänd.
-- `npm audit --omit=dev --json`: 0 produktionssårbarheter.
+- Vid granskningen 2026-09-25: `npm test` och `npm run check` passerade.
+- Vid granskningen 2026-09-18: `npm run format:check` godkänd och
+  `npm audit --omit=dev --json` rapporterade 0 produktionssårbarheter.
 
 ## Slutsats
 
