@@ -59,7 +59,7 @@
       const result = await response.json();
       if (!response.ok)
         throw new Error(result.error || 'Kommandot kunde inte skickas.');
-      feedback = 'Kommandot skickat. Status hämtas från enheterna.';
+      feedback = '';
     } catch (error) {
       failed = true;
       feedback =
@@ -77,7 +77,6 @@
     <div>
       <p class="eyebrow">DITT HEM</p>
       <h2 id="home-heading">Rum för rum</h2>
-      <p class="home-description">Lite närmare allt där hemma.</p>
     </div>
     <div class="home-total">
       <strong>{lit}<span> / {total}</span></strong><span>lampor tända</span>
@@ -100,13 +99,13 @@
         class:has-light={on > 0}
         onclick={() => open(room.id)}
         aria-haspopup="dialog"
-        aria-label={`${room.name}, ${room.controls.length} lampor, ${on} tända. Öppna rum.`}
+        aria-label={`${room.name}, ${on} ${on === 1 ? 'tänd' : 'tända'}`}
       >
         <div class="home-card-top">
           <span class="room-art"><RoomIcon name={room.name} /></span><span
             class="room-status"
             >{on
-              ? `${on} tända`
+              ? `${on} ${on === 1 ? 'tänd' : 'tända'}`
               : unavailable
                 ? 'Saknar kontakt'
                 : room.controls.length
@@ -116,32 +115,19 @@
           >
         </div>
         <h3>{room.name}</h3>
-        <p class="home-card-count">
-          {room.controls.length}
-          {room.controls.length === 1
-            ? 'lampa'
-            : 'lampor'}{#if room.speakerCount}
-            · {room.speakerCount} Sonos{/if}{#if room.remoteCount}
-            · {room.remoteCount}
-            {room.remoteCount === 1 ? 'fjärrkontroll' : 'fjärrkontroller'}{/if}
-        </p>
         <div class="home-card-bottom">
-          <span
+          <span class="home-card-temperature"
             >{room.temperature !== null
               ? `${decimal(room.temperature)} °C`
-              : 'Öppna rum'}{#if room.humidity !== null}
-              <span class="room-humidity-mini"
-                >· {decimal(room.humidity)} %</span
-              >{/if}{#if unavailable}
-              · {unavailable} saknar kontakt{/if}</span
-          ><span aria-hidden="true">↗</span>
+              : '—'}</span
+          >
+          {#if room.humidity !== null}<span class="room-humidity-mini"
+              >{decimal(room.humidity)} %</span
+            >{/if}
         </div>
       </button>
     {/each}
   </div>
-  <p class="home-hint">
-    Välj ett rum för att styra lamporna · Svep höger för väder, vänster för ljud
-  </p>
 </section>
 <dialog
   class="room-dialog"
@@ -231,7 +217,13 @@
                     step="1"
                     aria-label={`Ljusstyrka, ${device.name}`}
                     value={Math.max(1, device.brightness ?? 1)}
+                    style={`--brightness: ${Math.max(1, device.brightness ?? 1)}%`}
                     disabled={busy || blocked || device.state === 'unavailable'}
+                    oninput={(event) =>
+                      event.currentTarget.style.setProperty(
+                        '--brightness',
+                        `${event.currentTarget.value}%`
+                      )}
                     onchange={(event) =>
                       control('turn_on', {
                         entityId: device.id,

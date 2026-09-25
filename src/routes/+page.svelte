@@ -3,6 +3,7 @@
   import RoomsView from '$lib/components/RoomsView.svelte';
   import WeatherScene from '$lib/components/WeatherScene.svelte';
   import { solarDay } from '$lib/weather/solar';
+  import { isDeepAmbient } from '$lib/weather/theme';
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
   let view = $state<'weather' | 'rooms' | 'audio'>('weather');
@@ -81,7 +82,7 @@
   }
   let live = $state<WeatherSnapshot | null>(null);
   let weather = $derived(live ?? data.weather);
-  import { conditions, moons } from '$lib/weather/labels';
+  import { conditions } from '$lib/weather/labels';
   let theme = $state<'auto' | 'night' | 'day'>('auto');
   let now = $state(untrack(() => Date.parse(data.weather.fetchedAt)));
   let daylight = $derived(
@@ -101,6 +102,9 @@
   );
   let night = $derived(
     theme === 'night' || (theme === 'auto' && daylight === false)
+  );
+  let currentTheme = $derived(
+    isDeepAmbient(now) ? 'deep-ambient' : night ? 'night' : 'day'
   );
   const direction = (bearing: number | null) =>
     bearing === null
@@ -132,9 +136,9 @@
     }
   }
   $effect(() => {
-    document.documentElement.dataset.theme = night ? 'night' : 'day';
+    document.documentElement.setAttribute('data-theme', currentTheme);
   });
-  let forecastMode = $state<'daily' | 'hourly'>('daily');
+  let showHourly = $state(false);
   const dayKey = (date: string) =>
     new Date(date).toLocaleDateString('sv-SE', {
       timeZone: 'Europe/Stockholm'
@@ -149,7 +153,7 @@
   const symbol = (condition: string) =>
     conditions[condition] || ['—', 'Väderuppgift saknas'];
   let items = $derived(
-    (forecastMode === 'daily'
+    (!showHourly
       ? weather.details.daily.filter(
           (f) => dayKey(f.datetime) >= dayKey(weather.fetchedAt)
         )
@@ -206,16 +210,6 @@
       document.removeEventListener('visibilitychange', tick);
     };
   });
-  const time = (value: string | null) =>
-    value
-      ? new Date(value).toLocaleString('sv-SE', {
-          timeZone: 'Europe/Stockholm',
-          month: 'short',
-          day: 'numeric',
-          hour: '2-digit',
-          minute: '2-digit'
-        })
-      : 'Saknas';
   const number = (value: number | null, digits = 0) =>
     value === null
       ? '—'
@@ -243,7 +237,11 @@
   }}
 />
 
-<main class="dashboard" class:rooms-active={view === 'rooms'}>
+<main
+  class="dashboard view-{view}"
+  class:rooms-active={view === 'rooms'}
+  class:weather-active={view === 'weather'}
+>
   <header>
     <div class="brand">
       <span class="brand-icon" aria-hidden="true">⌂</span>
@@ -281,12 +279,16 @@
         class="theme-toggle"
         onclick={changeTheme}
         title="Växla Auto → Natt → Dag"
-        aria-label="Byt visningsläge. Nu: {theme}"
+        aria-label="Byt visningsläge. Nu: {currentTheme === 'deep-ambient'
+          ? 'djupt nattläge'
+          : theme}"
         >{theme === 'auto'
-          ? `Auto · ${night ? 'Natt' : 'Dag'}`
-          : theme === 'night'
-            ? 'Natt'
-            : 'Dag'}</button
+          ? `Auto · ${currentTheme === 'deep-ambient' ? 'Djupt nattläge' : night ? 'Natt' : 'Dag'}`
+          : currentTheme === 'deep-ambient'
+            ? 'Djupt nattläge'
+            : theme === 'night'
+              ? 'Natt'
+              : 'Dag'}</button
       >
       <span class="source"
         ><span aria-hidden="true"></span>{weather.source === 'mock'
@@ -302,7 +304,6 @@
     </p>{/if}
   {#if view === 'audio'}
     <AudioView
-      {now}
       home={weather.home}
       disconnected={refreshFailed || !!weather.error}
       onmodal={(open) => (roomOpen = open)}
@@ -314,158 +315,130 @@
       onmodal={(open) => (roomOpen = open)}
     />
   {:else}
-    <section class="outdoor" aria-labelledby="outdoor-title">
-      <div class="outdoor-main">
-        <h2 id="outdoor-title">{weather.outdoor.name}</h2>
-        <p class="outdoor-temperature">
-          {number(weather.outdoor.temperature, 1)}<span>°C</span>
-        </p>
-        <p class="caption">
-          Mätvärde ändrat: {time(weather.outdoor.updatedAt)}
-        </p>
-      </div>
-      <WeatherScene
-        condition={weather.details.condition}
-        {daylight}
-        sky={weather.details.sky}
-        wind={weather.details.windSpeed}
-      />
-      <div class="outdoor-details">
-        <div>
-          <span class="label">Din sensor · Luftfuktighet</span>
-          <p>{number(weather.outdoor.humidity)} <span>%</span></p>
-        </div>
-        <div class="met-current">
-          <span class="label">met.no · beräknad temperatur</span>
-          <p>{number(weather.details.temperature, 1)} <span>°C</span></p>
-          <span class="label">{symbol(weather.details.condition)[1]}</span>
-          <div class="met-measures">
+    <div class="weather-screen">
+      <section class="outdoor" aria-labelledby="outdoor-title">
+        <div class="outdoor-main">
+          <h2 id="outdoor-title">{weather.outdoor.name}</h2>
+          <p class="outdoor-temperature">
+            {number(weather.outdoor.temperature, 1)}<span>°C</span>
+          </p>
+          <p class="weather-status">
             <span
-              title="Förändring jämfört med Home Assistants registrerade lufttryck tre timmar före det aktuella värdet"
-              >{number(weather.details.pressure)} hPa {weather.details
-                .pressureDelta === null
-                ? ''
-                : weather.details.pressureDelta > 0.5
-                  ? '↗'
-                  : weather.details.pressureDelta < -0.5
-                    ? '↘'
-                    : '→'}</span
-            ><span title="Vindriktningen anger varifrån vinden blåser"
-              >{number(weather.details.windSpeed, 1)} m/s · {direction(
-                weather.details.windBearing
-              )}</span
+              class="weather-connection"
+              class:disconnected={refreshFailed || !!weather.error}
+            >
+              {refreshFailed || weather.error
+                ? 'Återansluter'
+                : weather.source === 'mock'
+                  ? 'Demoläge'
+                  : live
+                    ? 'Ansluten'
+                    : 'Väntar på uppdatering'}
+            </span>
+            {#if weather.outdoor.temperature === null}<span
+                >Utesensor saknas</span
+              >{/if}
+          </p>
+        </div>
+        <WeatherScene
+          condition={weather.details.condition}
+          {daylight}
+          sky={weather.details.sky}
+          wind={weather.details.windSpeed}
+        />
+        <div class="outdoor-details">
+          <div class="weather-measure">
+            <span class="label">Luftfuktighet · sensor</span>
+            <p>{number(weather.outdoor.humidity)} <span>%</span></p>
+          </div>
+          <div class="weather-measure">
+            <span class="label">Beräknad temperatur · met.no</span>
+            <p>{number(weather.details.temperature, 1)} <span>°C</span></p>
+            <span class="weather-measure-note"
+              >{symbol(weather.details.condition)[1]}</span
             >
           </div>
-          <span class="pressure-trend"
-            >{weather.details.pressureDelta === null
-              ? 'Trycktrend saknas · behöver historik'
-              : `${weather.details.pressureDelta > 0.5 ? 'Stigande' : weather.details.pressureDelta < -0.5 ? 'Fallande' : 'Stabilt'} · ${weather.details.pressureDelta > 0 ? '+' : ''}${number(weather.details.pressureDelta, 1)} hPa / 3 h`}</span
-          >
-          <span class="met-time"
-            >Värde ändrat: {time(weather.details.updatedAt)}</span
-          >
+          <div class="weather-measure">
+            <span class="label">Vind · met.no</span>
+            <p title="Vindriktningen anger varifrån vinden blåser">
+              {number(weather.details.windSpeed, 1)} <span>m/s</span>
+            </p>
+            <span class="weather-measure-note"
+              >{direction(weather.details.windBearing)}</span
+            >
+          </div>
         </div>
-      </div>
-    </section>
+      </section>
 
-    <section class="indoors" aria-label="Rum och balkong">
-      <div class="rooms">
-        {#each weather.rooms as room, i (room.id)}
-          <article class="room">
-            <div class="room-heading">
-              <h3>{room.name}</h3>
-              <span class="room-number"
-                >{room.mock ? 'Mockdata' : `0${i + 1}`}</span
-              >
-            </div>
-            <p class="room-temperature">
-              {number(room.temperature, 1)}<span>°C</span>
-            </p>
-            <div class="room-humidity">
-              <span>Luftfuktighet</span><strong
-                >{number(room.humidity)} %</strong
-              >
-            </div>
-            <p class="reading-time">
-              {room.mock
-                ? 'Exempelvärde · Ingen sensor'
-                : `Mätvärde ändrat: ${time(room.updatedAt)}`}
-            </p>
-          </article>
-        {/each}
-      </div>
-    </section>
-    <section class="forecast" aria-labelledby="forecast-heading">
-      <div class="forecast-heading">
-        <h2 id="forecast-heading">Vädret framåt</h2>
-        <div class="forecast-switch" aria-label="Prognosperiod">
-          <button
-            aria-pressed={forecastMode === 'daily'}
-            onclick={() => (forecastMode = 'daily')}>Kommande dagar</button
-          ><button
-            aria-pressed={forecastMode === 'hourly'}
-            onclick={() => (forecastMode = 'hourly')}>Timme för timme</button
-          >
+      <section class="indoors" aria-label="Rum och balkong">
+        <div class="rooms">
+          {#each weather.rooms as room (room.id)}
+            <article class="room">
+              <div class="room-heading">
+                <h3>{room.name}</h3>
+              </div>
+              <div class="room-readings">
+                <p class="room-temperature">
+                  {number(room.temperature, 1)}<span>°C</span>
+                </p>
+                <p class="room-humidity">
+                  <span class="room-humidity-label">Luftfuktighet</span>
+                  <strong>{number(room.humidity)}<span>%</span></strong>
+                </p>
+              </div>
+              {#if room.mock}<span class="room-note">Exempelvärde</span>{/if}
+            </article>
+          {/each}
         </div>
-      </div>
-      {#if weather.details.error}<p class="forecast-note" role="status">
-          {weather.details.error}
-        </p>{/if}
-      {#if items.length}<div class="forecast-items">
-          {#each items as item (item.datetime)}<article class="forecast-item">
-              <span class="forecast-date"
-                >{forecastLabel(item.datetime, forecastMode === 'hourly')}</span
-              ><span
-                class="weather-symbol"
-                role="img"
-                aria-label={symbol(item.condition)[1]}
-                title={symbol(item.condition)[1]}
-                >{symbol(item.condition)[0]}</span
-              ><strong
-                >{number(item.temperature)}°{#if forecastMode === 'daily'}
-                  <small>/ {number(item.low)}°</small>{/if}</strong
-              ><span class="rain" title="Sannolikhet för nederbörd"
-                >Regn {number(item.rainProbability)} %</span
-              >
-            </article>{/each}
-        </div>{:else}<p class="forecast-note">
-          Ingen {forecastMode === 'daily' ? 'dygnsprognos' : 'timprognos'} tillgänglig.
-        </p>{/if}
-    </section>
-    <div class="astronomy">
-      <div class="astronomy-item">
-        <span class="astronomy-icon" aria-hidden="true">☀</span>
+      </section>
+      <section class="forecast" aria-label="Prognos">
+        {#if weather.details.error}<p class="forecast-note" role="status">
+            {weather.details.error}
+          </p>{/if}
+        <button
+          type="button"
+          class="forecast-container"
+          aria-label="{showHourly
+            ? 'Timprognos'
+            : 'Dygnsprognos'}. Växla till {showHourly ? 'dygn' : 'timmar'}"
+          aria-pressed={showHourly}
+          onclick={() => (showHourly = !showHourly)}
+        >
+          {#if items.length}<span class="forecast-items">
+              {#each items as item (item.datetime)}<span class="forecast-item">
+                  <span class="forecast-date"
+                    >{forecastLabel(item.datetime, showHourly)}</span
+                  ><span
+                    class="weather-symbol"
+                    role="img"
+                    aria-label={symbol(item.condition)[1]}
+                    title={symbol(item.condition)[1]}
+                    >{symbol(item.condition)[0]}</span
+                  ><strong
+                    >{number(item.temperature)}°{#if !showHourly}
+                      <small>/ {number(item.low)}°</small>{/if}</strong
+                  ><span class="rain" title="Sannolikhet för nederbörd"
+                    >Regn {number(item.rainProbability)} %</span
+                  >
+                </span>{/each}
+            </span>{:else}<span class="forecast-note">
+              Ingen {showHourly ? 'timprognos' : 'dygnsprognos'} tillgänglig.
+            </span>{/if}
+        </button>
+      </section>
+      <footer>
         <span
-          >↑ Nästa soluppgång <strong>{time(weather.details.sunrise)}</strong
+          >Prognos: <a
+            href="https://www.met.no/"
+            target="_blank"
+            rel="noreferrer">met.no · Meteorologisk institutt</a
           ></span
+        ><span
+          >{weather.source === 'mock'
+            ? 'Exempelvärden'
+            : 'Direktuppdatering'}</span
         >
-      </div>
-      <div class="astronomy-item">
-        <span class="astronomy-icon" aria-hidden="true">☀</span>
-        <span
-          >↓ Nästa solnedgång <strong>{time(weather.details.sunset)}</strong
-          ></span
-        >
-      </div>
-      <div class="astronomy-item">
-        <span class="astronomy-icon" aria-hidden="true"
-          >{moons[weather.details.moon || '']?.[0] || '☾'}</span
-        >
-        <strong
-          >{moons[weather.details.moon || '']?.[1] || 'Månfas saknas'}</strong
-        >
-      </div>
+      </footer>
     </div>
-    <footer>
-      <span
-        >Prognos: <a href="https://www.met.no/" target="_blank" rel="noreferrer"
-          >met.no · Meteorologisk institutt</a
-        ></span
-      ><span
-        >{weather.source === 'mock'
-          ? 'Exempelvärden · Inga sensorer anslutna'
-          : `Hämtat ${time(weather.fetchedAt)} · Direktuppdatering`}</span
-      >
-    </footer>
   {/if}
 </main>
