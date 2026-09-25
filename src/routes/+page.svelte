@@ -12,7 +12,9 @@
   let dragScroll: {
     id: number;
     y: number;
+    startX: number;
     startY: number;
+    axis: 'pending' | 'vertical' | 'horizontal';
     element: Element;
   } | null = null;
   function startSwipe(event: PointerEvent) {
@@ -26,7 +28,9 @@
         dragScroll = {
           id: event.pointerId,
           y: event.clientY,
+          startX: event.clientX,
           startY: event.clientY,
+          axis: 'pending',
           element: target.closest('dialog') ?? document.scrollingElement!
         };
       }
@@ -44,12 +48,18 @@
   function movePointer(event: PointerEvent) {
     const drag = dragScroll;
     if (!drag || drag.id !== event.pointerId || !(event.buttons & 1)) return;
-    const distance = Math.abs(event.clientY - drag.startY);
-    if (distance > 8 || Date.now() < suppressClickUntil) {
+    if (drag.axis === 'pending') {
+      const dx = Math.abs(event.clientX - drag.startX);
+      const dy = Math.abs(event.clientY - drag.startY);
+      if (Math.max(dx, dy) < 10) return;
+      if (dy > dx * 1.2) drag.axis = 'vertical';
+      else if (dx > dy * 1.2) drag.axis = 'horizontal';
+    }
+    if (drag.axis === 'vertical') {
       drag.element.scrollTop += drag.y - event.clientY;
       drag.y = event.clientY;
-      suppressClickUntil = Date.now() + 500;
       swipeStart = null;
+      suppressClickUntil = Date.now() + 500;
       event.preventDefault();
     }
   }

@@ -1611,6 +1611,21 @@ footer,
   min-height: 205px;
 }
 
+@media (min-width: 1000px) {
+  .outdoor h2 {
+    font-size: 25px;
+  }
+  .outdoor-temperature {
+    font-size: 104px;
+    line-height: 1.03;
+    margin-top: 9px;
+  }
+  .outdoor-temperature span {
+    font-size: 44px;
+    margin-top: 11px;
+  }
+}
+
 .indoors {
   margin-top: 12px;
 }

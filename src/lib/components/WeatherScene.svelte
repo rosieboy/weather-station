@@ -15,6 +15,7 @@
   const id = $props.id();
   let hidden = $state(false);
   let wide = $state(false);
+  let stageWidth = $derived(wide ? 800 : 500);
   onMount(() => {
     const update = () => (hidden = document.hidden);
     const desktop = window.matchMedia('(min-width: 701px)');
@@ -30,7 +31,8 @@
   });
   const point = (p: SkyPosition) => ({
     // Panoramic E–S–W projection, with northern bearings clamped to the edges.
-    x: 45 + Math.max(0, Math.min(1, (p.azimuth - 45) / 270)) * 410,
+    x:
+      45 + Math.max(0, Math.min(1, (p.azimuth - 45) / 270)) * (stageWidth - 90),
     y: 248 - (Math.max(0, Math.min(90, p.altitude)) / 90) * 205
   });
   let night = $derived(sky ? sky.sun.altitude < -6 : daylight === false);
@@ -55,8 +57,7 @@
   class="landscape weather-scene living-sky"
   class:night
   class:paused={hidden}
-  viewBox="0 0 500 320"
-  preserveAspectRatio={wide ? 'xMidYMid slice' : 'xMidYMid meet'}
+  viewBox={`0 0 ${stageWidth} 320`}
   fill="none"
   aria-hidden="true"
   style={`--cloud-speed:${Math.max(25, 100 - (wind ?? 2) * 5)}s`}
@@ -86,14 +87,14 @@
       /></linearGradient
     >
     <mask id="{id}-edge"
-      ><rect width="500" height="320" fill="url(#{id}-fade)" /></mask
+      ><rect width={stageWidth} height="320" fill="url(#{id}-fade)" /></mask
     >
     <clipPath id="{id}-moon"><circle r="22" /></clipPath>
   </defs>
   <g mask="url(#{id}-edge)">
-    <rect width="500" height="320" fill="url(#{id}-sky)" opacity=".35" />
+    <rect width={stageWidth} height="320" fill="url(#{id}-sky)" opacity=".35" />
     <ellipse
-      cx={sun?.x ?? 250}
+      cx={sun?.x ?? stageWidth / 2}
       cy="245"
       rx="270"
       ry="150"
@@ -102,7 +103,7 @@
     />
     <g class="stars" opacity={night && !heavy ? 0.65 : 0} fill="#e5e4cb">
       {#each Array.from({ length: 18 }, (_, i) => i) as i}<circle
-          cx={35 + ((i * 97) % 440)}
+          cx={35 + ((i * 97) % (stageWidth - 60))}
           cy={20 + ((i * 43) % 150)}
           r={i % 3 === 0 ? 1.3 : 0.7}
         />{/each}
@@ -142,21 +143,27 @@
       opacity={cloudy ? 0.9 : 0.12}
       fill={night ? '#63747b' : '#becbc0'}
     >
-      <g class="cloud cloud-back"
-        ><path
-          d="M80 115C60 115 62 86 86 85C88 56 133 51 147 78C173 62 194 84 188 103C211 112 201 130 184 130H91Z"
-        /></g
-      >
-      <g class="cloud cloud-front"
-        ><path
-          d="M236 146C210 147 204 115 227 105C223 68 277 59 291 91C319 69 350 96 338 118C369 121 365 153 338 155H247Z"
-        /></g
-      >
-      <g class="cloud cloud-low" opacity={heavy ? 0.65 : 0}
-        ><path
-          d="M320 179C294 175 307 145 331 147C342 117 379 130 383 149C413 135 438 158 421 179Z"
-        /></g
-      >
+      <g transform={wide ? 'translate(20 0)' : undefined}>
+        <g class="cloud cloud-back"
+          ><path
+            d="M80 115C60 115 62 86 86 85C88 56 133 51 147 78C173 62 194 84 188 103C211 112 201 130 184 130H91Z"
+          /></g
+        >
+      </g>
+      <g transform={wide ? 'translate(220 0)' : undefined}>
+        <g class="cloud cloud-front"
+          ><path
+            d="M236 146C210 147 204 115 227 105C223 68 277 59 291 91C319 69 350 96 338 118C369 121 365 153 338 155H247Z"
+          /></g
+        >
+      </g>
+      <g transform={wide ? 'translate(300 0)' : undefined}>
+        <g class="cloud cloud-low" opacity={heavy ? 0.65 : 0}
+          ><path
+            d="M320 179C294 175 307 145 331 147C342 117 379 130 383 149C413 135 438 158 421 179Z"
+          /></g
+        >
+      </g>
     </g>
     {#if rain || snow}<g class="precipitation">
         {#each Array.from({ length: snow ? 24 : 32 }, (_, i) => i) as i}
@@ -166,12 +173,12 @@
             style={`animation-delay:-${i * 0.37}s;animation-duration:${snow && i % 2 === 0 ? 5 + (i % 4) : 0.9 + (i % 3) * 0.2}s`}
           >
             {#if snow && i % 2 === 0}<circle
-                cx={70 + ((i * 47) % 360)}
+                cx={70 + ((i * 47) % (stageWidth - 140))}
                 cy={100 + ((i * 31) % 170)}
                 r={1 + (i % 3) * 0.4}
                 fill="#dfebe3"
               />{:else}<path
-                d={`M${70 + ((i * 47) % 360)} ${90 + ((i * 31) % 170)}l${-2 - (wind ?? 2)} 13`}
+                d={`M${70 + ((i * 47) % (stageWidth - 140))} ${90 + ((i * 31) % 170)}l${-2 - (wind ?? 2)} 13`}
                 stroke="#b0cfd2"
                 stroke-width="1.2"
               />{/if}
@@ -179,15 +186,21 @@
         {/each}
       </g>{/if}
     <path
-      d="M0 257Q70 162 153 213T308 239T510 201V320H0Z"
+      d={wide
+        ? 'M0 257Q110 162 245 213T495 239T810 201V320H0Z'
+        : 'M0 257Q70 162 153 213T308 239T510 201V320H0Z'}
       fill={night ? '#293e43' : '#426d60'}
     />
     <path
-      d="M-20 290Q88 210 215 260T510 252V320H0Z"
+      d={wide
+        ? 'M-20 290Q150 210 345 260T810 252V320H0Z'
+        : 'M-20 290Q88 210 215 260T510 252V320H0Z'}
       fill={night ? '#354d50' : '#608371'}
     />
     <path
-      d="M70 320Q220 259 510 282V320Z"
+      d={wide
+        ? 'M100 320Q350 259 810 282V320Z'
+        : 'M70 320Q220 259 510 282V320Z'}
       fill={night ? '#597070' : '#90aaa0'}
       opacity=".7"
     />
@@ -195,14 +208,24 @@
       class="water"
       stroke={night ? '#a7b6aa' : '#d4debd'}
       stroke-linecap="round"
-      opacity=".25"><path d="M245 289h63m24 8h75m-231 9h112m51 6h92" /></g
+      opacity=".25"
+      ><path
+        d={wide
+          ? 'M345 289h63m44 8h75m-331 9h112m151 6h92'
+          : 'M245 289h63m24 8h75m-231 9h112m51 6h92'}
+      /></g
     >
     <g
       class="mist"
       opacity={condition === 'fog' ? 0.45 : 0.06}
       stroke="#c9d3c5"
       stroke-width="14"
-      stroke-linecap="round"><path d="M40 218h260m-190 23h310m-280 24h210" /></g
+      stroke-linecap="round"
+      ><path
+        d={wide
+          ? 'M40 218h360m-190 23h510m-280 24h310'
+          : 'M40 218h260m-190 23h310m-280 24h210'}
+      /></g
     >
   </g>
 </svg>

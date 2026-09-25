@@ -615,15 +615,16 @@ stället för ett tecken vars placering varierar mellan typsnitt och plattformar
 Sidor med fler rum eller högtalare kan rullas vertikalt; långa dialoger har egen
 touch-rullning och en rubrik som ligger kvar överst. På pekskärmar som skickar
 muspekare går det även att dra i bakgrunden eller på rumskort för att rulla.
-Svep i sidled byter fortfarande vy. Bekräfta gärna känslan på Pi-skärmen och iOS
-efter uppdatering, eftersom de enheterna inte kan simuleras fullt ut i bygget.
+Svep i sidled byter vy. Musliknande pekhändelser låses till sidled eller lodled
+när draget börjar, så reservrullningen inte avbryter ett snett sid-svep.
 På smala skärmar visas utomhusvärdet och väderdetaljerna i en kolumn. Den
 redundanta rubriken ovanför rumstemperaturerna är borttagen för att ge mer
 plats i 1280 × 720. På telefoner använder prognosen två kolumner och
 periodknapparna delar bredden. Utomhusscenen fyller kortets höjd, och rubriken
 ”UTOMHUS” är borttagen till förmån för ett större temperaturvärde.
-I bred kioskvy fyller scenen mer av utrymmet mellan temperatur och väderdetaljer
-utan att himlakropparnas proportioner ändras.
+I bred kioskvy är utomhustemperaturen större och scenen har ett bredare panorama
+som fyller utrymmet mellan temperaturen och väderdetaljerna. Hela motivets höjd
+syns utan att himlakropparnas proportioner ändras.
 
 ## Separat utomhusgivare (2026-09-23)
 
