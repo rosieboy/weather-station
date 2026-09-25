@@ -5,6 +5,61 @@
   font-synthesis: none;
   font-weight: 400;
 }
+html[data-theme='day']:has(.view-weather),
+html[data-theme='day'] .view-weather {
+  --bg-app: #f4f6f3;
+  --bg-card: #ffffff;
+  --text-primary: #1a231f;
+  --text-secondary: #55635c;
+  --accent: #4a5568;
+}
+html[data-theme='night']:has(.view-weather),
+html[data-theme='night'] .view-weather {
+  --bg-app: #0a0a0a;
+  --bg-card: #1a1a1a;
+  --text-primary: #f0f0f0;
+  --text-secondary: #a0a0a0;
+  --accent: #e2e8f0;
+}
+html[data-theme='day']:has(.view-rooms),
+html[data-theme='day'] .view-rooms {
+  --bg-app: #f0f5f1;
+  --bg-card: #ffffff;
+  --text-primary: #1a231f;
+  --text-secondary: #55635c;
+  --accent: #2e5c43;
+}
+html[data-theme='night']:has(.view-rooms),
+html[data-theme='night'] .view-rooms {
+  --bg-app: #08120c;
+  --bg-card: #12241a;
+  --text-primary: #e0f0e8;
+  --text-secondary: #688f78;
+  --accent: #3b7a57;
+}
+html[data-theme='day']:has(.view-audio),
+html[data-theme='day'] .view-audio {
+  --bg-app: #f7f4f0;
+  --bg-card: #ffffff;
+  --text-primary: #1a231f;
+  --text-secondary: #55635c;
+  --accent: #8c6239;
+}
+html[data-theme='night']:has(.view-audio),
+html[data-theme='night'] .view-audio {
+  --bg-app: #0f0a08;
+  --bg-card: #1f1412;
+  --text-primary: #fbeee6;
+  --text-secondary: #9e4738;
+  --accent: #d9905b;
+}
+html[data-theme]:has(.dashboard) {
+  background: var(--bg-app);
+}
+.dashboard {
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
 * {
   box-sizing: border-box;
 }
@@ -1061,6 +1116,48 @@ footer a {
 }
 
 /* Audio: four tactile cards, a quiet record motif, no continuous animation. */
+.audio-view,
+.audio-dialog {
+  --bg-playing: #f1e8dc;
+  --bg-accent: var(--accent);
+  --bg-accent-hover: #704b2c;
+  --bg-status: #e8d7c4;
+  --bg-track: #dce1d5;
+  --bg-dialog: #e9ede7;
+  --text-on-accent: #f6f4e9;
+  --text-status: #58391d;
+  --border-card: #b6c8b5;
+  --border-playing: #78947b;
+  --ring-focus: #95732e;
+  --record-light: #cfbea0;
+  --record-dark: #748778;
+  --record-alt-light: #b3bec0;
+  --record-alt-dark: #637477;
+  --record-groove: #35473e;
+  --record-groove-alt: #43564b;
+  --record-note: #e4d2b1;
+  color: var(--text-primary);
+}
+[data-theme='night'] .audio-view,
+[data-theme='night'] .audio-dialog {
+  --bg-playing: #2b1d19;
+  --bg-accent-hover: #b67648;
+  --bg-status: #4b3027;
+  --bg-track: #49342e;
+  --bg-dialog: #100d0d;
+  --text-on-accent: #fff3ed;
+  --text-status: #fbeee6;
+  --border-card: #69483f;
+  --border-playing: #996b58;
+  --ring-focus: #efb397;
+  --record-light: #84766e;
+  --record-dark: #47534b;
+  --record-alt-light: #728084;
+  --record-alt-dark: #404d50;
+  --record-groove: #252e2b;
+  --record-groove-alt: #39443e;
+  --record-note: #f1d9ab;
+}
 .audio-intro {
   display: flex;
   justify-content: space-between;
@@ -1074,8 +1171,8 @@ footer a {
   margin: 6px 0;
 }
 .audio-intro p:last-child {
-  font-size: 13px;
-  opacity: 0.7;
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 .audio-count {
   font-size: 30px;
@@ -1091,11 +1188,12 @@ footer a {
   gap: 16px;
 }
 .speaker-card {
-  background: #f7f7ee;
-  border: 1px solid #d5ddce;
-  border-radius: 24px;
-  padding: 14px 22px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
+  padding: 18px 22px;
   min-width: 0;
+  color: var(--text-primary);
 }
 .speaker-heading {
   display: flex;
@@ -1104,21 +1202,20 @@ footer a {
   gap: 12px;
 }
 .speaker-heading .eyebrow {
-  font-size: 9px;
-  letter-spacing: 1.8px;
-  opacity: 0.65;
+  font-size: 13px;
+  color: var(--text-secondary);
 }
 .speaker-heading h3 {
-  font-size: 20px;
+  font-size: 23px;
   font-weight: 550;
   margin-top: 3px;
 }
 .speaker-state {
-  font-size: 11px;
-  opacity: 0.65;
+  font-size: 14px;
+  color: var(--text-secondary);
 }
 .playing .speaker-state {
-  opacity: 1;
+  color: var(--text-status);
 }
 .speaker-track {
   display: flex;
@@ -1130,13 +1227,17 @@ footer a {
   width: 62px;
   height: 62px;
   flex-shrink: 0;
-  border-radius: 16px;
-  background: linear-gradient(140deg, #cfbea0, #748778);
+  border-radius: 8px;
+  background: linear-gradient(140deg, var(--record-light), var(--record-dark));
   display: grid;
   place-items: center;
 }
 .record-alt {
-  background: linear-gradient(140deg, #b3bec0, #637477);
+  background: linear-gradient(
+    140deg,
+    var(--record-alt-light),
+    var(--record-alt-dark)
+  );
 }
 .record-art span {
   display: grid;
@@ -1144,8 +1245,12 @@ footer a {
   width: 48px;
   height: 48px;
   border-radius: 50%;
-  background: repeating-radial-gradient(circle, #35473e 0 2px, #43564b 3px 4px);
-  color: #e4d2b1;
+  background: repeating-radial-gradient(
+    circle,
+    var(--record-groove) 0 2px,
+    var(--record-groove-alt) 3px 4px
+  );
+  color: var(--record-note);
   font-size: 20px;
 }
 .track-copy {
@@ -1156,28 +1261,28 @@ footer a {
 .track-copy p,
 .track-copy small {
   display: block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  overflow-wrap: anywhere;
 }
 .track-copy strong {
-  font-size: 15px;
-  font-weight: 550;
+  font-size: 20px;
+  font-weight: 600;
+  line-height: 1.2;
+  color: var(--text-primary);
 }
 .track-copy p {
-  font-size: 12px;
+  font-size: 17px;
   margin-top: 5px;
-  opacity: 0.75;
+  color: var(--text-secondary);
 }
 .track-copy small {
-  font-size: 10px;
+  font-size: 13px;
   margin-top: 5px;
-  opacity: 0.6;
+  color: var(--text-secondary);
 }
 .transport {
   display: flex;
   align-items: center;
-  gap: 2px;
+  gap: 4px;
 }
 .audio-view button,
 .audio-dialog button,
@@ -1187,18 +1292,18 @@ footer a {
   cursor: pointer;
 }
 .transport button {
-  height: 44px;
-  min-width: 44px;
+  height: 60px;
+  min-width: 60px;
   background: transparent;
   border: 0;
-  font-size: 19px;
+  color: var(--text-primary);
   border-radius: 50%;
 }
 .transport .play-button {
-  min-width: 44px;
-  background: #233d35;
-  color: #f6f4e9;
-  font-size: 17px;
+  min-width: 64px;
+  height: 64px;
+  background: var(--bg-accent);
+  color: var(--text-on-accent);
 }
 .speaker-volume {
   display: flex;
@@ -1206,36 +1311,77 @@ footer a {
   gap: 12px;
 }
 .speaker-volume button {
-  background: transparent;
+  background: var(--bg-accent);
   border: 0;
-  min-height: 44px;
-  min-width: 44px;
-  font-size: 11px;
-  padding: 0;
+  border-radius: 8px;
+  color: var(--text-on-accent);
+  min-height: 52px;
+  min-width: 64px;
+  font-size: 16px;
+  padding: 0 10px;
 }
 .speaker-volume input {
   flex: 1;
   min-width: 0;
-  height: 36px;
-  accent-color: #47644e;
+  height: 52px;
+  appearance: none;
+  background: transparent;
   cursor: pointer;
-  touch-action: pan-y;
+  touch-action: none;
+}
+.speaker-volume input:focus-visible {
+  outline: 3px solid var(--ring-focus);
+  outline-offset: 2px;
+  border-radius: 12px;
+}
+.speaker-volume input::-webkit-slider-runnable-track {
+  height: 24px;
+  border-radius: 12px;
+  background: linear-gradient(
+    to right,
+    var(--bg-accent) var(--volume),
+    var(--bg-track) var(--volume)
+  );
+}
+.speaker-volume input::-webkit-slider-thumb {
+  width: 44px;
+  height: 52px;
+  margin-top: -14px;
+  border: 0;
+  background: transparent;
+  appearance: none;
+}
+.speaker-volume input::-moz-range-track {
+  height: 24px;
+  border-radius: 12px;
+  background: var(--bg-track);
+}
+.speaker-volume input::-moz-range-progress {
+  height: 24px;
+  border-radius: 12px;
+  background: var(--bg-accent);
+}
+.speaker-volume input::-moz-range-thumb {
+  width: 44px;
+  height: 52px;
+  border: 0;
+  background: transparent;
 }
 .speaker-volume > span {
-  width: 37px;
+  width: 54px;
   text-align: right;
-  font-size: 16px;
+  font-size: 19px;
   font-variant-numeric: tabular-nums;
+  color: var(--text-primary);
 }
 .speaker-volume small {
-  font-size: 10px;
-  opacity: 0.65;
+  font-size: 15px;
 }
 .speaker-footer {
   display: flex;
   align-items: center;
   gap: 10px;
-  border-top: 1px solid #dce1d5;
+  border-top: 1px solid var(--border-card);
   padding-top: 6px;
 }
 .speaker-footer label {
@@ -1247,14 +1393,16 @@ footer a {
   min-height: 40px;
   border: 0;
   background: transparent;
-  font-size: 12px;
+  color: var(--text-primary);
+  font-size: 15px;
   text-overflow: ellipsis;
 }
 .speaker-footer button {
   background: transparent;
   border: 0;
   min-height: 40px;
-  font-size: 12px;
+  font-size: 15px;
+  color: var(--text-primary);
   white-space: nowrap;
 }
 .audio-view button:disabled,
@@ -1267,14 +1415,14 @@ footer a {
   min-height: 20px;
   text-align: center;
   font-size: 11px;
-  opacity: 0.7;
+  color: var(--text-secondary);
   margin-top: 14px;
 }
 .group-description {
   font-size: 14px;
   line-height: 1.6;
   max-width: 600px;
-  opacity: 0.75;
+  color: var(--text-secondary);
   margin: 15px 0;
 }
 .group-options {
@@ -1288,14 +1436,14 @@ footer a {
   align-items: center;
   gap: 14px;
   padding: 18px;
-  border: 1px solid #bccabe;
-  border-radius: 14px;
+  border: 1px solid var(--border-card);
+  border-radius: 8px;
   cursor: pointer;
 }
 .group-options input {
   width: 22px;
   height: 22px;
-  accent-color: #47644e;
+  accent-color: var(--bg-accent);
 }
 .group-options strong,
 .group-options small {
@@ -1303,7 +1451,7 @@ footer a {
 }
 .group-options small {
   margin-top: 6px;
-  opacity: 0.65;
+  color: var(--text-secondary);
 }
 .sr-only {
   position: absolute;
@@ -1313,29 +1461,30 @@ footer a {
   clip-path: inset(50%);
   white-space: nowrap;
 }
-[data-theme='night'] .speaker-card {
-  background: #201716;
-  border-color: #49342e;
+.audio-dialog,
+[data-theme='night'] .audio-dialog {
+  background: var(--bg-dialog);
+  color: var(--text-primary);
+  border-color: var(--border-card);
 }
-[data-theme='night'] .record-art {
-  filter: sepia(0.7) brightness(0.65);
+.audio-dialog .group-options label,
+[data-theme='night'] .audio-dialog .group-options label {
+  border-color: var(--border-card);
 }
-[data-theme='night'] .transport .play-button {
-  background: #6a4438;
-  color: #ecc0b0;
+.audio-dialog .room-actions button,
+[data-theme='night'] .audio-dialog .room-actions button {
+  background: var(--bg-accent);
+  color: var(--text-on-accent);
+  border-color: var(--border-card);
 }
-[data-theme='night'] .speaker-footer {
-  border-color: #49342e;
+.audio-dialog .group-description,
+.audio-dialog .group-options small,
+.audio-dialog .control-feedback {
+  color: var(--text-secondary);
 }
-[data-theme='night'] .speaker-volume input,
-[data-theme='night'] .group-options input {
-  accent-color: #bd8a78;
-}
-[data-theme='night'] .group-options label {
-  border-color: #49342e;
-}
-[data-theme='night'] .speaker-footer select option {
-  background: #201716;
+.audio-view .speaker-footer select option {
+  background: var(--bg-card);
+  color: var(--text-primary);
 }
 @media (max-width: 900px) {
   .audio-grid {
@@ -1360,62 +1509,11 @@ footer a {
   }
 }
 
-/* Read-only playback timeline, separate from the volume control. */
-.track-progress {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  height: 20px;
-  font-size: 10px;
-  font-variant-numeric: tabular-nums;
-  opacity: 0.7;
-}
-.track-progress progress {
-  flex: 1;
-  min-width: 20px;
-  height: 4px;
-  border: 0;
-  border-radius: 4px;
-  overflow: hidden;
-  appearance: none;
-  background: #dce1d5;
-}
-.track-progress progress::-webkit-progress-bar {
-  background: #dce1d5;
-}
-.track-progress progress::-webkit-progress-value {
-  background: #6b8572;
-}
-.track-progress progress::-moz-progress-bar {
-  background: #6b8572;
-}
-.track-progress small {
-  font-size: 9px;
-  white-space: nowrap;
-}
-.track-no-time {
-  flex: 1;
-}
 .audio-intro {
   margin-bottom: 14px;
 }
-.speaker-card {
-  padding-top: 10px;
-  padding-bottom: 10px;
-}
 .speaker-track {
-  margin-top: 6px;
-  margin-bottom: 4px;
-}
-[data-theme='night'] .track-progress progress,
-[data-theme='night'] .track-progress progress::-webkit-progress-bar {
-  background: #49342e;
-}
-[data-theme='night'] .track-progress progress::-webkit-progress-value {
-  background: #bd8a78;
-}
-[data-theme='night'] .track-progress progress::-moz-progress-bar {
-  background: #bd8a78;
+  margin-bottom: 12px;
 }
 
 /* Consistent media icons and a quiet, visible playing state. */
@@ -1428,23 +1526,23 @@ footer a {
   padding: 0;
 }
 .transport svg {
-  width: 22px;
-  height: 22px;
+  width: 30px;
+  height: 30px;
 }
 .transport button:enabled:hover {
-  background: #233d3512;
+  background: var(--bg-status);
 }
 .transport .play-button:enabled:hover {
-  background: #36594b;
+  background: var(--bg-accent-hover);
 }
 .transport button:focus-visible {
-  outline: 2px solid currentColor;
+  outline: 3px solid var(--ring-focus);
   outline-offset: 3px;
 }
 .speaker-card.playing {
-  background: #eef3e6;
-  border-color: #78947b;
-  box-shadow: inset 3px 0 0 #52755a;
+  background: var(--bg-playing);
+  border-color: var(--border-playing);
+  box-shadow: inset 3px 0 0 var(--bg-accent);
 }
 .speaker-state {
   display: inline-flex;
@@ -1454,28 +1552,13 @@ footer a {
   border-radius: 20px;
 }
 .playing .speaker-state {
-  background: #dbe8d5;
-  color: #31593c;
+  background: var(--bg-status);
+  color: var(--text-status);
   font-weight: 600;
 }
 .playing-mark {
   width: 14px;
   height: 14px;
-}
-[data-theme='night'] .speaker-card.playing {
-  background: #2b1d19;
-  border-color: #996b58;
-  box-shadow: inset 3px 0 0 #bd8a78;
-}
-[data-theme='night'] .playing .speaker-state {
-  background: #4b3027;
-  color: #ecc0b0;
-}
-[data-theme='night'] .transport button:enabled:hover {
-  background: #ecc0b012;
-}
-[data-theme='night'] .transport .play-button:enabled:hover {
-  background: #805443;
 }
 
 .brightness-control {
@@ -1700,4 +1783,948 @@ footer,
     grid-template-columns: minmax(0, 1fr) auto;
     padding-inline: 12px;
   }
+}
+
+.outdoor {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 20px;
+}
+.outdoor-main,
+.outdoor-details {
+  position: relative;
+  z-index: 1;
+}
+.outdoor .landscape {
+  top: 0;
+  bottom: auto;
+  height: 180px;
+  opacity: 0.2;
+}
+.weather-status {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 16px;
+  margin-top: 8px;
+  color: #b7cbb8;
+  font-size: 14px;
+}
+.weather-connection {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  color: #e2edcf;
+}
+.weather-connection::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #a4cd89;
+}
+.weather-connection.disconnected::before {
+  background: #eebd79;
+}
+.outdoor-details {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0;
+  width: 100%;
+  min-width: 0;
+  max-width: none;
+  margin: 0;
+  padding: 16px 0 0;
+  border-left: 0;
+  border-top: 1px solid #547163;
+}
+.weather-measure {
+  min-width: 0;
+  padding: 0 16px;
+  border-left: 1px solid #547163;
+}
+.weather-measure:first-child {
+  padding-left: 0;
+  border: 0;
+}
+.weather-measure .label,
+.weather-measure-note {
+  display: block;
+  font-size: 13px;
+}
+.weather-measure p {
+  margin-top: 4px;
+  font-size: 25px;
+  line-height: 1.2;
+}
+.weather-measure p span {
+  font-size: 14px;
+}
+.weather-measure-note {
+  margin-top: 3px;
+  color: #b7cbb8;
+}
+.weather-extra {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 20px;
+  grid-column: 1 / -1;
+  margin: 12px 0 0;
+  color: #b7cbb8;
+  font-size: 13px;
+}
+[data-theme='night'] .weather-status,
+[data-theme='night'] .weather-measure-note,
+[data-theme='night'] .weather-extra {
+  color: #b98b80;
+}
+[data-theme='night'] .weather-connection {
+  color: #f1c3b5;
+}
+[data-theme='night'] .weather-measure {
+  border-color: #49302d;
+}
+@media (max-width: 700px) {
+  .outdoor-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 0;
+    margin: 0;
+    padding-top: 16px;
+  }
+  .weather-measure:last-of-type {
+    grid-column: 1 / -1;
+    padding: 12px 0 0;
+    border: 0;
+    border-top: 1px solid #547163;
+  }
+}
+@media (max-width: 380px) {
+  .weather-measure {
+    padding-right: 0;
+    padding-left: 12px;
+  }
+}
+
+.dashboard.weather-active {
+  color: var(--text-primary);
+}
+.weather-active .brand-icon,
+.weather-active .view-nav,
+.weather-active .theme-toggle {
+  border-color: #789388;
+}
+.weather-active .view-nav button[aria-current] {
+  background: var(--accent);
+  color: #ffffff;
+}
+html[data-theme='night'] .view-weather .view-nav button[aria-current] {
+  color: var(--bg-app);
+}
+
+/* Weather kiosk: prioritize large, high-contrast readings in a single 720px screen. */
+.dashboard.weather-active {
+  background: var(--bg-app);
+}
+.weather-screen {
+  display: grid;
+  gap: 12px;
+  color: var(--text-primary);
+}
+.weather-screen .outdoor {
+  grid-template-columns: minmax(0, 42%) minmax(0, 1fr);
+  align-items: center;
+  gap: 18px;
+  min-height: 238px;
+  padding: 24px 30px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  border-radius: 8px;
+}
+html[data-theme='day'] .weather-screen .outdoor {
+  background: var(--accent);
+  color: #ffffff;
+}
+.weather-screen .outdoor .landscape {
+  width: 48%;
+  height: 100%;
+  left: 8%;
+  opacity: 0.26;
+}
+.weather-screen .outdoor h2 {
+  color: #f2f7eb;
+  font-size: 26px;
+}
+.weather-screen .outdoor-temperature {
+  margin: 2px 0;
+  color: #fff;
+  font-size: clamp(80px, 8vw, 112px);
+  line-height: 1;
+}
+.weather-screen .outdoor-temperature span {
+  color: #fff;
+}
+.weather-screen .weather-status,
+.weather-screen .weather-connection,
+.weather-screen .weather-measure .label,
+.weather-screen .weather-measure-note {
+  color: #e4f1e7;
+  font-size: 16px;
+}
+.weather-screen .outdoor-details {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-self: stretch;
+  align-items: center;
+  padding: 0 0 0 14px;
+  border-top: 0;
+  border-left: 1px solid #8ca99c;
+}
+.weather-screen .weather-measure {
+  border-color: #8ca99c;
+}
+.weather-screen .weather-measure p {
+  color: #fff;
+  font-size: 36px;
+  white-space: nowrap;
+}
+.weather-screen .weather-measure p span {
+  color: #fff;
+  font-size: 18px;
+}
+.weather-screen .indoors {
+  margin: 0;
+}
+.weather-screen .rooms {
+  gap: 12px;
+}
+.weather-screen .room {
+  min-width: 0;
+  min-height: 139px;
+  padding: 16px 20px;
+  background: var(--bg-card);
+  border: 1px solid #3b6658;
+  border-radius: 8px;
+  color: var(--text-primary);
+}
+.weather-screen .room h3 {
+  color: var(--text-primary);
+  font-size: 22px;
+}
+.weather-screen .room-readings {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+}
+.weather-screen .room-temperature {
+  margin: 0;
+  color: var(--text-primary);
+  font-size: clamp(48px, 4.2vw, 58px);
+  white-space: nowrap;
+}
+.weather-screen .room-temperature > span {
+  margin-left: 2px;
+  color: var(--text-primary);
+  font-size: 22px;
+}
+.weather-screen .room-humidity {
+  display: grid;
+  padding: 0;
+  border: 0;
+  white-space: nowrap;
+}
+.weather-screen .room-humidity-label {
+  color: var(--text-secondary);
+  font-size: 14px;
+  line-height: 1.2;
+}
+.weather-screen .room-humidity strong {
+  color: var(--text-primary);
+  font-size: 36px;
+  font-weight: 500;
+}
+.weather-screen .room-humidity span {
+  font-size: 22px;
+}
+.weather-screen .room-note {
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+.weather-screen .forecast {
+  margin: 0;
+}
+.weather-screen .forecast-container {
+  display: block;
+  width: 100%;
+  min-height: 142px;
+  padding: 14px 0;
+  border: 1px solid #3b6658;
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.weather-screen .forecast-container:focus-visible {
+  outline: 3px solid #f4cc77;
+  outline-offset: 2px;
+}
+.weather-screen .forecast-items {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  padding: 0;
+  border: 0;
+  background: transparent;
+}
+.weather-screen .forecast-item {
+  min-width: 0;
+  padding: 0 16px;
+  border-color: #638278;
+}
+.weather-screen .forecast-date {
+  color: var(--text-primary);
+  font-size: 18px;
+}
+.weather-screen .forecast-item strong {
+  color: var(--text-primary);
+  font-size: 27px;
+}
+.weather-screen .forecast-item small {
+  color: var(--text-secondary);
+  font-size: 19px;
+}
+.weather-screen .weather-symbol {
+  color: var(--accent);
+  font-size: 36px;
+}
+.weather-screen .rain,
+.weather-screen .forecast-note {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+.weather-screen .astronomy {
+  justify-content: space-between;
+  padding: 0 4px;
+  color: #e4f1e7;
+  font-size: 15px;
+}
+.weather-screen .astronomy strong {
+  color: var(--text-primary);
+}
+.weather-screen footer {
+  margin: 0;
+  color: var(--text-secondary);
+  font-size: 13px;
+}
+[data-theme='night'] .weather-screen .outdoor,
+[data-theme='night'] .weather-screen .room,
+[data-theme='night'] .weather-screen .forecast-container {
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+[data-theme='night'] .weather-screen .room,
+[data-theme='night'] .weather-screen .forecast-container {
+  border-color: #607477;
+}
+[data-theme='night'] .weather-screen .weather-measure,
+[data-theme='night'] .weather-screen .outdoor-details {
+  border-color: #607477;
+}
+[data-theme='night'] .weather-screen .weather-symbol {
+  color: var(--accent);
+  filter: none;
+}
+@media (max-width: 900px) {
+  .weather-screen .outdoor {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 18px;
+  }
+  .weather-screen .outdoor-details {
+    border: 0;
+    border-top: 1px solid #8ca99c;
+    padding: 14px 0 0;
+  }
+  .weather-screen .forecast-items {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px 0;
+  }
+}
+@media (max-width: 700px) {
+  .weather-screen .outdoor {
+    padding: 20px;
+  }
+  .weather-screen .outdoor .landscape {
+    left: 50%;
+    width: auto;
+    height: 180px;
+    opacity: 0.2;
+  }
+  .weather-screen .outdoor-details {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px 0;
+  }
+  .weather-screen .weather-measure:last-of-type {
+    border-color: #8ca99c;
+  }
+  .weather-screen .rooms {
+    grid-template-columns: 1fr;
+  }
+  .weather-screen .room {
+    min-height: 0;
+  }
+  .weather-screen .room-temperature {
+    font-size: 3rem;
+  }
+  .weather-screen .forecast-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .weather-screen .forecast-item {
+    padding: 0 12px;
+  }
+  .weather-screen .astronomy {
+    flex-wrap: wrap;
+  }
+}
+
+.dashboard.rooms-active {
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+.rooms-active .brand-icon,
+.rooms-active .view-nav,
+.rooms-active .theme-toggle {
+  border-color: #789388;
+}
+.rooms-active .view-nav button[aria-current] {
+  background: var(--accent);
+  color: #ffffff;
+}
+.rooms-active .home-intro {
+  margin: 20px 0;
+}
+.rooms-active .home-description,
+.rooms-active .home-total,
+.rooms-active .home-total strong,
+.rooms-active .home-total strong span,
+.rooms-active .home-hint {
+  color: var(--text-secondary);
+}
+.rooms-active .home-card,
+[data-theme='night'] .rooms-active .home-card,
+.rooms-active .home-card.has-light,
+[data-theme='night'] .rooms-active .home-card.has-light {
+  min-width: 0;
+  min-height: 180px;
+  padding: 18px;
+  border: 1px solid #638278;
+  border-radius: 8px;
+  background: var(--bg-card);
+  color: var(--text-primary);
+}
+.rooms-active .home-card.has-light,
+[data-theme='night'] .rooms-active .home-card.has-light {
+  background: var(--accent);
+  border-color: #a4cd89;
+  color: #ffffff;
+}
+.rooms-active .home-card:hover {
+  border-color: #ffffff;
+}
+.rooms-active .home-card-top {
+  margin-bottom: 12px;
+}
+.rooms-active .home-card h3 {
+  color: inherit;
+  font-size: 23px;
+}
+.rooms-active .room-status,
+.rooms-active .room-art,
+[data-theme='night'] .rooms-active .room-status,
+[data-theme='night'] .rooms-active .room-art {
+  color: inherit;
+}
+.rooms-active .home-card-bottom,
+[data-theme='night'] .rooms-active .home-card-bottom {
+  align-items: baseline;
+  justify-content: flex-start;
+  flex-wrap: wrap;
+  gap: 6px 12px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-color: #638278;
+  color: inherit;
+}
+.rooms-active .home-card-temperature {
+  color: inherit;
+  font-size: 32px;
+  font-weight: 500;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.rooms-active .room-humidity-mini,
+[data-theme='night'] .rooms-active .room-humidity-mini {
+  color: inherit;
+  font-size: 25px;
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.room-dialog,
+[data-theme='night'] .room-dialog {
+  border-color: #638278;
+  border-radius: 8px;
+  background: #101f1d;
+  color: #ffffff;
+}
+.room-dialog .room-summary,
+.room-dialog .device-label > span,
+.room-dialog .room-extras,
+.room-dialog .control-feedback,
+.room-dialog .brightness-control > span,
+.room-dialog .room-art,
+.room-dialog .device-art,
+[data-theme='night'] .room-dialog .room-summary,
+[data-theme='night'] .room-dialog .device-label > span,
+[data-theme='night'] .room-dialog .room-extras,
+[data-theme='night'] .room-dialog .control-feedback,
+[data-theme='night'] .room-dialog .room-art,
+[data-theme='night'] .room-dialog .device-art {
+  color: #e4f1e7;
+}
+.room-dialog .device-row,
+[data-theme='night'] .room-dialog .device-row {
+  border-color: #638278;
+  border-radius: 8px;
+  background: #183b33;
+  color: #ffffff;
+}
+.room-dialog .room-actions button,
+[data-theme='night'] .room-dialog .room-actions button,
+[data-theme='night'] .room-dialog .room-actions button:first-child {
+  min-height: 52px;
+  border-color: #638278;
+  background: #244e3e;
+  color: #ffffff;
+  font-size: 16px;
+}
+.room-dialog .room-actions button:first-child {
+  background: #356a51;
+}
+.room-dialog .room-extras,
+.room-dialog .dialog-close {
+  border-color: #638278;
+}
+.room-dialog .control-failed,
+[data-theme='night'] .room-dialog .control-failed {
+  color: #ffbdac;
+}
+.room-dialog .control-feedback {
+  height: 72px;
+  overflow-y: auto;
+}
+.room-dialog .device-toggle {
+  flex-basis: 68px;
+  height: 56px;
+}
+.room-dialog .device-toggle::before,
+[data-theme='night'] .room-dialog .device-toggle::before {
+  inset: 8px 2px;
+  border-radius: 20px;
+  background: #779289;
+}
+.room-dialog .device-toggle[aria-checked='true']::before,
+[data-theme='night'] .room-dialog .device-toggle[aria-checked='true']::before {
+  background: #3e946d;
+}
+.room-dialog .device-toggle span,
+[data-theme='night'] .room-dialog .device-toggle span {
+  left: 7px;
+  top: 12px;
+  width: 32px;
+  height: 32px;
+  background: #ffffff;
+}
+.room-dialog .device-toggle[aria-checked='true'] span {
+  transform: translateX(28px);
+}
+.room-dialog .brightness-control input {
+  height: 48px;
+  margin-top: 8px;
+  appearance: none;
+  background: linear-gradient(
+      to right,
+      #71d4a1 var(--brightness),
+      #638278 var(--brightness)
+    )
+    center / 100% 14px no-repeat;
+  touch-action: none;
+}
+.room-dialog .brightness-control input::-webkit-slider-runnable-track {
+  height: 14px;
+  border-radius: 7px;
+  background: transparent;
+}
+.room-dialog .brightness-control input::-webkit-slider-thumb {
+  width: 32px;
+  height: 32px;
+  margin-top: -9px;
+  border: 3px solid #244e3e;
+  border-radius: 50%;
+  background: #ffffff;
+  appearance: none;
+}
+.room-dialog .brightness-control input::-moz-range-track {
+  height: 14px;
+  border-radius: 7px;
+  background: #638278;
+}
+.room-dialog .brightness-control input::-moz-range-progress {
+  height: 14px;
+  border-radius: 7px;
+  background: #71d4a1;
+}
+.room-dialog .brightness-control input::-moz-range-thumb {
+  width: 32px;
+  height: 32px;
+  border: 3px solid #244e3e;
+  border-radius: 50%;
+  background: #ffffff;
+}
+@media (max-width: 700px) {
+  .rooms-active .home-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .rooms-active .home-card-temperature {
+    font-size: 28px;
+  }
+  .rooms-active .room-humidity-mini {
+    font-size: 23px;
+  }
+}
+@media (max-width: 480px) {
+  .rooms-active .home-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+:is(.weather-active, .rooms-active) .source,
+[data-theme='night'] :is(.weather-active, .rooms-active) .source {
+  background: #244e3e;
+  color: #ffffff;
+}
+:is(.weather-active, .rooms-active) .source > span,
+[data-theme='night'] :is(.weather-active, .rooms-active) .source > span {
+  background: #a4cd89;
+}
+
+.audio-dialog,
+[data-theme='night'] .audio-dialog {
+  background: var(--bg-dialog);
+  border-color: var(--border-card);
+  color: var(--text-primary);
+}
+.audio-dialog .room-actions button,
+[data-theme='night'] .audio-dialog .room-actions button,
+[data-theme='night'] .audio-dialog .room-actions button:first-child {
+  background: var(--bg-accent);
+  border-color: var(--border-card);
+  color: var(--text-on-accent);
+}
+.audio-dialog .room-extras,
+.audio-dialog .control-feedback,
+.audio-dialog .group-description,
+.audio-dialog .group-options small {
+  color: var(--text-secondary);
+}
+.audio-view .speaker-state,
+.audio-view .speaker-heading .eyebrow,
+.audio-view .track-copy small {
+  font-size: 14px;
+}
+.audio-view .track-copy p {
+  font-size: 17px;
+}
+.audio-view .speaker-volume button {
+  font-size: 16px;
+}
+.audio-view .speaker-volume small {
+  font-size: 15px;
+}
+.view-audio .view-nav button[aria-current],
+[data-theme='night'] .view-audio .view-nav button[aria-current] {
+  background: var(--accent);
+  color: var(--bg-app);
+}
+[data-theme='night'] .audio-view .track-copy p,
+[data-theme='night'] .audio-view .track-copy small,
+[data-theme='night'] .audio-view .speaker-heading .eyebrow {
+  color: color-mix(in srgb, var(--text-secondary) 35%, var(--text-primary));
+}
+@media (min-width: 1000px) and (max-height: 800px) {
+  .audio-view .audio-intro {
+    margin-bottom: 10px;
+  }
+  .audio-view .audio-intro .eyebrow {
+    display: none;
+  }
+  .audio-view .audio-intro h2 {
+    margin: 0;
+    font-size: 26px;
+  }
+  .audio-view .speaker-card {
+    padding: 10px 18px;
+  }
+  .audio-view .speaker-heading > div {
+    display: flex;
+    align-items: baseline;
+    gap: 10px;
+    min-width: 0;
+  }
+  .audio-view .speaker-heading h3 {
+    margin: 0;
+  }
+  .audio-view .speaker-track {
+    margin: 6px 0;
+  }
+  .audio-view .speaker-footer {
+    padding-top: 2px;
+  }
+  .audio-view .audio-feedback {
+    margin-top: 6px;
+  }
+}
+
+/* Deep ambient: near-black surfaces and monochrome red for every view. */
+html[data-theme='deep-ambient'],
+html[data-theme='deep-ambient'] :is(.view-weather, .view-rooms, .view-audio) {
+  --bg-app: #000000;
+  --bg-card: #080202;
+  --bg-card-hover: #120404;
+  --text-primary: #cc2400;
+  --text-secondary: #661200;
+  --accent: #ff3300;
+  --border-color: rgba(204, 36, 0, 0.1);
+  color: var(--text-primary);
+}
+html[data-theme='deep-ambient'] :is(img, svg) {
+  filter: grayscale(1) sepia(1) hue-rotate(-30deg) saturate(3);
+  opacity: 0.6;
+}
+html[data-theme='deep-ambient'] .dashboard {
+  color: var(--text-primary);
+}
+html[data-theme='deep-ambient']
+  :is(.view-weather, .view-rooms, .view-audio)
+  :is(.view-nav, .brand-icon, .theme-toggle, .source) {
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+html[data-theme='deep-ambient']
+  :is(.view-weather, .view-rooms, .view-audio)
+  .source,
+html[data-theme='deep-ambient'] .audio-view {
+  background: var(--bg-app);
+  color: var(--text-primary);
+}
+html[data-theme='deep-ambient']
+  :is(.view-weather, .view-rooms, .view-audio)
+  .source
+  > span {
+  background: var(--accent);
+}
+html[data-theme='deep-ambient']
+  :is(.view-weather, .view-rooms, .view-audio)
+  .view-nav
+  button[aria-current] {
+  background: var(--accent);
+  color: var(--bg-app);
+}
+html[data-theme='deep-ambient']
+  .weather-screen
+  :is(.outdoor, .room, .forecast-container),
+html[data-theme='deep-ambient']
+  .rooms-active
+  :is(.home-card, .home-card.has-light),
+html[data-theme='deep-ambient']
+  .audio-view
+  :is(.speaker-card, .speaker-card.playing) {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+  box-shadow: none;
+}
+html[data-theme='deep-ambient'] .rooms-active .home-card:hover {
+  background: var(--bg-card-hover);
+}
+html[data-theme='deep-ambient']
+  .weather-screen
+  :is(
+    h2,
+    h3,
+    .outdoor-temperature,
+    .outdoor-temperature span,
+    .weather-measure p,
+    .weather-measure p span,
+    .weather-connection,
+    .weather-status,
+    .room-temperature,
+    .room-temperature > span,
+    .room-humidity strong,
+    .forecast-date,
+    .forecast-item strong,
+    .astronomy strong
+  ),
+html[data-theme='deep-ambient']
+  .rooms-active
+  :is(
+    .home-card h3,
+    .home-card-temperature,
+    .room-humidity-mini,
+    .room-status,
+    .room-art,
+    .home-total strong
+  ),
+html[data-theme='deep-ambient']
+  .audio-view
+  :is(
+    .track-copy strong,
+    .speaker-heading h3,
+    .speaker-state,
+    .speaker-footer select,
+    .speaker-footer button
+  ) {
+  color: var(--text-primary);
+}
+html[data-theme='deep-ambient']
+  .weather-screen
+  :is(
+    .label,
+    .weather-measure-note,
+    .room-humidity-label,
+    .room-note,
+    .forecast-item small,
+    .rain,
+    footer
+  ),
+html[data-theme='deep-ambient']
+  .rooms-active
+  :is(.home-total, .home-total strong span),
+html[data-theme='deep-ambient']
+  .audio-view
+  :is(
+    .track-copy p,
+    .track-copy small,
+    .speaker-heading .eyebrow,
+    .audio-feedback
+  ) {
+  color: var(--text-secondary);
+}
+html[data-theme='deep-ambient']
+  :is(
+    .weather-screen .outdoor-details,
+    .weather-screen .weather-measure,
+    .weather-screen .forecast-item,
+    .rooms-active .home-card-bottom,
+    .audio-view .speaker-footer
+  ) {
+  border-color: var(--border-color);
+}
+html[data-theme='deep-ambient'] .audio-view,
+html[data-theme='deep-ambient'] .audio-dialog {
+  --bg-playing: var(--bg-card-hover);
+  --bg-accent: var(--accent);
+  --bg-accent-hover: var(--text-primary);
+  --bg-status: var(--bg-card-hover);
+  --bg-track: var(--bg-card-hover);
+  --bg-dialog: var(--bg-card);
+  --text-on-accent: var(--bg-app);
+  --text-status: var(--text-primary);
+  --border-card: var(--border-color);
+  --border-playing: var(--border-color);
+  --ring-focus: var(--accent);
+}
+html[data-theme='deep-ambient']
+  .audio-view
+  :is(.transport .play-button, .speaker-volume button) {
+  background: var(--accent);
+  color: var(--bg-app);
+}
+html[data-theme='deep-ambient'] .audio-view .playing .speaker-state {
+  background: var(--bg-card-hover);
+  color: var(--text-primary);
+}
+html[data-theme='deep-ambient']
+  :is(.room-dialog, .audio-dialog, .room-dialog .device-row) {
+  background: var(--bg-card);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+html[data-theme='deep-ambient'] .room-dialog .room-actions button,
+html[data-theme='deep-ambient']
+  .room-dialog
+  .device-toggle[aria-checked='true']::before {
+  background: var(--accent);
+  color: var(--bg-app);
+}
+html[data-theme='deep-ambient']
+  .room-dialog
+  :is(
+    .room-summary,
+    .device-label > span,
+    .room-extras,
+    .group-description,
+    .group-options small,
+    .control-feedback
+  ) {
+  color: var(--text-secondary);
+}
+html[data-theme='deep-ambient'] .room-dialog .device-toggle::before {
+  background: var(--bg-card-hover);
+}
+html[data-theme='deep-ambient'] .room-dialog .device-toggle span {
+  background: var(--text-primary);
+}
+html[data-theme='deep-ambient'] .room-dialog .brightness-control input {
+  background-image: linear-gradient(
+    to right,
+    var(--accent) var(--brightness),
+    var(--bg-card-hover) var(--brightness)
+  );
+}
+html[data-theme='deep-ambient']
+  .room-dialog
+  .brightness-control
+  input::-webkit-slider-thumb,
+html[data-theme='deep-ambient']
+  .room-dialog
+  .brightness-control
+  input::-moz-range-thumb {
+  background: var(--text-primary);
+  border-color: var(--bg-card);
+}
+html[data-theme='deep-ambient'] .audio-view {
+  --record-light: var(--bg-card-hover);
+  --record-dark: var(--bg-card);
+  --record-alt-light: var(--bg-card-hover);
+  --record-alt-dark: var(--bg-card);
+  --record-groove: var(--bg-card);
+  --record-groove-alt: var(--bg-card-hover);
+  --record-note: var(--text-primary);
+}
+html[data-theme='deep-ambient'] :is(.error, .control-failed) {
+  background: var(--bg-card-hover);
+  color: var(--accent);
+}
+html[data-theme='deep-ambient'] .weather-connection::before,
+html[data-theme='deep-ambient'] .room-dot,
+html[data-theme='deep-ambient'] .source > span {
+  background: var(--text-primary);
+  box-shadow: none;
+}
+html[data-theme='deep-ambient'] .weather-screen .weather-symbol {
+  filter: grayscale(1) sepia(1) hue-rotate(-30deg) saturate(3);
+  opacity: 0.6;
+}
+html[data-theme='deep-ambient'] .weather-screen .weather-scene {
+  opacity: 0.18;
 }

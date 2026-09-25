@@ -1,8 +1,9 @@
 # Väderstation
 
 Svensk dashboard för temperatur och luftfuktighet, byggd med SvelteKit, Svelte 5
-och TypeScript. Layouten är anpassad till 1280 × 720 och staplar rumskorten på
-mindre skärmar. Utetemperatur visas som huvudvärde, med Vardagsrum, Sovrum och Balkong under.
+och TypeScript. Väder, Rum och Ljud är anpassade för Pi:ns kiosk på 1280 × 720
+och fungerar även på mindre skärmar. Utetemperaturen är vädervyns huvudvärde,
+med Vardagsrum, Sovrum och Balkong under.
 
 ![Bild på vädervy](./static/weather.png 'Väder- och temperaturvy')
 
@@ -38,6 +39,24 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 - Sensorflödet använder WebSocket och SSE sedan 2026-09-14. Ingen databas eller historiklagring finns. Prognoser cachas i 15 minuter på servern; sensorvärden uppdateras via händelser.
 - Mockleverantören är borttagen. Typen `source` och visningen har kvar stöd för
   etiketten `mock`, men ingen konfigurationsinställning aktiverar ett demoläge.
+
+### Gränssnitt och teman (2026-09-26)
+
+- Vädervyn visar stora mätvärden utan mät- och prognostidsstämplar. Hela
+  prognosraden är en knapp som växlar mellan sex dygn och sex timmar.
+- Rumskorten är helt klickbara och visar lampstatus, temperatur och luftfuktighet.
+  Dialogen har större brytare och dimmerspår; pågående kommandon och fel visas,
+  medan lyckade kommandon inte lämnar kvar en statusrad. Feedbackytan behåller
+  sin höjd så dialogen inte hoppar vid styrning.
+- Ljudvyn har större spelknappar, en fylld touchvänlig volymstapel och tydligare
+  låt- och artisttext. Tidsrad och statiska uppspelningstexter visas inte längre;
+  volymkommandot skickas fortfarande först när reglaget släpps.
+- De tre vyerna har egna färgpaletter för dag och natt. `deep-ambient` använder
+  svart bakgrund och dämpat rött i alla vyer, inklusive reglage och dialoger.
+  Det aktiveras automatiskt **23:00–07:59 i Europe/Stockholm**, oavsett sparat
+  manuellt temaval. Från 08:00 gäller åter det tidigare manuella valet eller
+  Auto-lägets solstyrda dag/natt. Temaknappen växlar fortfarande Auto → Natt →
+  Dag; ambient är inget separat manuellt val.
 
 ## Visualisering
 
@@ -208,12 +227,12 @@ samt `home` med rum och lampkontroller. `HomeSnapshot` och `HomeRoom` finns i
 - Saknad adress/token och nekad autentisering ger tydliga meddelanden.
 - Vid avbrott mellan webbläsare och server behålls siddata med en separat varning.
 
-”Mätvärde ändrat” visar den äldsta giltiga `last_updated` av platsens tillgängliga
-mätvärden. Det är inte ett bevis på senaste radiokontakt; ett oförändrat värde kan
-ha en gammal tidsstämpel. Ingen automatisk åldersgräns för gamla värden finns ännu.
-”Hämtat” anger när servern sammanställde siddata, inte sensorns rapporttid.
-Tider visas i `Europe/Stockholm`, temperatur med en decimal och luftfuktighet
-avrundad till heltal.
+`updatedAt` innehåller den äldsta giltiga `last_updated` av platsens
+tillgängliga mätvärden. Det är inte ett bevis på senaste radiokontakt; ett
+oförändrat värde kan ha en gammal tidsstämpel. Ingen automatisk åldersgräns
+för gamla värden finns ännu. Kiosk-vyn visar inte dessa tidsstämplar.
+`fetchedAt` anger när servern sammanställde siddata, inte sensorns rapporttid.
+Klocka och temafönster använder `Europe/Stockholm`.
 
 ## Tidigare Home Assistant-installation på Mac (historik)
 
@@ -362,8 +381,8 @@ den nya givarens entity-ID:n; den egna sensorn behåller huvudrollen.
   Moon-integration lades till vid detta arbete.
 - Nästa soluppgång och solnedgång hämtas från `sun.sun`, med datum så att morgondagens
   uppgång inte förväxlas med dagens. Tidszonen är fortsatt Europe/Stockholm.
-- Sex prognoskolumner visar dygn (max/min) eller timmar. Två touchvänliga knappar
-  växlar läge. Nederbörd visas som sannolikhet i procent, inte mängd.
+- Sex prognoskolumner visar dygn (max/min) eller timmar. Hela prognosraden
+  växlar läge vid tryck. Nederbörd visas som sannolikhet i procent, inte mängd.
 - Prognosen hämtas via `POST /api/services/weather/get_forecasts?return_response`
   för `daily` och `hourly`. Detta är en datahämtande Home Assistant-action.
 - Lyckade prognossvar cachas i 15 minuter i serverprocessens minne. Cachen försvinner
@@ -395,13 +414,13 @@ nuvarande Docker-installation kör en process.
 Knappen i sidhuvudet växlar Auto → Natt → Dag. Valet sparas lokalt i webbläsaren.
 Auto använder solhändelserna i `sun.sun` (se detaljer nedan), med solstatus som reserv.
 Saknas solstatus används dagläge. Vid anslutningsavbrott behålls senast mottagna
-solstatus tills anslutningen återkommer. Nattläget har mörk bakgrund och varma,
-dämpade rödtoner; det ändrar färgerna, inte skärmens hårdvaruljusstyrka.
+solstatus tills anslutningen återkommer. Mellan 23:00 och 08:00 svensk tid tar
+`deep-ambient` tillfälligt över alla tre vyerna, även vid ett sparat Dag/Natt-val.
+Temat ändrar färgerna, inte skärmens hårdvaruljusstyrka.
 
 met.no-panelen visar även lufttryck i hPa, vind i m/s och kompassriktning (varifrån
 vinden blåser). Kända enheter konverteras; saknade/okända enheter visas som streck.
-Tiden ”Värde ändrat” kommer från väderentitetens `last_updated`, inte från
-prognosmodellens körtid eller en garanterad tid för senaste hämtning.
+Lufttryck och trend finns kvar i serverns data men visas inte i kiosk-vyn.
 
 Stora panelen visar den separata utomhusgivaren. Raden Hemma visar riktiga
 värden för Vardagsrum, Sovrum och Balkong.
@@ -556,16 +575,11 @@ fortfarande utföras av HA. Inga automatiska återförsök skickas. Ett lyckat s
 bekräftar behandlat kommando, inte att nya låtuppgifter har mottagits. Tester
 skiljer avvisade svar från osäkra timeout-resultat och kontrollerar källbytets tidsgräns.
 
-### Låtinformation och tidsrad (2026-09-18)
+### Låtinformation (2026-09-18; vy uppdaterad 2026-09-26)
 
 Ljudkorten visar gruppledarens låt och artist även när uppspelningen startas utanför
-panelen, förutsatt att HA rapporterar metadata. Grupptext och gruppledare behålls.
-En tidsrad utan sökfunktion visar spelad tid och total längd från `media_position`,
-`media_position_updated_at` och `media_duration`. Sidan räknar vidare varje sekund
-under uppspelning med den befintliga serversynkroniserade klockan och korrigerar
-vid nya HA-händelser. Paus och anslutningsfel stoppar framräkningen; positionen
-begränsas till låtens längd. Saknas giltig längd/position visas att tidsinformation
-saknas. Detta är en uppskattning mellan rapporter, inte ljudsynkron exakt tid.
+Tidsrad, spelad tid, total längd och platshållaren ”Tidsinformation saknas” har
+tagits bort ur spelarkorten för att ge större plats åt titel och kontroller.
 
 När Sonos tar emot TV-ljud kan dess metadata enbart vara ”TV”. För en bekräftad
 Apple TV → TV → Sonos-koppling finns två frivilliga inställningar:
@@ -575,8 +589,9 @@ Apple TV → TV → Sonos-koppling finns två frivilliga inställningar:
 
 Båda lämnas tomma om kopplingen inte är känd. Vi gissar inte från rumsnamn eller
 vilken app som råkar spela. När den konfigurerade Sonos-enhetens källa är TV och
-Apple TV är playing/paused med titel, används dess låtmetadata och tidsuppgifter,
-märkt ”Via Apple TV”. Gruppmedlemmarna visar samma information via gruppledaren.
+Apple TV är playing/paused med titel, används dess låtmetadata och tidsuppgifter.
+Källans metadata visas inte som en separat etikett i spelarkortet. Gruppmedlemmarna
+visar samma information via gruppledaren.
 Källval, volym och uppspelningskommandon fortsätter gå till Sonos som tidigare.
 Om TV:n byter till en annan ingång medan Apple TV fortsätter spela kan den explicita
 kopplingen visa fel metadata; ingen TV-ingångsstatus är integrerad ännu.
@@ -617,14 +632,10 @@ touch-rullning och en rubrik som ligger kvar överst. På pekskärmar som skicka
 muspekare går det även att dra i bakgrunden eller på rumskort för att rulla.
 Svep i sidled byter vy. Musliknande pekhändelser låses till sidled eller lodled
 när draget börjar, så reservrullningen inte avbryter ett snett sid-svep.
-På smala skärmar visas utomhusvärdet och väderdetaljerna i en kolumn. Den
-redundanta rubriken ovanför rumstemperaturerna är borttagen för att ge mer
-plats i 1280 × 720. På telefoner använder prognosen två kolumner och
-periodknapparna delar bredden. Utomhusscenen fyller kortets höjd, och rubriken
-”UTOMHUS” är borttagen till förmån för ett större temperaturvärde.
-I bred kioskvy är utomhustemperaturen större och scenen har ett bredare panorama
-som fyller utrymmet mellan temperaturen och väderdetaljerna. Hela motivets höjd
-syns utan att himlakropparnas proportioner ändras.
+På smala skärmar staplas väderdetaljer och rumskort och prognosen använder två
+kolumner. På 1280 × 720 ryms Väder, Rum respektive Ljud utan horisontell
+rullning. Väderillustrationen ligger bakom huvudvärdet och dämpas i
+`deep-ambient` för att inte konkurrera med mätvärdena.
 
 ## Separat utomhusgivare (2026-09-23)
 

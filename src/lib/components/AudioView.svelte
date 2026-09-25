@@ -1,20 +1,13 @@
 <script lang="ts">
   import { onDestroy } from 'svelte';
   import type { HomeSnapshot } from '$lib/home/types';
-  import {
-    supports,
-    playbackPosition,
-    trackTime,
-    type Speaker
-  } from '$lib/home/audio';
+  import { supports, type Speaker } from '$lib/home/audio';
   let {
     home,
-    now,
     disconnected = false,
     onmodal = (_open: boolean) => {}
   }: {
     home: HomeSnapshot;
-    now: number;
     disconnected?: boolean;
     onmodal?: (open: boolean) => void;
   } = $props();
@@ -98,8 +91,7 @@
   <div class="audio-intro">
     <div>
       <p class="eyebrow">SONOS · HELA HEMMET</p>
-      <h2 id="audio-title">Ljud att leva med.</h2>
-      <p>Din musik. Dina rum. Tillsammans eller var för sig.</p>
+      <h2 id="audio-title">Ljud hemma</h2>
     </div>
     <span class="audio-count"
       >{home.speakers.length} <span>högtalare</span></span
@@ -115,7 +107,6 @@
   <div class="audio-grid">
     {#each home.speakers as s, i (s.id)}
       {@const main = leader(s)}
-      {@const position = playbackPosition(main, now, blocked)}
       {@const disabled = blocked || busy || !available(s)}
       {@const playing = !blocked && available(s) && main.state === 'playing'}
       <article class="speaker-card" class:playing>
@@ -154,11 +145,9 @@
               {main.artist ||
                 (main.source ? main.source : 'Välj en källa nedan')}
             </p>
-            <small
-              >{s.members.length > 1
-                ? `I grupp med ${s.members.length - 1} andra · ${main.name} leder`
-                : 'Egen uppspelning'}</small
-            >
+            {#if s.members.length > 1}<small
+                >I grupp med {s.members.length - 1} andra · {main.name} leder</small
+              >{/if}
           </div>
           <div class="transport">
             <button
@@ -217,22 +206,6 @@
             >
           </div>
         </div>
-        <div class="track-progress">
-          {#if position !== null && main.duration !== null}
-            <span>{trackTime(position)}</span>
-            <progress
-              max={main.duration}
-              value={position}
-              aria-label={`Spelad tid, ${s.name}`}
-            ></progress>
-            <span>{trackTime(main.duration)}</span>
-          {:else}<span class="track-no-time"
-              >{main.source === 'TV'
-                ? 'TV-ljud · tidsinformation saknas'
-                : 'Tidsinformation saknas'}</span
-            >{/if}
-          {#if main.metadataFrom}<small>Via {main.metadataFrom}</small>{/if}
-        </div>
         <div class="speaker-volume">
           <button
             aria-label={`${s.muted ? 'Slå på ljud' : 'Tysta'}, ${s.name}`}
@@ -247,9 +220,15 @@
             max="100"
             step="1"
             value={s.volume === null ? 0 : Math.round(s.volume * 100)}
+            style={`--volume: ${s.volume === null ? 0 : Math.round(s.volume * 100)}%`}
             disabled={disabled ||
               s.volume === null ||
               !supports(s, 'volume_set')}
+            oninput={(event) =>
+              event.currentTarget.style.setProperty(
+                '--volume',
+                `${event.currentTarget.value}%`
+              )}
             onchange={(event) =>
               command(s, 'volume_set', {
                 volume: Number(event.currentTarget.value) / 100
