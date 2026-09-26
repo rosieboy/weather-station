@@ -57,6 +57,9 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
   svart bakgrund och dämpat rött i alla vyer, inklusive reglage och dialoger.
   Rumskort och högtalarkort får en diskret röd ram och skugga som framhävs vid
   hover eller tryck, utan att påverka övriga vyer och teman.
+  I ambient-läget har valda vyer och styrknappar mörkt tegelröd fyllning,
+  ljus text och en separat fokusram. Reglagens fyllda del är tydligare än
+  spåret utan den tidigare starkt orange-röda ytan.
   Temaknappen växlar Dag → Natt → Ambient → Auto. De tre manuella valen ligger
   kvar tills användaren byter. Auto aktiverar Ambient **23:00–07:59 i
   Europe/Stockholm** och använder annars solstyrt dag/nattläge.

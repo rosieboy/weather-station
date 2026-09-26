@@ -2537,16 +2537,21 @@ html[data-theme='day'] .weather-screen .outdoor {
   }
 }
 
-/* Deep ambient: near-black surfaces and monochrome red for every view. */
+/* Deep ambient: muted controls, readable warm text and a visible focus ring. */
 html[data-theme='deep-ambient'],
 html[data-theme='deep-ambient'] :is(.view-weather, .view-rooms, .view-audio) {
   --bg-app: #000000;
   --bg-card: #080202;
   --bg-card-hover: #120404;
-  --text-primary: #cc2400;
-  --text-secondary: #661200;
-  --accent: #ff3300;
-  --border-color: rgba(204, 36, 0, 0.1);
+  --text-primary: #c36a5b;
+  --text-secondary: #ad675c;
+  --accent: #c36a5b;
+  --accent-fill: #4b1813;
+  --accent-fill-hover: #62231b;
+  --accent-meter: #925043;
+  --accent-label: #e5a194;
+  --focus-ring: #d0806f;
+  --border-color: rgba(195, 106, 91, 0.25);
   color: var(--text-primary);
 }
 html[data-theme='deep-ambient'] :is(img, svg) {
@@ -2583,8 +2588,9 @@ html[data-theme='deep-ambient']
   :is(.view-weather, .view-rooms, .view-audio)
   .view-nav
   button[aria-current] {
-  background: var(--accent);
-  color: var(--bg-app);
+  background: var(--accent-fill);
+  box-shadow: inset 0 0 0 2px var(--accent);
+  color: var(--accent-label);
 }
 html[data-theme='deep-ambient']
   .weather-screen
@@ -2701,22 +2707,23 @@ html[data-theme='deep-ambient']
 html[data-theme='deep-ambient'] .audio-view,
 html[data-theme='deep-ambient'] .audio-dialog {
   --bg-playing: var(--bg-card-hover);
-  --bg-accent: var(--accent);
-  --bg-accent-hover: var(--text-primary);
+  --bg-accent: var(--accent-meter);
+  --bg-accent-hover: var(--accent-fill-hover);
   --bg-status: var(--bg-card-hover);
   --bg-track: var(--bg-card-hover);
   --bg-dialog: var(--bg-card);
-  --text-on-accent: var(--bg-app);
+  --text-on-accent: var(--accent-label);
   --text-status: var(--text-primary);
   --border-card: var(--border-color);
   --border-playing: var(--border-color);
-  --ring-focus: var(--accent);
+  --ring-focus: var(--focus-ring);
 }
 html[data-theme='deep-ambient']
   .audio-view
   :is(.transport .play-button, .speaker-volume button) {
-  background: var(--accent);
-  color: var(--bg-app);
+  background: var(--accent-fill);
+  box-shadow: inset 0 0 0 2px var(--accent);
+  color: var(--accent-label);
 }
 html[data-theme='deep-ambient'] .audio-view .playing .speaker-state {
   background: var(--bg-card-hover);
@@ -2732,8 +2739,16 @@ html[data-theme='deep-ambient'] .room-dialog .room-actions button,
 html[data-theme='deep-ambient']
   .room-dialog
   .device-toggle[aria-checked='true']::before {
-  background: var(--accent);
-  color: var(--bg-app);
+  background: var(--accent-fill);
+  color: var(--accent-label);
+}
+html[data-theme='deep-ambient'] .room-dialog .room-actions button {
+  border-color: var(--accent);
+}
+html[data-theme='deep-ambient']
+  .room-dialog
+  .device-toggle[aria-checked='true']::before {
+  box-shadow: inset 0 0 0 2px var(--accent);
 }
 html[data-theme='deep-ambient']
   .room-dialog
@@ -2756,9 +2771,24 @@ html[data-theme='deep-ambient'] .room-dialog .device-toggle span {
 html[data-theme='deep-ambient'] .room-dialog .brightness-control input {
   background-image: linear-gradient(
     to right,
-    var(--accent) var(--brightness),
+    var(--accent-meter) var(--brightness),
     var(--bg-card-hover) var(--brightness)
   );
+}
+html[data-theme='deep-ambient']
+  :is(
+    .theme-toggle,
+    .view-nav button,
+    .room-dialog button,
+    .home-card,
+    .forecast-switch button,
+    .weather-screen .forecast-container,
+    .audio-view button,
+    .audio-view input,
+    .audio-dialog button
+  ):focus-visible {
+  outline: 3px solid var(--focus-ring);
+  outline-offset: 3px;
 }
 html[data-theme='deep-ambient']
   .room-dialog
