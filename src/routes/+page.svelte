@@ -3,7 +3,8 @@
   import RoomsView from '$lib/components/RoomsView.svelte';
   import WeatherScene from '$lib/components/WeatherScene.svelte';
   import { solarDay } from '$lib/weather/solar';
-  import { isDeepAmbient } from '$lib/weather/theme';
+  import { nextThemeMode, resolveTheme } from '$lib/weather/theme';
+  import type { ThemeMode } from '$lib/weather/theme';
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
   let view = $state<'weather' | 'rooms' | 'audio'>('weather');
@@ -83,7 +84,7 @@
   let live = $state<WeatherSnapshot | null>(null);
   let weather = $derived(live ?? data.weather);
   import { conditions, moons } from '$lib/weather/labels';
-  let theme = $state<'auto' | 'night' | 'day'>('auto');
+  let theme = $state<ThemeMode>('auto');
   let now = $state(untrack(() => Date.parse(data.weather.fetchedAt)));
   let daylight = $derived(
     solarDay(
@@ -100,11 +101,15 @@
       minute: '2-digit'
     })
   );
-  let night = $derived(
-    theme === 'night' || (theme === 'auto' && daylight === false)
-  );
-  let currentTheme = $derived(
-    isDeepAmbient(now) ? 'deep-ambient' : night ? 'night' : 'day'
+  let currentTheme = $derived(resolveTheme(theme, now, daylight));
+  let themeLabel = $derived(
+    theme === 'auto'
+      ? `Auto · ${currentTheme === 'deep-ambient' ? 'Ambient' : currentTheme === 'night' ? 'Natt' : 'Dag'}`
+      : theme === 'ambient'
+        ? 'Ambient'
+        : theme === 'night'
+          ? 'Natt'
+          : 'Dag'
   );
   const direction = (bearing: number | null) =>
     bearing === null
@@ -128,7 +133,7 @@
           'NNV'
         ][Math.round(bearing / 22.5) % 16];
   function changeTheme() {
-    theme = theme === 'auto' ? 'night' : theme === 'night' ? 'day' : 'auto';
+    theme = nextThemeMode(theme);
     try {
       localStorage.setItem('weather-theme', theme);
     } catch {
@@ -192,7 +197,13 @@
     document.addEventListener('visibilitychange', tick);
     try {
       const saved = localStorage.getItem('weather-theme');
-      if (saved === 'day' || saved === 'night') theme = saved;
+      if (
+        saved === 'day' ||
+        saved === 'night' ||
+        saved === 'ambient' ||
+        saved === 'auto'
+      )
+        theme = saved;
     } catch {
       /* Storage is optional. */
     }
@@ -288,17 +299,9 @@
       <button
         class="theme-toggle"
         onclick={changeTheme}
-        title="Växla Auto → Natt → Dag"
-        aria-label="Byt visningsläge. Nu: {currentTheme === 'deep-ambient'
-          ? 'djupt nattläge'
-          : theme}"
-        >{theme === 'auto'
-          ? `Auto · ${currentTheme === 'deep-ambient' ? 'Djupt nattläge' : night ? 'Natt' : 'Dag'}`
-          : currentTheme === 'deep-ambient'
-            ? 'Djupt nattläge'
-            : theme === 'night'
-              ? 'Natt'
-              : 'Dag'}</button
+        title="Växla Dag → Natt → Ambient → Auto"
+        aria-label="Visningsläge: {themeLabel}. Byt till nästa läge"
+        >{themeLabel}</button
       >
       <span class="source"
         ><span aria-hidden="true"></span>{weather.source === 'mock'

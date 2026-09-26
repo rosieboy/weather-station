@@ -57,10 +57,9 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
   svart bakgrund och dämpat rött i alla vyer, inklusive reglage och dialoger.
   Rumskort och högtalarkort får en diskret röd ram och skugga som framhävs vid
   hover eller tryck, utan att påverka övriga vyer och teman.
-  Det aktiveras automatiskt **23:00–07:59 i Europe/Stockholm**, oavsett sparat
-  manuellt temaval. Från 08:00 gäller åter det tidigare manuella valet eller
-  Auto-lägets solstyrda dag/natt. Temaknappen växlar fortfarande Auto → Natt →
-  Dag; ambient är inget separat manuellt val.
+  Temaknappen växlar Dag → Natt → Ambient → Auto. De tre manuella valen ligger
+  kvar tills användaren byter. Auto aktiverar Ambient **23:00–07:59 i
+  Europe/Stockholm** och använder annars solstyrt dag/nattläge.
 
 ## Visualisering
 
@@ -415,11 +414,12 @@ nuvarande Docker-installation kör en process.
 
 ## Dag- och nattläge samt kompletterande väderdata
 
-Knappen i sidhuvudet växlar Auto → Natt → Dag. Valet sparas lokalt i webbläsaren.
-Auto använder solhändelserna i `sun.sun` (se detaljer nedan), med solstatus som reserv.
+Knappen i sidhuvudet växlar Dag → Natt → Ambient → Auto. Valet sparas lokalt i
+webbläsaren. De manuella lägena är fasta. Auto använder solhändelserna i
+`sun.sun` (se detaljer nedan), med solstatus som reserv.
 Saknas solstatus används dagläge. Vid anslutningsavbrott behålls senast mottagna
-solstatus tills anslutningen återkommer. Mellan 23:00 och 08:00 svensk tid tar
-`deep-ambient` tillfälligt över alla tre vyerna, även vid ett sparat Dag/Natt-val.
+solstatus tills anslutningen återkommer. Mellan 23:00 och 08:00 svensk tid väljer
+Auto `deep-ambient` i alla tre vyerna.
 Temat ändrar färgerna, inte skärmens hårdvaruljusstyrka.
 
 met.no-panelen visar även lufttryck i hPa, vind i m/s och kompassriktning (varifrån

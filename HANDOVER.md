@@ -44,10 +44,10 @@ de är inte åtgärdade av UI-arbetet.
 ## Teman och verifiering
 
 Klockan i `+page.svelte` uppdateras redan varje sekund och använder serverns
-tidsförskjutning. `deep-ambient` har företräde **23:00–07:59 i
-Europe/Stockholm**, även över manuellt Dag/Natt-val. Från 08:00 återgår
-temat till sparat val eller Autos solberäkning. Temaknappen växlar fortfarande
-Auto → Natt → Dag; ambient kan inte väljas manuellt. CSS använder de
+tidsförskjutning. Temaknappen växlar Dag → Natt → Ambient → Auto och valet sparas
+i webbläsaren. De manuella lägena är fasta. Auto väljer `deep-ambient`
+**23:00–07:59 i Europe/Stockholm** och använder annars solberäknat dag/nattläge.
+CSS använder de
 faktiska attributvärdena `day`, `night` och `deep-ambient` (inte `dag`/`natt`).
 
 Senast verifierat lokalt: `npm test` (24 tester), `npm run check`,
