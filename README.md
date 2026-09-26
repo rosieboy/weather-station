@@ -43,7 +43,9 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 ### Gränssnitt och teman (2026-09-26)
 
 - Vädervyn visar stora mätvärden utan mät- och prognostidsstämplar. Hela
-  prognosraden är en knapp som växlar mellan sex dygn och sex timmar.
+  prognosraden är en knapp som växlar mellan sex dygn och sex timmar. Temperatur
+  och luftfuktighet i de tre väderkortens rum ligger på samma baslinje; den
+  visuella fuktetiketten är borttagen men finns kvar för skärmläsare.
 - Rumskorten är helt klickbara och visar lampstatus, temperatur och luftfuktighet.
   Dialogen har större brytare och dimmerspår; pågående kommandon och fel visas,
   medan lyckade kommandon inte lämnar kvar en statusrad. Feedbackytan behåller
@@ -53,6 +55,8 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
   volymkommandot skickas fortfarande först när reglaget släpps.
 - De tre vyerna har egna färgpaletter för dag och natt. `deep-ambient` använder
   svart bakgrund och dämpat rött i alla vyer, inklusive reglage och dialoger.
+  Rumskort och högtalarkort får en diskret röd ram och skugga som framhävs vid
+  hover eller tryck, utan att påverka övriga vyer och teman.
   Det aktiveras automatiskt **23:00–07:59 i Europe/Stockholm**, oavsett sparat
   manuellt temaval. Från 08:00 gäller åter det tidigare manuella valet eller
   Auto-lägets solstyrda dag/natt. Temaknappen växlar fortfarande Auto → Natt →
