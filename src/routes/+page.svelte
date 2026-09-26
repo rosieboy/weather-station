@@ -40,7 +40,7 @@
       roomOpen ||
       !event.isPrimary ||
       (event.target as Element).closest(
-        'button:not(.home-card), input, a, dialog, select, textarea'
+        'button:not(.home-card, .forecast-container), input, a, dialog, select, textarea'
       )
     )
       return;
