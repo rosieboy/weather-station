@@ -2103,15 +2103,29 @@ html[data-theme='day'] .weather-screen .outdoor {
   font-size: 16px;
 }
 .weather-screen .astronomy {
-  justify-content: space-between;
-  padding: 0 4px;
-  color: #e4f1e7;
-  font-size: 15px;
+  min-width: 0;
+  justify-content: center;
+  gap: 8px 16px;
+  padding: 0;
+  color: var(--text-secondary);
+  font-size: 14px;
+  font-variant-numeric: tabular-nums;
+}
+.weather-screen .astronomy-item {
+  white-space: nowrap;
+}
+.weather-screen .astronomy-icon {
+  flex-basis: auto;
+  min-width: 20px;
 }
 .weather-screen .astronomy strong {
   color: var(--text-primary);
 }
 .weather-screen footer {
+  display: grid;
+  grid-template-columns: max-content minmax(0, 1fr) max-content;
+  align-items: center;
+  gap: 16px;
   margin: 0;
   color: var(--text-secondary);
   font-size: 13px;
@@ -2148,6 +2162,26 @@ html[data-theme='day'] .weather-screen .outdoor {
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 12px 0;
   }
+  .weather-screen footer {
+    grid-template-columns: minmax(0, 1fr) auto;
+    row-gap: 8px;
+  }
+  .weather-screen footer .astronomy {
+    grid-column: 1 / -1;
+    grid-row: 1;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+  .weather-screen footer .forecast-source {
+    grid-column: 1;
+    grid-row: 2;
+    min-width: 0;
+    overflow-wrap: anywhere;
+  }
+  .weather-screen footer .update-status {
+    grid-column: 2;
+    grid-row: 2;
+  }
 }
 @media (max-width: 700px) {
   .weather-screen .outdoor {
@@ -2183,6 +2217,9 @@ html[data-theme='day'] .weather-screen .outdoor {
   }
   .weather-screen .astronomy {
     flex-wrap: wrap;
+  }
+  .weather-screen footer .update-status {
+    display: none;
   }
 }
 
@@ -2513,6 +2550,10 @@ html[data-theme='deep-ambient'] :is(.view-weather, .view-rooms, .view-audio) {
   color: var(--text-primary);
 }
 html[data-theme='deep-ambient'] :is(img, svg) {
+  filter: grayscale(1) sepia(1) hue-rotate(-30deg) saturate(3);
+  opacity: 0.6;
+}
+html[data-theme='deep-ambient'] .weather-screen .astronomy-icon {
   filter: grayscale(1) sepia(1) hue-rotate(-30deg) saturate(3);
   opacity: 0.6;
 }

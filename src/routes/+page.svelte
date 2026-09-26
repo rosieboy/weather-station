@@ -82,7 +82,7 @@
   }
   let live = $state<WeatherSnapshot | null>(null);
   let weather = $derived(live ?? data.weather);
-  import { conditions } from '$lib/weather/labels';
+  import { conditions, moons } from '$lib/weather/labels';
   let theme = $state<'auto' | 'night' | 'day'>('auto');
   let now = $state(untrack(() => Date.parse(data.weather.fetchedAt)));
   let daylight = $derived(
@@ -152,6 +152,16 @@
     });
   const symbol = (condition: string) =>
     conditions[condition] || ['—', 'Väderuppgift saknas'];
+  const astronomyTime = (value: string | null) =>
+    value
+      ? new Date(value).toLocaleString('sv-SE', {
+          timeZone: 'Europe/Stockholm',
+          day: 'numeric',
+          month: 'short',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      : '—';
   let items = $derived(
     (!showHourly
       ? weather.details.daily.filter(
@@ -426,14 +436,40 @@
             </span>{/if}
         </button>
       </section>
-      <footer>
-        <span
+      <footer class="weather-footer">
+        <span class="forecast-source"
           >Prognos: <a
             href="https://www.met.no/"
             target="_blank"
             rel="noreferrer">met.no · Meteorologisk institutt</a
           ></span
-        ><span
+        >
+        <div class="astronomy" aria-label="Sol och måne">
+          <span class="astronomy-item">
+            <span class="astronomy-icon" aria-hidden="true">☀ ↑</span>
+            <span
+              >Sol upp <strong>{astronomyTime(weather.details.sunrise)}</strong
+              ></span
+            >
+          </span>
+          <span class="astronomy-item">
+            <span class="astronomy-icon" aria-hidden="true">☀ ↓</span>
+            <span
+              >Sol ner <strong>{astronomyTime(weather.details.sunset)}</strong
+              ></span
+            >
+          </span>
+          <span class="astronomy-item">
+            <span class="astronomy-icon" aria-hidden="true"
+              >{moons[weather.details.moon || '']?.[0] || '☾'}</span
+            >
+            <strong
+              >{moons[weather.details.moon || '']?.[1] ||
+                'Månfas saknas'}</strong
+            >
+          </span>
+        </div>
+        <span class="update-status"
           >{weather.source === 'mock'
             ? 'Exempelvärden'
             : 'Direktuppdatering'}</span
