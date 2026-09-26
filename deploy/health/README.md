@@ -11,6 +11,8 @@ sudo bash deploy/health/install.sh
 ```
 
 Installationen verifierar systemd-filerna, aktiverar timern och kör första kontrollen.
+Om kontrollen hittar ett aktivt larm får systemd-tjänsten avsiktligt exitkod 1;
+installationsskriptet visar då var loggen finns utan att kalla installationen misslyckad.
 Timern kör tre minuter efter uppstart, därefter fem minuter efter avslutad kontroll.
 
 ## Vad kontrolleras?
