@@ -9,3 +9,8 @@ services:
       ORIGIN: ${ORIGIN:-http://localhost:3000}
     restart: unless-stopped
     init: true
+    volumes:
+      - device-health-data:/app/data
+
+volumes:
+  device-health-data:

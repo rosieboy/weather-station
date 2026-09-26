@@ -4,6 +4,7 @@ export interface HAState {
   entity_id: string;
   state: string;
   attributes: Record<string, unknown>;
+  last_changed: string;
   last_updated: string;
 }
 export class HAStream {
@@ -57,7 +58,7 @@ export class HAStream {
       this.ids.has(id) ||
       /^(light|switch|event|media_player)\./.test(id) ||
       (id.startsWith('sensor.') &&
-        ['temperature', 'humidity'].includes(
+        ['temperature', 'humidity', 'battery'].includes(
           String(state?.attributes?.device_class)
         ))
     );

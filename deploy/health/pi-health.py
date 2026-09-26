@@ -3,6 +3,7 @@
 import json
 import math
 import os
+from datetime import datetime, timezone
 from pathlib import Path
 import shutil
 import subprocess
@@ -15,9 +16,9 @@ CONTAINERS = ('weather-station-weather-station-1', 'home-assistant-homeassistant
               'home-assistant-matter-server-1')
 
 
-def transition(previous, failed):
+def transition(previous, failed, threshold=3):
     count = previous.get('failures', 0) + 1 if failed else 0
-    active = count >= 3
+    active = count >= threshold
     event = 'ALERT' if active and not previous.get('active') else (
         'RECOVERED' if not failed and previous.get('active') else None)
     return {'failures': count, 'active': active}, event
@@ -125,6 +126,59 @@ def main():
             return 'Expected sensor missing'
         # Unchanged values/last_updated are not an outage: HA emits state changes.
     check('sensor_data', sensors)
+
+    def device_health():
+        with urllib.request.urlopen('http://127.0.0.1:3000/api/device-health', timeout=20) as response:
+            data = json.load(response)
+        if data.get('error') or not isinstance(data.get('devices'), list):
+            raise ValueError('Device health unavailable')
+        seen = set()
+        for device in data['devices']:
+            entity = device.get('id')
+            name = device.get('name') or entity
+            if not isinstance(entity, str) or not entity:
+                continue
+            if device.get('kind') == 'battery':
+                percent = device.get('batteryPercent')
+                key = 'battery:' + entity
+                if percent is None:
+                    # An offline sensor can retain an old HA percentage. Unknown
+                    # contact is not evidence that a low battery recovered.
+                    results[key] = old.get('checks', {}).get(key, {}).get('problem')
+                    seen.add(key)
+                    continue
+                warning = type(percent) in (int, float) and math.isfinite(percent) and percent <= 30
+                critical = type(percent) in (int, float) and math.isfinite(percent) and percent <= 15
+                results[key] = (
+                    f'Kritiskt batteri: {name} {percent} %' if critical else
+                    f'Lågt batteri: {name} {percent} %' if warning else None)
+                seen.add(key)
+                continue
+            if device.get('kind') == 'sensor':
+                # Existing sensor_data check already sends the sensor outage mail.
+                continue
+            since = device.get('since')
+            offline = device.get('state') in ('unavailable', 'unknown')
+            duration = 0
+            if offline and isinstance(since, str):
+                try:
+                    duration = (datetime.now(timezone.utc) - datetime.fromisoformat(
+                        since.replace('Z', '+00:00'))).total_seconds()
+                except ValueError:
+                    pass
+            key = 'device:' + entity
+            results[key] = f'{name}: utan kontakt sedan {since}' if offline and duration >= 900 else None
+            seen.add(key)
+        for key in old.get('checks', {}):
+            if key.startswith(('device:', 'battery:')) and key not in seen:
+                results[key] = None
+
+    check('device_monitor', device_health)
+    if results.get('device_monitor'):
+        # A temporarily unreachable dashboard must not create false recovery messages.
+        for key, previous in old.get('checks', {}).items():
+            if key.startswith(('device:', 'battery:')):
+                results[key] = previous.get('problem')
     queue = old.get("mail_queue", [])
     mail_initialized = old.get("mail_initialized", False)
     now = time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime())
@@ -133,7 +187,13 @@ def main():
         mail_initialized = True
     checks = {}
     for name, problem in results.items():
-        state, event = transition(old.get('checks', {}).get(name, {}), bool(problem))
+        previous = old.get('checks', {}).get(name, {})
+        threshold = 1 if name.startswith(('device:', 'battery:')) else 3
+        state, event = transition(previous, bool(problem), threshold)
+        if (name.startswith('battery:') and state['active'] and previous.get('active')
+                and problem and problem.startswith('Kritiskt batteri:')
+                and not (previous.get('problem') or '').startswith('Kritiskt batteri:')):
+            event = 'ALERT'
         state['problem'] = problem
         checks[name] = state
         if event and CONFIG.exists():

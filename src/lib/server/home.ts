@@ -13,6 +13,9 @@ let registry: Registry | undefined;
 let expires = 0;
 let pending: Promise<void> | undefined;
 let registryError: string | null = null;
+export function getHomeRegistry(): Registry | undefined {
+  return registry;
+}
 export async function getHomeSnapshot(): Promise<HomeSnapshot> {
   const stream = getHAStream();
   if (!stream.error && Date.now() >= expires) {

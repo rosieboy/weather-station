@@ -36,7 +36,7 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 - Dashboard, HA Container och Matter Server kör i separata containrar på Pi:n.
   Macens tidigare HA OS i VirtualBox är stoppad och sparad för återgång.
   Den får inte köras samtidigt med den återställda Pi-installationen.
-- Sensorflödet använder WebSocket och SSE sedan 2026-09-14. Ingen databas eller historiklagring finns. Prognoser cachas i 15 minuter på servern; sensorvärden uppdateras via händelser.
+- Sensorflödet använder WebSocket och SSE sedan 2026-09-14. Prognoser cachas i 15 minuter på servern; sensorvärden uppdateras via händelser. Enhetshändelser lagras separat enligt avsnittet Enhetshälsa.
 - Mockleverantören är borttagen. Typen `source` och visningen har kvar stöd för
   etiketten `mock`, men ingen konfigurationsinställning aktiverar ett demoläge.
 
@@ -60,6 +60,29 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
   Temaknappen växlar Dag → Natt → Ambient → Auto. De tre manuella valen ligger
   kvar tills användaren byter. Auto aktiverar Ambient **23:00–07:59 i
   Europe/Stockholm** och använder annars solstyrt dag/nattläge.
+
+### Enhetshälsa
+
+Rum-vyn har en kompakt panel för övervakade lampor, uttag, temperaturgivare och
+batterier. Servern läser Home Assistants Recorder-historik och sparar endast
+övergångar mellan tillgänglig/otillgänglig samt batterinivåerna normal/låg/kritisk
+i en separat händelselogg i 90 dagar. En kort strömcykel syns därför i loggen
+utan att behöva utlösa mejl. Vid serveromstart fylls luckor från HA:s historik
+(högst de senaste tio dagarna med standardinställningen). Loggen ligger i Docker-
+volymen `device-health-data` och behöver tas med i framtida extern backup.
+
+Pi:ns befintliga hälsokontroll läser `/api/device-health` var femte minut.
+En fysisk lampa som varit otillgänglig minst 15 minuter ger ett mejl; återkomst
+ger ett återhämtningsmejl. Batterier varnas vid högst 30 %, och en ny varning
+skickas vid högst 15 %. Ingen automatisk omstart eller omparkoppling sker.
+Sensorgivare övervakas fortfarande av den befintliga kontrollen `sensor_data`,
+så samma sensor inte genererar dubbla mejl.
+
+Historiken visar vad HA rapporterade, inte ett säkert bevis för varför en enhet
+blev otillgänglig. En HA-status som fastnar på `on` medan lampan är släckt kan
+inte alltid upptäckas utan en separat kontaktkontroll. Ett gammalt batterivärde
+är inte heller bevis för att givaren fortfarande har kontakt: om dess
+temperatursensor är offline visas batterinivån som okänd i panelen.
 
 ## Visualisering
 

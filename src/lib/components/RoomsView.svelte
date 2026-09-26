@@ -2,6 +2,7 @@
   import { onDestroy } from 'svelte';
   import type { HomeSnapshot } from '$lib/home/types';
   import RoomIcon from './RoomIcon.svelte';
+  import DeviceHealth from './DeviceHealth.svelte';
   let {
     home,
     disconnected = false,
@@ -128,6 +129,7 @@
       </button>
     {/each}
   </div>
+  <DeviceHealth />
 </section>
 <dialog
   class="room-dialog"

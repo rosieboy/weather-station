@@ -25,6 +25,12 @@ Timern kör tre minuter efter uppstart, därefter fem minuter efter avslutad kon
 - HTTP svarar på portarna 3000, 80 och 5580.
 - Dashboardens SSE levererar en snapshot inom åtta sekunder utan HA-anslutningsfel.
 - Ute, Balkong, Vardagsrum och Sovrum har numeriska temperatur- och fuktvärden.
+- Enhetshälsan från dashboardens `/api/device-health`: Matter-lampor och
+  uttag som varit utan kontakt minst 15 minuter samt batterier vid högst
+  30 % (varning) och 15 % (kritiskt). De här två kontrollerna larmar vid
+  första femminuterskörningen efter att gränsen passerats. Ett batteri som
+  återhämtat sig över 30 % ger RECOVERED; övergång från lågt till kritiskt
+  ger ett nytt ALERT.
 
 Tre fel i följd för samma kontroll ger ALERT (cirka 10–15 minuter).
 Fortsatt fel ger inte nya ALERT-rader. Första lyckade kontrollen ger RECOVERED.
@@ -35,6 +41,13 @@ Oförändrade mätvärden är inte fel. Kontrollen bevisar inte att en givare ra
 regelbundet om HA fortsätter visa ett gammalt giltigt värde. Lilla Roam, Samsung och
 övriga enheters av/på-status kontrolleras inte. Backupålder kontrolleras ännu inte:
 regelbunden extern backup måste först få en definierad destination och rutin.
+
+Enhetshändelser visas i Rum-vyn och sparas i dashboardens Docker-volym
+`device-health-data` i 90 dagar. Home Assistants Recorder används för att
+återskapa missade händelser efter ett ombygge av appcontainern. Om Pi och HA
+är avstängda längre än Recorder-historiken behåller (normalt tio dagar) kan
+den mellanliggande perioden inte rekonstrueras. `device_monitor`-kontrollen
+rapporterar också om själva historikfrågan misslyckas.
 
 ## Status och loggar
 

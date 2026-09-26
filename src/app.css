@@ -2797,3 +2797,97 @@ html[data-theme='deep-ambient'] .weather-screen .weather-symbol {
 html[data-theme='deep-ambient'] .weather-screen .weather-scene {
   opacity: 0.18;
 }
+/* Device incidents stay compact until opened; the room cards keep their layout. */
+.device-health {
+  margin-top: 18px;
+  border: 1px solid var(--border-color, #638278);
+  border-radius: 8px;
+  background: var(--bg-card, #f6f7ef);
+  color: var(--text-primary, #233d35);
+}
+.device-health-toggle {
+  width: 100%;
+  min-height: 58px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 18px;
+  border: 0;
+  background: transparent;
+  color: inherit;
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+.device-health-toggle > span:first-child {
+  display: grid;
+  gap: 2px;
+}
+.device-health-toggle strong {
+  font-size: 17px;
+}
+.device-health-toggle small,
+.device-health-content p,
+.device-health-content li,
+.device-health-note {
+  font-size: 14px;
+}
+.device-health-toggle small,
+.device-health-content li span,
+.device-health-content time,
+.device-health-note {
+  color: var(--text-secondary, #627568);
+}
+.device-health-content {
+  padding: 4px 18px 18px;
+  border-top: 1px solid
+    color-mix(in srgb, var(--border-color, #638278) 45%, transparent);
+}
+.device-health-content h3 {
+  margin: 16px 0 8px;
+  font-size: 17px;
+}
+.device-health-columns {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 24px;
+}
+.device-health-content ul,
+.device-health-events {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.device-health-content ul li {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--border-color, #638278) 30%, transparent);
+}
+.device-health-low {
+  color: #bd704f;
+}
+.device-health-events li {
+  display: grid;
+  grid-template-columns: 115px minmax(100px, 1fr) minmax(140px, 1fr);
+  gap: 12px;
+  padding: 8px 0;
+  border-bottom: 1px solid
+    color-mix(in srgb, var(--border-color, #638278) 30%, transparent);
+}
+.device-health-note {
+  margin-top: 15px;
+}
+@media (max-width: 720px) {
+  .device-health-columns {
+    grid-template-columns: 1fr;
+    gap: 0;
+  }
+  .device-health-events li {
+    grid-template-columns: 1fr;
+    gap: 2px;
+  }
+}
