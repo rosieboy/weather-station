@@ -2921,3 +2921,69 @@ html[data-theme='deep-ambient'] .weather-screen .weather-scene {
     gap: 2px;
   }
 }
+
+/* Let the room cards choose a column count from their usable width on iPad. */
+.rooms-active .home-grid {
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 275px), 1fr));
+}
+.rooms-active .home-card-bottom {
+  min-width: 0;
+}
+.rooms-active .home-card-temperature,
+.rooms-active .room-humidity-mini {
+  font-size: clamp(25px, 2.2vw, 30px);
+}
+.temperature-trend {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+  min-width: 0;
+  margin-top: 8px;
+  color: var(--text-primary);
+}
+.temperature-trend svg {
+  display: block;
+  flex: 1 1 auto;
+  min-width: 0;
+  height: 28px;
+}
+.temperature-trend span {
+  flex: 0 0 auto;
+  font-size: 12px;
+  white-space: nowrap;
+}
+.temperature-trend strong {
+  font-size: 13px;
+  font-weight: 650;
+}
+.rooms-active .home-card .temperature-trend {
+  border-top: 1px solid var(--border-color, #638278);
+  padding-top: 5px;
+}
+.weather-screen .room {
+  min-height: 160px;
+}
+.weather-screen .outdoor-main .temperature-trend {
+  position: relative;
+  z-index: 1;
+  max-width: 310px;
+  color: #fff;
+}
+html[data-theme='deep-ambient']
+  .weather-screen
+  .outdoor-main
+  .temperature-trend {
+  color: var(--text-primary);
+}
+@media (max-width: 1150px) and (min-width: 701px) {
+  .weather-screen .room-temperature,
+  .weather-screen .room-humidity strong {
+    font-size: clamp(36px, 3.6vw, 44px);
+  }
+}
+@media (max-width: 900px) and (min-width: 701px) {
+  .weather-screen .rooms {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}

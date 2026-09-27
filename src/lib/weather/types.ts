@@ -5,6 +5,7 @@ export interface SensorReading {
   id: string;
   name: string;
   temperature: number | null;
+  temperatureEntityId: string | null;
   humidity: number | null;
   /** Oldest last_updated of the two available measurements. Not a connectivity check. */
   updatedAt: string | null;

@@ -2,6 +2,8 @@
   import AudioView from '$lib/components/AudioView.svelte';
   import RoomsView from '$lib/components/RoomsView.svelte';
   import WeatherScene from '$lib/components/WeatherScene.svelte';
+  import TemperatureTrend from '$lib/components/TemperatureTrend.svelte';
+  import type { TemperatureHistory } from '$lib/temperature-history/types';
   import { solarDay } from '$lib/weather/solar';
   import { nextThemeMode, resolveTheme } from '$lib/weather/theme';
   import type { ThemeMode } from '$lib/weather/theme';
@@ -82,6 +84,18 @@
     }
   }
   let live = $state<WeatherSnapshot | null>(null);
+  let temperatureHistory = $state<TemperatureHistory>({});
+  async function loadTemperatureHistory() {
+    try {
+      const response = await fetch('/api/temperature-history', {
+        signal: AbortSignal.timeout(20_000)
+      });
+      if (response.ok)
+        temperatureHistory = (await response.json()) as TemperatureHistory;
+    } catch {
+      // Current values still work when Recorder is temporarily unavailable.
+    }
+  }
   let weather = $derived(live ?? data.weather);
   import { conditions, moons } from '$lib/weather/labels';
   let theme = $state<ThemeMode>('auto');
@@ -194,6 +208,11 @@
       now = Date.now() + offset;
     };
     const clockTimer = setInterval(tick, 1000);
+    void loadTemperatureHistory();
+    const historyTimer = setInterval(
+      () => void loadTemperatureHistory(),
+      10 * 60_000
+    );
     document.addEventListener('visibilitychange', tick);
     try {
       const saved = localStorage.getItem('weather-theme');
@@ -228,6 +247,7 @@
       events.close();
       window.removeEventListener('click', preventSwipeClick, true);
       clearInterval(clockTimer);
+      clearInterval(historyTimer);
       document.removeEventListener('visibilitychange', tick);
     };
   });
@@ -324,6 +344,7 @@
   {:else if view === 'rooms'}
     <RoomsView
       home={weather.home}
+      {temperatureHistory}
       disconnected={refreshFailed || !!weather.error}
       onmodal={(open) => (roomOpen = open)}
     />
@@ -352,6 +373,12 @@
                 >Utesensor saknas</span
               >{/if}
           </p>
+          {#if weather.outdoor.temperature !== null && weather.outdoor.temperatureEntityId}
+            <TemperatureTrend
+              name="Utomhus"
+              series={temperatureHistory[weather.outdoor.temperatureEntityId]}
+            />
+          {/if}
         </div>
         <WeatherScene
           condition={weather.details.condition}
@@ -399,6 +426,12 @@
                   <strong>{number(room.humidity)}<span>%</span></strong>
                 </p>
               </div>
+              {#if room.temperature !== null && room.temperatureEntityId}
+                <TemperatureTrend
+                  name={room.name}
+                  series={temperatureHistory[room.temperatureEntityId]}
+                />
+              {/if}
               {#if room.mock}<span class="room-note">Exempelvärde</span>{/if}
             </article>
           {/each}

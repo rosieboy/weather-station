@@ -47,6 +47,10 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
   och luftfuktighet i de tre väderkortens rum ligger på samma baslinje; den
   visuella fuktetiketten är borttagen men finns kvar för skärmläsare.
 - Rumskorten är helt klickbara och visar lampstatus, temperatur och luftfuktighet.
+  På iPad anpassas antalet kolumner efter kortens tillgängliga bredd. De fyra
+  temperaturgivarna visar en kompakt kurva för senaste 24 timmarna och förändring
+  i grader i väder- och rumskorten. Kurvorna hämtas från HA:s Recorder, uppdateras
+  var tionde minut och utelämnas om historiken inte kan läsas.
   Dialogen har större brytare och dimmerspår; pågående kommandon och fel visas,
   medan lyckade kommandon inte lämnar kvar en statusrad. Feedbackytan behåller
   sin höjd så dialogen inte hoppar vid styrning.

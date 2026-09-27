@@ -14,6 +14,7 @@ export interface HomeRoom {
   remoteCount: number;
   speakerCount: number;
   temperature: number | null;
+  temperatureEntityId: string | null;
   humidity: number | null;
 }
 export interface HomeSnapshot {

@@ -85,6 +85,8 @@ via smtp.gmail.com:587 med verifierad STARTTLS, och tas bort ur kön efter lycka
 sändning. Misslyckad sändning provas igen vid nästa kontroll. En krasch precis
 mellan sändning och sparande kan ge ett dubbelt mejl. Inga gamla journalhändelser
 skickas retroaktivt. Utan SMTP-konfiguration fortsätter lokal övervakning som förut.
+Mejlen har HTML-layout med tydliga larm- och återhämtningsrader samt en vanlig
+textversion för klienter som inte visar HTML. Tid anges i Europe/Stockholm.
 
 ```bash
 sudo bash deploy/health/install.sh

@@ -3,12 +3,16 @@
   import type { HomeSnapshot } from '$lib/home/types';
   import RoomIcon from './RoomIcon.svelte';
   import DeviceHealth from './DeviceHealth.svelte';
+  import TemperatureTrend from './TemperatureTrend.svelte';
+  import type { TemperatureHistory } from '$lib/temperature-history/types';
   let {
     home,
+    temperatureHistory = {},
     disconnected = false,
     onmodal = (_open: boolean) => {}
   }: {
     home: HomeSnapshot;
+    temperatureHistory?: TemperatureHistory;
     disconnected?: boolean;
     onmodal?: (open: boolean) => void;
   } = $props();
@@ -126,6 +130,12 @@
               >{decimal(room.humidity)} %</span
             >{/if}
         </div>
+        {#if room.temperatureEntityId}
+          <TemperatureTrend
+            name={room.name}
+            series={temperatureHistory[room.temperatureEntityId]}
+          />
+        {/if}
       </button>
     {/each}
   </div>

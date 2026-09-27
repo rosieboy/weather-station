@@ -23,13 +23,16 @@ export async function getWeatherSnapshot(): Promise<WeatherSnapshot> {
     ['bedroom', 'Sovrum', env.HA_BEDROOM_TEMPERATURE, env.HA_BEDROOM_HUMIDITY],
     ['balcony', 'Balkong', env.HA_BALCONY_TEMPERATURE, env.HA_BALCONY_HUMIDITY]
   ];
-  const readings: SensorReading[] = locations.map(([id, name]) => ({
-    id: id!,
-    name: name!,
-    temperature: null,
-    humidity: null,
-    updatedAt: null
-  }));
+  const readings: SensorReading[] = locations.map(
+    ([id, name, temperatureEntityId]) => ({
+      id: id!,
+      name: name!,
+      temperature: null,
+      temperatureEntityId: temperatureEntityId || null,
+      humidity: null,
+      updatedAt: null
+    })
+  );
   const snapshot: WeatherSnapshot = {
     home: { rooms: [], speakers: [], error: null },
     details: {

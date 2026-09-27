@@ -38,6 +38,7 @@ export function buildRooms(
     remoteCount: 0,
     speakerCount: 0,
     temperature: null as number | null,
+    temperatureEntityId: null as string | null,
     humidity: null as number | null
   }));
   const unassigned: HomeRoom = {
@@ -47,6 +48,7 @@ export function buildRooms(
     remoteCount: 0,
     speakerCount: 0,
     temperature: null,
+    temperatureEntityId: null,
     humidity: null
   };
   const remotes = new Set<string>(),
@@ -131,9 +133,14 @@ export function buildRooms(
         s.attributes.device_class === 'temperature' &&
         room.temperature === null
       ) {
-        if (s.attributes.unit_of_measurement === '°C') room.temperature = value;
-        if (s.attributes.unit_of_measurement === '°F')
+        if (s.attributes.unit_of_measurement === '°C') {
+          room.temperature = value;
+          room.temperatureEntityId = e.entity_id;
+        }
+        if (s.attributes.unit_of_measurement === '°F') {
           room.temperature = ((value - 32) * 5) / 9;
+          room.temperatureEntityId = e.entity_id;
+        }
       }
       if (
         s.attributes.device_class === 'humidity' &&
