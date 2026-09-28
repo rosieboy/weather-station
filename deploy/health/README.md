@@ -11,8 +11,8 @@ sudo bash deploy/health/install.sh
 ```
 
 Installationen verifierar systemd-filerna, aktiverar timern och kör första kontrollen.
-Om kontrollen hittar ett aktivt larm får systemd-tjänsten avsiktligt exitkod 1;
-installationsskriptet visar då var loggen finns utan att kalla installationen misslyckad.
+Ett aktivt larm sparas och skickas som vanligt, men gör inte systemd-tjänsten
+misslyckad. Ett faktiskt körfel stoppar installationen och syns i journalen.
 Timern kör tre minuter efter uppstart, därefter fem minuter efter avslutad kontroll.
 
 ## Vad kontrolleras?
@@ -36,8 +36,10 @@ Timern kör tre minuter efter uppstart, därefter fem minuter efter avslutad kon
 
 Tre fel i följd för samma kontroll ger ALERT (cirka 10–15 minuter).
 Fortsatt fel ger inte nya ALERT-rader. Första lyckade kontrollen ger RECOVERED.
-Varje körning loggar även en kort sammanfattning. Ett etablerat fel ger exitkod 1,
-vilket syns i systemd; timern fortsätter att kontrollera även efter misslyckade körningar.
+Varje körning loggar även en kort sammanfattning. Etablerade larm ger exitkod 0
+eftersom själva kontrollen har slutförts; de syns i statusfilen, journalen och mejl.
+Oväntade skriptfel ger fortfarande en misslyckad systemd-tjänst. Timern fortsätter
+att köra vid nästa intervall.
 
 Oförändrade mätvärden är inte fel. Kontrollen bevisar inte att en givare rapporterar
 regelbundet om HA fortsätter visa ett gammalt giltigt värde. Lilla Roam, Samsung och

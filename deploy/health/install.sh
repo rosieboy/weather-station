@@ -11,7 +11,5 @@ install -m 644 weather-station-health.service weather-station-health.timer /etc/
 systemd-analyze verify /etc/systemd/system/weather-station-health.service /etc/systemd/system/weather-station-health.timer
 systemctl daemon-reload
 systemctl enable --now weather-station-health.timer
-if ! systemctl start weather-station-health.service; then
-  echo 'Första hälsokontrollen rapporterade larm eller ett kontrollfel; se journalctl -u weather-station-health.service.' >&2
-fi
+systemctl start weather-station-health.service
 systemctl list-timers weather-station-health.timer --no-pager

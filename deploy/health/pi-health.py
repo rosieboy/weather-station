@@ -215,7 +215,10 @@ def main():
     active = sum(x['active'] for x in checks.values())
     pending = sum(bool(x['problem']) and not x['active'] for x in checks.values())
     print(f'Health: {active} active, {pending} pending; metrics={json.dumps(metrics)}')
-    return 1 if active else 0
+    # Alerts are reported through status.json, the journal and mail. Returning
+    # failure for an established alert makes systemd report every timer run as
+    # a broken service and obscures actual execution failures.
+    return 0
 
 
 if __name__ == '__main__':
