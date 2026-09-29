@@ -2934,46 +2934,105 @@ html[data-theme='deep-ambient'] .weather-screen .weather-scene {
   font-size: clamp(25px, 2.2vw, 30px);
 }
 .temperature-trend {
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  z-index: 1;
   width: 100%;
-  min-width: 0;
-  margin-top: 8px;
-  color: var(--text-primary);
+  height: 45px;
+  overflow: hidden;
+  pointer-events: none;
+  --graph-stroke: rgba(0, 0, 0, 0.15);
+  --graph-fill: #000;
+  --graph-fill-opacity: 0.04;
 }
 .temperature-trend svg {
+  position: absolute;
+  inset: 0;
   display: block;
-  flex: 1 1 auto;
-  min-width: 0;
-  height: 28px;
+  width: 100%;
+  height: 100%;
 }
-.temperature-trend span {
-  flex: 0 0 auto;
-  font-size: 12px;
+.temperature-trend stop {
+  stop-color: var(--graph-fill);
+}
+.temperature-trend .trend-fill-start {
+  stop-opacity: var(--graph-fill-opacity);
+}
+.temperature-trend .trend-line {
+  stroke: var(--graph-stroke);
+  stroke-width: 2.5px;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  vector-effect: non-scaling-stroke;
+}
+.temperature-trend .trend-change {
+  position: absolute;
+  right: 10px;
+  bottom: 5px;
+  z-index: 2;
+  color: inherit;
+  font-size: 13px;
   white-space: nowrap;
 }
 .temperature-trend strong {
-  font-size: 13px;
+  font-size: 14px;
   font-weight: 650;
 }
-.rooms-active .home-card .temperature-trend {
-  border-top: 1px solid var(--border-color, #638278);
-  padding-top: 5px;
+.rooms-active .home-card,
+.weather-screen .room {
+  position: relative;
+  overflow: hidden;
+}
+.rooms-active .home-card {
+  padding-bottom: 52px;
+}
+.rooms-active .home-card :is(.home-card-top, h3, .home-card-bottom),
+.weather-screen .room :is(.room-heading, .room-readings, .room-note) {
+  position: relative;
+  z-index: 2;
 }
 .weather-screen .room {
   min-height: 160px;
+  padding-bottom: 45px;
 }
-.weather-screen .outdoor-main .temperature-trend {
+.weather-screen .outdoor-details {
   position: relative;
-  z-index: 1;
-  max-width: 310px;
-  color: #fff;
+  z-index: 2;
 }
-html[data-theme='deep-ambient']
-  .weather-screen
-  .outdoor-main
-  .temperature-trend {
+.weather-screen .outdoor > .temperature-trend {
+  color: inherit;
+}
+html[data-theme='day'] .temperature-trend {
+  --graph-stroke: rgba(46, 92, 67, 0.48);
+  --graph-fill: #2e5c43;
+  --graph-fill-opacity: 0.08;
+}
+html[data-theme='day'] .rooms-active .home-card.has-light .temperature-trend {
+  --graph-stroke: rgba(255, 255, 255, 0.52);
+  --graph-fill: #fff;
+  --graph-fill-opacity: 0.1;
+}
+html[data-theme='day'] .weather-screen .outdoor > .temperature-trend {
+  --graph-stroke: rgba(184, 225, 213, 0.78);
+  --graph-fill: #b8e1d5;
+  --graph-fill-opacity: 0.14;
+}
+html[data-theme='night'] .temperature-trend {
+  --graph-stroke: rgba(204, 36, 0, 0.4);
+  --graph-fill: #cc2400;
+  --graph-fill-opacity: 0.08;
+}
+html[data-theme='night'] .weather-screen .outdoor > .temperature-trend {
+  color: var(--text-primary);
+}
+html[data-theme='deep-ambient'] .temperature-trend {
+  --graph-stroke: rgba(195, 106, 91, 0.4);
+  --graph-fill: #c36a5b;
+  --graph-fill-opacity: 0.08;
+}
+html[data-theme='deep-ambient'] .weather-screen .outdoor > .temperature-trend {
   color: var(--text-primary);
 }
 @media (max-width: 1150px) and (min-width: 701px) {

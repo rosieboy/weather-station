@@ -90,10 +90,11 @@
       const response = await fetch('/api/temperature-history', {
         signal: AbortSignal.timeout(20_000)
       });
-      if (response.ok)
-        temperatureHistory = (await response.json()) as TemperatureHistory;
+      if (!response.ok) throw new Error('Historiken kunde inte hämtas.');
+      temperatureHistory = (await response.json()) as TemperatureHistory;
     } catch {
-      // Current values still work when Recorder is temporarily unavailable.
+      // Hide stale curves when Recorder is unavailable; live values still work.
+      temperatureHistory = {};
     }
   }
   let weather = $derived(live ?? data.weather);
@@ -373,12 +374,6 @@
                 >Utesensor saknas</span
               >{/if}
           </p>
-          {#if weather.outdoor.temperature !== null && weather.outdoor.temperatureEntityId}
-            <TemperatureTrend
-              name="Utomhus"
-              series={temperatureHistory[weather.outdoor.temperatureEntityId]}
-            />
-          {/if}
         </div>
         <WeatherScene
           condition={weather.details.condition}
@@ -408,6 +403,12 @@
             >
           </div>
         </div>
+        {#if weather.outdoor.temperature !== null && weather.outdoor.temperatureEntityId}
+          <TemperatureTrend
+            name="Utomhus"
+            series={temperatureHistory[weather.outdoor.temperatureEntityId]}
+          />
+        {/if}
       </section>
 
       <section class="indoors" aria-label="Rum och balkong">
