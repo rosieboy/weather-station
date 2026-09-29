@@ -1,6 +1,7 @@
 import { getWeatherSnapshot } from '$lib/server/weather';
 import type { PageServerLoad } from './$types';
 
-export const load: PageServerLoad = async () => ({
-  weather: await getWeatherSnapshot()
+export const load: PageServerLoad = async ({ url }) => ({
+  weather: await getWeatherSnapshot(),
+  kiosk: url.searchParams.get('kiosk') === '1'
 });

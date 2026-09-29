@@ -196,6 +196,8 @@ bash scripts/pi/install-kiosk.sh
 Installationen sparar den befintliga labwc-autostarten och lägger till en enda
 startpost. Startaren väntar på HTTP-svar från appen och öppnar Chromium i helskärm
 med en separat profil. Temaval bevaras. Den startar inte flera kioskinstanser.
+Startadressen har `?kiosk=1`; då visas met.no som källtext utan klickbar länk.
+Samma dashboard öppnad utan den parametern har fortfarande källänken.
 
 Kioskprofilen använder `--password-store=basic` för att undvika dialogen
 **Unlock Keyring** vid automatisk skrivbordsinloggning. Använd profilen endast
@@ -215,6 +217,15 @@ Starta sedan om Pi:n och kontrollera att dashboarden visas automatiskt.
 Alt+F4 lämnar kiosken med tangentbord. För att avaktivera autostart: ta bort de
 två raderna under markören `# weather-station kiosk` i
 `~/.config/labwc/autostart`. Övriga skrivbordsstarter ska vara kvar.
+
+Om Chromium råkat zoomas via Raspberry Connect: ge kioskfönstret fokus och
+tryck **Ctrl+0** (siffran noll) för 100 %. Chromium sparar zoom per webbplats i
+den separata kioskprofilen; att bara starta om kiosken återställer den inte.
+Om en extern länk redan öppnats i en ny flik: **Ctrl+W** stänger fliken och
+går tillbaka till dashboarden. Om länken öppnats i samma flik: **Alt+vänsterpil**
+går tillbaka. Dessa kortkommandon kan skickas från ett tangentbord via
+Raspberry Connect. Efter uppdatering av kioskstartaren är met.no-källan inte
+klickbar på Pi-skärmen.
 
 ## Kontrollista på hårdvaran
 

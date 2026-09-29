@@ -474,11 +474,11 @@
       </section>
       <footer class="weather-footer">
         <span class="forecast-source"
-          >Prognos: <a
+          >Prognos: {#if data.kiosk}met.no · Meteorologisk institutt{:else}<a
             href="https://www.met.no/"
             target="_blank"
-            rel="noreferrer">met.no · Meteorologisk institutt</a
-          ></span
+            rel="noopener noreferrer">met.no · Meteorologisk institutt</a
+            >{/if}</span
         >
         <div class="astronomy" aria-label="Sol och måne">
           <span class="astronomy-item">

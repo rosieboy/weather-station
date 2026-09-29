@@ -20,4 +20,4 @@ done
 exec chromium --kiosk --no-first-run --ozone-platform=wayland \
   --password-store=basic \
   --user-data-dir="$HOME/.local/share/weather-station-chromium" \
-  http://localhost:3000/
+  'http://localhost:3000/?kiosk=1'

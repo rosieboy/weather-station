@@ -670,6 +670,10 @@ På smala skärmar staplas väderdetaljer och rumskort och prognosen använder t
 kolumner. På 1280 × 720 ryms Väder, Rum respektive Ljud utan horisontell
 rullning. Väderillustrationen ligger bakom huvudvärdet och dämpas i
 `deep-ambient` för att inte konkurrera med mätvärdena.
+Pi-kiosken startar med `?kiosk=1`, där met.no visas som källtext så ett
+feltryck inte lämnar dashboarden. I vanliga webbläsare finns länken kvar.
+Den extra höjdkomprimeringen för 720 px togs bort när det visade sig att
+Chromiums sparade zoom orsakade överflödet; **Ctrl+0** återställer 100 %.
 
 ## Separat utomhusgivare (2026-09-23)
 
