@@ -476,7 +476,7 @@
                   {number(room.temperature, 1)}<span>°C</span>
                 </p>
                 <p class="room-humidity">
-                  <span class="sr-only">Luftfuktighet </span>
+                  <span class="room-humidity-label">Luftfuktighet</span>
                   <strong>{number(room.humidity)}<span>%</span></strong>
                 </p>
               </div>

@@ -126,9 +126,12 @@
               ? `${decimal(room.temperature)} °C`
               : '—'}</span
           >
-          {#if room.humidity !== null}<span class="room-humidity-mini"
-              >{decimal(room.humidity)} %</span
-            >{/if}
+          {#if room.humidity !== null}<span class="room-humidity-mini">
+              <span class="room-humidity-caption">Luftfuktighet</span>
+              <span class="room-humidity-value"
+                >{decimal(room.humidity)} <small>%</small></span
+              >
+            </span>{/if}
         </div>
         {#if room.temperatureEntityId}
           <TemperatureTrend
@@ -174,9 +177,15 @@
         >{selected.controls.length} lampor · {selected.controls.filter(
           (c) => c.state === 'on'
         ).length} tända</span
-      >{#if selected.temperature !== null}<span
-          >{decimal(selected.temperature)} °C{#if selected.humidity !== null}
-            · {decimal(selected.humidity)} %{/if}</span
+      >{#if selected.temperature !== null || selected.humidity !== null}<span
+          class="room-summary-climate"
+          >{#if selected.temperature !== null}<strong
+              class="room-summary-temperature"
+              >{decimal(selected.temperature)} °C</strong
+            >{/if}{#if selected.humidity !== null}<span
+              class="room-summary-humidity"
+              >Luftfuktighet {decimal(selected.humidity)} %</span
+            >{/if}</span
         >{/if}
     </div>
     {#if blocked}<p class="error" role="status">

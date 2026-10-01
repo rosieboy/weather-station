@@ -3111,3 +3111,110 @@ html[data-theme='deep-ambient'] .sensor-status.sensor-missing::before {
 html[data-theme='deep-ambient'] .sensor-status.sensor-unknown::before {
   background: #846e69;
 }
+
+/* Temperature leads each climate card; humidity remains readable but secondary. */
+.weather-screen .room-readings {
+  align-items: flex-end;
+}
+.weather-screen .room-temperature {
+  font-size: clamp(54px, 5.1vw, 68px);
+  letter-spacing: -0.055em;
+}
+.weather-screen .room-temperature > span {
+  font-size: 0.34em;
+  letter-spacing: 0;
+}
+.weather-screen .room-humidity {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  color: var(--text-secondary);
+}
+.weather-screen .room-humidity .room-humidity-label {
+  color: inherit;
+  font-size: 13px;
+  line-height: 1;
+}
+.weather-screen .room-humidity strong {
+  color: inherit;
+  font-size: clamp(24px, 2.4vw, 30px);
+  font-weight: 500;
+}
+.weather-screen .room-humidity strong span {
+  font-size: 0.65em;
+}
+.weather-screen .weather-measure:first-child p {
+  color: #e4f1e7;
+  font-size: 28px;
+}
+.weather-screen .weather-measure:first-child p span {
+  font-size: 16px;
+}
+.rooms-active .home-card-bottom {
+  align-items: flex-end;
+}
+.rooms-active .home-grid .home-card,
+.rooms-active .home-grid .home-card.has-light {
+  padding-bottom: 50px;
+}
+.rooms-active .home-card-temperature {
+  font-size: clamp(34px, 2.9vw, 40px);
+  letter-spacing: -0.05em;
+}
+.rooms-active .home-card .room-humidity-mini {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 3px;
+  color: var(--text-secondary);
+  text-align: right;
+}
+.rooms-active .room-humidity-caption {
+  font-size: 12px;
+  line-height: 1;
+}
+.rooms-active .room-humidity-value {
+  font-size: 21px;
+  line-height: 1;
+  white-space: nowrap;
+}
+.rooms-active .room-humidity-value small {
+  font-size: 0.75em;
+}
+.rooms-active .home-card.has-light .room-humidity-mini {
+  color: #d8e9df;
+}
+html[data-theme='deep-ambient'] .rooms-active .home-card .room-humidity-mini,
+html[data-theme='deep-ambient'] .weather-screen .room-humidity strong {
+  color: var(--text-secondary);
+}
+.room-summary-climate {
+  display: inline-flex;
+  align-items: baseline;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+}
+.room-dialog .room-summary-temperature {
+  color: var(--text-primary);
+  font-size: 23px;
+  font-weight: 600;
+  line-height: 1;
+}
+.room-summary-humidity {
+  font-size: 14px;
+}
+@media (max-width: 1150px) and (min-width: 701px) {
+  .weather-screen .room-temperature {
+    font-size: clamp(44px, 4.5vw, 52px);
+  }
+}
+@media (max-width: 700px) {
+  .weather-screen .room-temperature {
+    font-size: 58px;
+  }
+  .rooms-active .home-card-temperature {
+    font-size: 36px;
+  }
+}
