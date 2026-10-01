@@ -114,16 +114,21 @@ h1 {
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
   font-size: 12px;
   background: #dfe6dc;
   padding: 9px 13px;
   border-radius: 20px;
 }
-.source > span {
+.source-dot {
   width: 6px;
   height: 6px;
+  flex: none;
   background: #778b60;
   border-radius: 50%;
+}
+.source-short {
+  display: none;
 }
 .outdoor {
   position: relative;
@@ -585,7 +590,7 @@ footer a {
 [data-theme='night'] .source {
   background: #2c1d1b;
 }
-[data-theme='night'] .source > span {
+[data-theme='night'] .source-dot {
   background: #bc806c;
 }
 [data-theme='night'] .brand-icon,
@@ -1082,7 +1087,15 @@ footer a {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   header .source {
+    display: inline-flex;
+    max-width: none;
+    padding: 8px 10px;
+  }
+  .source-label {
     display: none;
+  }
+  .source-short {
+    display: inline;
   }
 }
 @media (max-width: 700px) {
@@ -1810,21 +1823,24 @@ footer,
   color: #b7cbb8;
   font-size: 14px;
 }
-.weather-connection {
+.sensor-status {
   display: inline-flex;
   align-items: center;
   gap: 8px;
-  color: #e2edcf;
+  color: inherit;
 }
-.weather-connection::before {
+.sensor-status::before {
   content: '';
   width: 7px;
   height: 7px;
   border-radius: 50%;
   background: #a4cd89;
 }
-.weather-connection.disconnected::before {
+.sensor-status.sensor-missing::before {
   background: #eebd79;
+}
+.sensor-status.sensor-unknown::before {
+  background: #aeb7b5;
 }
 .outdoor-details {
   display: grid;
@@ -1878,7 +1894,7 @@ footer,
 [data-theme='night'] .weather-extra {
   color: #b98b80;
 }
-[data-theme='night'] .weather-connection {
+[data-theme='night'] .sensor-status {
   color: #f1c3b5;
 }
 [data-theme='night'] .weather-measure {
@@ -1964,7 +1980,7 @@ html[data-theme='day'] .weather-screen .outdoor {
   color: #fff;
 }
 .weather-screen .weather-status,
-.weather-screen .weather-connection,
+.weather-screen .sensor-status,
 .weather-screen .weather-measure .label,
 .weather-screen .weather-measure-note {
   color: #e4f1e7;
@@ -2455,8 +2471,8 @@ html[data-theme='day'] .weather-screen .outdoor {
   background: #244e3e;
   color: #ffffff;
 }
-:is(.weather-active, .rooms-active) .source > span,
-[data-theme='night'] :is(.weather-active, .rooms-active) .source > span {
+:is(.weather-active, .rooms-active) .source-dot,
+[data-theme='night'] :is(.weather-active, .rooms-active) .source-dot {
   background: #a4cd89;
 }
 
@@ -2580,8 +2596,7 @@ html[data-theme='deep-ambient'] .audio-view {
 }
 html[data-theme='deep-ambient']
   :is(.view-weather, .view-rooms, .view-audio)
-  .source
-  > span {
+  .source-dot {
   background: var(--accent);
 }
 html[data-theme='deep-ambient']
@@ -2640,7 +2655,7 @@ html[data-theme='deep-ambient']
     .outdoor-temperature span,
     .weather-measure p,
     .weather-measure p span,
-    .weather-connection,
+    .sensor-status,
     .weather-status,
     .room-temperature,
     .room-temperature > span,
@@ -2814,9 +2829,9 @@ html[data-theme='deep-ambient'] :is(.error, .control-failed) {
   background: var(--bg-card-hover);
   color: var(--accent);
 }
-html[data-theme='deep-ambient'] .weather-connection::before,
+html[data-theme='deep-ambient'] .sensor-status::before,
 html[data-theme='deep-ambient'] .room-dot,
-html[data-theme='deep-ambient'] .source > span {
+html[data-theme='deep-ambient'] .source-dot {
   background: var(--text-primary);
   box-shadow: none;
 }
@@ -3045,4 +3060,54 @@ html[data-theme='deep-ambient'] .weather-screen .outdoor > .temperature-trend {
   .weather-screen .rooms {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+}
+
+/* A single header indicator reports the HA connection; the outdoor card reports its sensor. */
+.source.status-online {
+  background: #244e3e;
+  color: #fff;
+}
+.source.status-online .source-dot {
+  background: #a4cd89;
+}
+.source.status-offline {
+  background: #66372f;
+  color: #fff;
+}
+.source.status-offline .source-dot {
+  background: #efb08b;
+}
+.source.status-pending {
+  background: #4d5551;
+  color: #fff;
+}
+.source.status-pending .source-dot {
+  background: #d4bb8d;
+}
+.source.status-demo {
+  background: #4d5551;
+  color: #fff;
+}
+.source.status-demo .source-dot {
+  background: #c9cfca;
+}
+html[data-theme='deep-ambient']
+  .source:is(.status-online, .status-offline, .status-pending, .status-demo) {
+  background: var(--bg-card);
+  border: 1px solid var(--border-color);
+  color: var(--text-primary);
+}
+html[data-theme='deep-ambient'] .source.status-online .source-dot,
+html[data-theme='deep-ambient']
+  .sensor-status:not(.sensor-missing, .sensor-unknown)::before {
+  background: #849b80;
+}
+html[data-theme='deep-ambient']
+  .source:is(.status-offline, .status-pending)
+  .source-dot,
+html[data-theme='deep-ambient'] .sensor-status.sensor-missing::before {
+  background: #c28f71;
+}
+html[data-theme='deep-ambient'] .sensor-status.sensor-unknown::before {
+  background: #846e69;
 }

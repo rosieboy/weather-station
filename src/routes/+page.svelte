@@ -98,6 +98,58 @@
     }
   }
   let weather = $derived(live ?? data.weather);
+  let refreshFailed = $state(false);
+  let connectionState = $derived(
+    weather.source === 'mock'
+      ? 'demo'
+      : refreshFailed
+        ? 'reconnecting'
+        : weather.error === 'Ansluter till Home Assistant…'
+          ? 'connecting'
+          : weather.error
+            ? 'offline'
+            : live
+              ? 'online'
+              : 'connecting'
+  );
+  let connectionLabel = $derived(
+    connectionState === 'demo'
+      ? 'Demoläge'
+      : connectionState === 'reconnecting'
+        ? 'Återansluter'
+        : connectionState === 'offline'
+          ? 'HA saknar kontakt'
+          : connectionState === 'online'
+            ? 'HA ansluten'
+            : 'Ansluter till HA'
+  );
+  let connectionShort = $derived(
+    connectionState === 'demo'
+      ? 'Demo'
+      : connectionState === 'offline'
+        ? 'HA fel'
+        : connectionState === 'online'
+          ? 'HA'
+          : 'HA…'
+  );
+  let sensorState = $derived(
+    weather.source === 'mock'
+      ? 'demo'
+      : connectionState !== 'online'
+        ? 'unknown'
+        : weather.outdoor.temperature === null
+          ? 'missing'
+          : 'active'
+  );
+  let sensorLabel = $derived(
+    sensorState === 'demo'
+      ? 'Utesensor · demo'
+      : sensorState === 'unknown'
+        ? 'Utesensorstatus okänd'
+        : sensorState === 'missing'
+          ? 'Utesensor saknas'
+          : 'Utesensor tillgänglig'
+  );
   import { conditions, moons } from '$lib/weather/labels';
   let theme = $state<ThemeMode>('auto');
   let now = $state(untrack(() => Date.parse(data.weather.fetchedAt)));
@@ -195,7 +247,6 @@
   );
   import { onMount, untrack } from 'svelte';
   import type { WeatherSnapshot } from '$lib/weather/types';
-  let refreshFailed = $state(false);
   onMount(() => {
     const preventSwipeClick = (event: MouseEvent) => {
       if (Date.now() < suppressClickUntil) {
@@ -324,10 +375,20 @@
         aria-label="Visningsläge: {themeLabel}. Byt till nästa läge"
         >{themeLabel}</button
       >
-      <span class="source"
-        ><span aria-hidden="true"></span>{weather.source === 'mock'
-          ? 'Demoläge · Mockdata'
-          : 'Home Assistant'}</span
+      <span
+        class="source"
+        class:status-online={connectionState === 'online'}
+        class:status-offline={connectionState === 'offline'}
+        class:status-pending={connectionState === 'connecting' ||
+          connectionState === 'reconnecting'}
+        class:status-demo={connectionState === 'demo'}
+        role="status"
+        aria-label={connectionLabel}
+        title={connectionLabel}
+        ><span class="source-dot" aria-hidden="true"></span><span
+          class="source-label">{connectionLabel}</span
+        ><span class="source-short" aria-hidden="true">{connectionShort}</span
+        ></span
       >
     </div>
   </header>
@@ -359,20 +420,12 @@
           </p>
           <p class="weather-status">
             <span
-              class="weather-connection"
-              class:disconnected={refreshFailed || !!weather.error}
+              class="sensor-status"
+              class:sensor-missing={sensorState === 'missing'}
+              class:sensor-unknown={sensorState === 'unknown'}
             >
-              {refreshFailed || weather.error
-                ? 'Återansluter'
-                : weather.source === 'mock'
-                  ? 'Demoläge'
-                  : live
-                    ? 'Ansluten'
-                    : 'Väntar på uppdatering'}
+              {sensorLabel}
             </span>
-            {#if weather.outdoor.temperature === null}<span
-                >Utesensor saknas</span
-              >{/if}
           </p>
         </div>
         <WeatherScene

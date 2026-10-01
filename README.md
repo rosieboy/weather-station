@@ -46,6 +46,9 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
   prognosraden är en knapp som växlar mellan sex dygn och sex timmar. Temperatur
   och luftfuktighet i de tre väderkortens rum ligger på samma baslinje; den
   visuella fuktetiketten är borttagen men finns kvar för skärmläsare.
+- Sidhuvudets status visar anslutningen till Home Assistant. Statusen under
+  utetemperaturen gäller enbart utegivaren; om HA-kontakten saknas anges
+  givarens status som okänd.
 - Rumskorten är helt klickbara och visar lampstatus, temperatur och luftfuktighet.
   På iPad anpassas antalet kolumner efter kortens tillgängliga bredd. De fyra
   temperaturgivarna visar en kompakt kurva för senaste 24 timmarna och förändring
