@@ -3333,9 +3333,9 @@ html[data-theme='deep-ambient'] .weather-screen .room-humidity strong {
 }
 .calendar-event {
   display: grid;
-  grid-template-columns: 125px minmax(0, 1fr);
+  grid-template-columns: 125px minmax(0, 1fr) auto;
   gap: 12px;
-  align-items: baseline;
+  align-items: center;
   padding-top: 10px;
   border-top: 1px solid color-mix(in srgb, var(--accent) 16%, transparent);
 }
@@ -3345,18 +3345,33 @@ html[data-theme='deep-ambient'] .weather-screen .room-humidity strong {
   white-space: nowrap;
 }
 .calendar-event-title {
+  grid-column: 2 / -1;
   min-width: 0;
   font-size: 20px;
   font-weight: 560;
   overflow-wrap: anywhere;
 }
+.calendar-event.has-birthday .calendar-event-title {
+  grid-column: 2;
+}
 .calendar-birthday-age {
-  display: inline-block;
-  margin-left: 0.5em;
+  grid-column: 3;
+  display: inline-flex;
+  align-items: baseline;
+  gap: 0.25em;
+  justify-self: end;
   color: var(--accent);
-  font-size: 0.85em;
-  font-weight: 650;
   white-space: nowrap;
+  font-variant-numeric: tabular-nums;
+}
+.calendar-birthday-age strong {
+  font-size: 28px;
+  font-weight: 750;
+  line-height: 1;
+}
+.calendar-birthday-age span {
+  font-size: 16px;
+  font-weight: 650;
 }
 .calendar-message {
   padding: 34px;
@@ -3411,7 +3426,7 @@ html[data-theme='deep-ambient'] .weather-screen .room-humidity strong {
     grid-template-columns: 1fr;
   }
   .calendar-event {
-    grid-template-columns: 105px minmax(0, 1fr);
+    grid-template-columns: 105px minmax(0, 1fr) auto;
   }
 }
 @media (max-width: 420px) {

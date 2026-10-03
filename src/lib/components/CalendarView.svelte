@@ -45,6 +45,10 @@
       });
     return `${time(event.start)}–${time(event.end)}`;
   };
+  const eventTitle = (event: FamilyEvent) => {
+    if (event.birthdayAge === undefined) return event.title;
+    return event.title.replace(/\s+fyller år\s*$/i, '').trim() || event.title;
+  };
 
   let days = $derived(
     Object.entries(
@@ -165,16 +169,17 @@
             <h3>{dayLabel(date)}</h3>
             <div class="calendar-events">
               {#each events as event, index (`${event.start}-${index}`)}
-                <div class="calendar-event">
+                <div
+                  class="calendar-event"
+                  class:has-birthday={event.birthdayAge !== undefined}
+                >
                   <span class="calendar-event-time">{eventTime(event)}</span>
-                  <span class="calendar-event-title">
-                    {event.title}
-                    {#if event.birthdayAge !== undefined}
-                      <span class="calendar-birthday-age"
-                        >{event.birthdayAge} år</span
-                      >
-                    {/if}
-                  </span>
+                  <span class="calendar-event-title">{eventTitle(event)}</span>
+                  {#if event.birthdayAge !== undefined}
+                    <span class="calendar-birthday-age">
+                      <strong>{event.birthdayAge}</strong><span>år</span>
+                    </span>
+                  {/if}
                 </div>
               {/each}
             </div>
