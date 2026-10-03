@@ -4,16 +4,17 @@ import {
   selectFamilyCalendar
 } from '$lib/calendar/model';
 import type { FamilyAgenda } from '$lib/calendar/types';
+import { calendarRange } from '$lib/calendar/range';
 
 let cache: { key: string; expires: number; agenda: FamilyAgenda } | undefined;
 
-export async function getFamilyAgenda(): Promise<FamilyAgenda> {
+export async function getFamilyAgenda(offset = 0): Promise<FamilyAgenda> {
   if (!env.HOME_ASSISTANT_URL || !env.HOME_ASSISTANT_TOKEN)
     throw new Error('Home Assistant är inte konfigurerat.');
 
   const now = new Date();
-  const end = new Date(now.getTime() + 7 * 24 * 60 * 60_000);
-  const key = env.HOME_ASSISTANT_URL;
+  const range = calendarRange(offset, now);
+  const key = `${env.HOME_ASSISTANT_URL}|${range.startDate}`;
   if (cache?.key === key && cache.expires > Date.now()) return cache.agenda;
 
   const headers = { Authorization: `Bearer ${env.HOME_ASSISTANT_TOKEN}` };
@@ -32,8 +33,8 @@ export async function getFamilyAgenda(): Promise<FamilyAgenda> {
     `/api/calendars/${encodeURIComponent(entity)}`,
     env.HOME_ASSISTANT_URL
   );
-  url.searchParams.set('start', now.toISOString());
-  url.searchParams.set('end', end.toISOString());
+  url.searchParams.set('start', range.start);
+  url.searchParams.set('end', range.end);
   const response = await fetch(url, {
     headers,
     signal: AbortSignal.timeout(10_000),
@@ -41,7 +42,12 @@ export async function getFamilyAgenda(): Promise<FamilyAgenda> {
   });
   if (!response.ok) throw new Error('Kalendern kunde inte hämtas.');
   const events = normalizeFamilyEvents(await response.json());
-  const agenda = { events, updatedAt: now.toISOString() };
+  const agenda = {
+    events,
+    updatedAt: now.toISOString(),
+    startDate: range.startDate,
+    endDate: range.endDate
+  };
   cache = { key, expires: Date.now() + 5 * 60_000, agenda };
   return agenda;
 }

@@ -16,6 +16,19 @@ const code = ts.transpileModule(source, {
 const { selectFamilyCalendar, normalizeFamilyEvents } = await import(
   'data:text/javascript;base64,' + Buffer.from(code).toString('base64')
 );
+const rangeSource = readFileSync(
+  new URL('../src/lib/calendar/range.ts', import.meta.url),
+  'utf8'
+);
+const rangeCode = ts.transpileModule(rangeSource, {
+  compilerOptions: {
+    module: ts.ModuleKind.ESNext,
+    target: ts.ScriptTarget.ES2022
+  }
+}).outputText;
+const { calendarRange } = await import(
+  'data:text/javascript;base64,' + Buffer.from(rangeCode).toString('base64')
+);
 
 test('only the confirmed Familjen calendar is accepted', () => {
   const listed = [
@@ -58,4 +71,22 @@ test('calendar response keeps only title and time, including all-day events', ()
   });
   assert.equal(events[1].allDay, true);
   assert.equal(JSON.stringify(events).includes('Privat'), false);
+});
+
+test('seven calendar days remain correct across Swedish daylight saving changes', () => {
+  const autumn = calendarRange(0, new Date('2026-10-24T12:00:00Z'));
+  assert.equal(autumn.startDate, '2026-10-24');
+  assert.equal(autumn.endDate, '2026-10-30');
+  assert.equal(
+    (Date.parse(autumn.end) - Date.parse(autumn.start)) / 3600_000,
+    169
+  );
+  const previous = calendarRange(-1, new Date('2026-10-24T12:00:00Z'));
+  assert.equal(previous.endDate, '2026-10-23');
+  const spring = calendarRange(0, new Date('2026-03-28T12:00:00Z'));
+  assert.equal(
+    (Date.parse(spring.end) - Date.parse(spring.start)) / 3600_000,
+    167
+  );
+  assert.throws(() => calendarRange(53));
 });

@@ -8,4 +8,6 @@ export type FamilyEvent = {
 export type FamilyAgenda = {
   events: FamilyEvent[];
   updatedAt: string;
+  startDate: string;
+  endDate: string;
 };

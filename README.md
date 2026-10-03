@@ -38,6 +38,9 @@ eller CalDAV-nyckel lagras i dashboardprojektet. Om HA eller kalendern är
 otillgänglig visar vyn ett fel, eller de senast hämtade händelserna med en tydlig
 varning. Dashboarden saknar inloggning på hemnätverket: alla med åtkomst till
 port 3000 kan se kalenderns titlar.
+Föregående/Nästa bläddrar i sammanhängande sjudagarsperioder räknade från
+dagens datum i Europe/Stockholm; Idag återgår till nuvarande period. Tidsgränserna
+följer svensk sommar- och vintertid. Bara dagar med händelser får egna kort.
 
 - Projektet började med mockdata för ute, vardagsrum, sovrum och kontor.
   Nu hämtas riktiga värden från tre TIMMERFLOTTE-sensorer och en separat

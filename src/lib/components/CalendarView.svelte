@@ -1,20 +1,31 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import { calendarRange, stockholmDate } from '$lib/calendar/range';
   import type { FamilyAgenda, FamilyEvent } from '$lib/calendar/types';
 
   let agenda = $state<FamilyAgenda | null>(null);
   let error = $state('');
   let loading = $state(true);
+  let period = $state(0);
+  let now = $state(Date.now());
+  let requestId = 0;
+  let range = $derived(calendarRange(period, new Date(now)));
 
   const zone = 'Europe/Stockholm';
-  const today = () =>
-    new Date().toLocaleDateString('sv-SE', { timeZone: zone });
+  const today = () => stockholmDate(new Date(now));
   const dateKey = (event: FamilyEvent) => {
     const start = event.allDay
       ? event.start.slice(0, 10)
       : new Date(event.start).toLocaleDateString('sv-SE', { timeZone: zone });
-    return start < today() ? today() : start;
+    const firstDay = agenda?.startDate ?? range.startDate;
+    return start < firstDay ? firstDay : start;
   };
+  const dateLabel = (key: string) =>
+    new Date(`${key}T12:00:00Z`).toLocaleDateString('sv-SE', {
+      timeZone: zone,
+      day: 'numeric',
+      month: 'short'
+    });
   const dayLabel = (key: string) =>
     key === today()
       ? 'Idag'
@@ -49,22 +60,35 @@
   );
 
   async function refresh() {
+    now = Date.now();
+    const currentRequest = ++requestId;
     try {
-      const response = await fetch('/api/family-calendar', {
+      const response = await fetch(`/api/family-calendar?offset=${period}`, {
         signal: AbortSignal.timeout(15_000),
         cache: 'no-store'
       });
       const body = await response.json();
       if (!response.ok)
         throw new Error(body.error || 'Kalendern kunde inte hämtas.');
+      if (currentRequest !== requestId) return;
       agenda = body as FamilyAgenda;
       error = '';
     } catch (cause) {
+      if (currentRequest !== requestId) return;
       error =
         cause instanceof Error ? cause.message : 'Kalendern kunde inte hämtas.';
     } finally {
-      loading = false;
+      if (currentRequest === requestId) loading = false;
     }
+  }
+
+  function showPeriod(offset: number) {
+    if (offset < -52 || offset > 52 || offset === period) return;
+    period = offset;
+    agenda = null;
+    error = '';
+    loading = true;
+    void refresh();
   }
 
   onMount(() => {
@@ -86,7 +110,7 @@
     <div>
       <p class="eyebrow">GEMENSAM KALENDER</p>
       <h2 id="calendar-title">Familjen</h2>
-      <p>De kommande sju dagarna</p>
+      <p>{period === 0 ? 'Idag och sex dagar framåt' : 'Sjudagarsperiod'}</p>
     </div>
     <div
       class="calendar-count"
@@ -94,6 +118,31 @@
     >
       <strong>{agenda?.events.length ?? '—'}</strong>
       <span>händelser</span>
+    </div>
+  </div>
+
+  <div class="calendar-toolbar" aria-label="Bläddra i kalendern">
+    <span class="calendar-range"
+      >{dateLabel(range.startDate)}–{dateLabel(range.endDate)}</span
+    >
+    <div class="calendar-navigation">
+      <button
+        type="button"
+        aria-label="Föregående sju dagar"
+        disabled={period <= -52}
+        onclick={() => showPeriod(period - 1)}>‹ <span>Föregående</span></button
+      >
+      <button
+        type="button"
+        disabled={period === 0}
+        onclick={() => showPeriod(0)}>Idag</button
+      >
+      <button
+        type="button"
+        aria-label="Nästa sju dagar"
+        disabled={period >= 52}
+        onclick={() => showPeriod(period + 1)}><span>Nästa</span> ›</button
+      >
     </div>
   </div>
 
@@ -106,7 +155,9 @@
         Visar senast hämtade händelser. {error}
       </p>{/if}
     {#if days.length === 0}
-      <p class="calendar-message">Inga händelser de kommande sju dagarna.</p>
+      <p class="calendar-message">
+        Inga händelser {dateLabel(range.startDate)}–{dateLabel(range.endDate)}.
+      </p>
     {:else}
       <div class="calendar-days">
         {#each days as [date, events] (date)}
