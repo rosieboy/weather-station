@@ -167,7 +167,14 @@
               {#each events as event, index (`${event.start}-${index}`)}
                 <div class="calendar-event">
                   <span class="calendar-event-time">{eventTime(event)}</span>
-                  <span class="calendar-event-title">{event.title}</span>
+                  <span class="calendar-event-title">
+                    {event.title}
+                    {#if event.birthdayAge !== undefined}
+                      <span class="calendar-birthday-age"
+                        >{event.birthdayAge} år</span
+                      >
+                    {/if}
+                  </span>
                 </div>
               {/each}
             </div>

@@ -2,9 +2,23 @@ import type { FamilyEvent } from './types';
 
 type HaEvent = {
   summary?: unknown;
+  description?: unknown;
   start?: { date?: unknown; dateTime?: unknown };
   end?: { date?: unknown; dateTime?: unknown };
 };
+
+function birthdayAge(description: unknown, start: string): number | undefined {
+  if (typeof description !== 'string') return undefined;
+  const match = description.match(
+    /(?:^|[^\p{L}\d])född\s*[:\-]?\s*(\d{4})(?!\d)/iu
+  );
+  if (!match) return undefined;
+
+  const birthYear = Number(match[1]);
+  const eventYear = Number(start.slice(0, 4));
+  const age = eventYear - birthYear;
+  return age >= 0 && age <= 130 ? age : undefined;
+}
 
 export function selectFamilyCalendar(listed: unknown): string {
   if (!Array.isArray(listed)) throw new Error('Ogiltig kalenderlista.');
@@ -38,6 +52,7 @@ export function normalizeFamilyEvents(raw: unknown): FamilyEvent[] {
         !Number.isFinite(Date.parse(end))
       )
         return [];
+      const age = birthdayAge(item.description, start);
       return [
         {
           title:
@@ -46,7 +61,8 @@ export function normalizeFamilyEvents(raw: unknown): FamilyEvent[] {
               : 'Namnlös händelse',
           start,
           end,
-          allDay: typeof item.start?.date === 'string'
+          allDay: typeof item.start?.date === 'string',
+          ...(age === undefined ? {} : { birthdayAge: age })
         }
       ];
     })

@@ -46,7 +46,7 @@ test('only the confirmed Familjen calendar is accepted', () => {
   assert.throws(() => selectFamilyCalendar([...listed, listed[1]]));
 });
 
-test('calendar response keeps only title and time, including all-day events', () => {
+test('calendar response excludes private details and keeps all-day events', () => {
   const events = normalizeFamilyEvents([
     {
       summary: 'Middag',
@@ -71,6 +71,42 @@ test('calendar response keeps only title and time, including all-day events', ()
   });
   assert.equal(events[1].allDay, true);
   assert.equal(JSON.stringify(events).includes('Privat'), false);
+});
+
+test('birth year in event notes yields age for each occurrence year', () => {
+  const events = normalizeFamilyEvents([
+    {
+      summary: 'Anna fyller år',
+      description: 'Född 1982\nPrivat anteckning',
+      start: { date: '2026-10-03' },
+      end: { date: '2026-10-04' }
+    },
+    {
+      summary: 'Anna fyller år',
+      description: 'Född 1982',
+      start: { date: '2027-10-03' },
+      end: { date: '2027-10-04' }
+    },
+    {
+      summary: 'Namnsdag',
+      description: 'Ingen födelseinformation',
+      start: { date: '2027-10-04' },
+      end: { date: '2027-10-05' }
+    },
+    {
+      summary: 'Felaktigt födelseår',
+      description: 'Född 2029',
+      start: { date: '2027-10-05' },
+      end: { date: '2027-10-06' }
+    }
+  ]);
+
+  assert.equal(events[0].birthdayAge, 44);
+  assert.equal(events[1].birthdayAge, 45);
+  assert.equal(events[2].birthdayAge, undefined);
+  assert.equal(events[3].birthdayAge, undefined);
+  assert.equal(JSON.stringify(events).includes('Privat anteckning'), false);
+  assert.equal(JSON.stringify(events).includes('1982'), false);
 });
 
 test('seven calendar days remain correct across Swedish daylight saving changes', () => {

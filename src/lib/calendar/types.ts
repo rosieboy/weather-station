@@ -3,6 +3,7 @@ export type FamilyEvent = {
   start: string;
   end: string;
   allDay: boolean;
+  birthdayAge?: number;
 };
 
 export type FamilyAgenda = {

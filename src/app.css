@@ -3350,6 +3350,14 @@ html[data-theme='deep-ambient'] .weather-screen .room-humidity strong {
   font-weight: 560;
   overflow-wrap: anywhere;
 }
+.calendar-birthday-age {
+  display: inline-block;
+  margin-left: 0.5em;
+  color: var(--accent);
+  font-size: 0.85em;
+  font-weight: 650;
+  white-space: nowrap;
+}
 .calendar-message {
   padding: 34px;
   border-radius: 18px;
