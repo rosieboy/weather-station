@@ -1,5 +1,6 @@
 <script lang="ts">
   import AudioView from '$lib/components/AudioView.svelte';
+  import CalendarView from '$lib/components/CalendarView.svelte';
   import RoomsView from '$lib/components/RoomsView.svelte';
   import WeatherScene from '$lib/components/WeatherScene.svelte';
   import TemperatureTrend from '$lib/components/TemperatureTrend.svelte';
@@ -9,7 +10,7 @@
   import type { ThemeMode } from '$lib/weather/theme';
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
-  let view = $state<'weather' | 'rooms' | 'audio'>('weather');
+  let view = $state<'weather' | 'rooms' | 'audio' | 'calendar'>('weather');
   let roomOpen = $state(false);
   let suppressClickUntil = 0;
   let swipeStart: { x: number; y: number; id: number } | null = null;
@@ -76,10 +77,13 @@
       dy = event.clientY - start.y;
     if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       suppressClickUntil = Date.now() + 500;
-      const views = ['weather', 'rooms', 'audio'] as const;
+      const views = ['weather', 'rooms', 'audio', 'calendar'] as const;
       view =
         views[
-          Math.max(0, Math.min(2, views.indexOf(view) + (dx < 0 ? 1 : -1)))
+          Math.max(
+            0,
+            Math.min(views.length - 1, views.indexOf(view) + (dx < 0 ? 1 : -1))
+          )
         ];
     }
   }
@@ -345,7 +349,9 @@
             ? 'Väderstation'
             : view === 'rooms'
               ? 'Hemkontroll'
-              : 'Ljud hemma'}
+              : view === 'audio'
+                ? 'Ljud hemma'
+                : 'Familjen'}
         </h1>
       </div>
     </div>
@@ -360,6 +366,10 @@
       <button
         aria-current={view === 'audio' ? 'page' : undefined}
         onclick={() => (view = 'audio')}>Ljud</button
+      >
+      <button
+        aria-current={view === 'calendar' ? 'page' : undefined}
+        onclick={() => (view = 'calendar')}>Kalender</button
       >
     </nav>
     <div class="header-controls">
@@ -393,11 +403,16 @@
     </div>
   </header>
 
-  {#if weather.error || refreshFailed}<p class="error" role="status">
+  {#if view !== 'calendar' && (weather.error || refreshFailed)}<p
+      class="error"
+      role="status"
+    >
       {weather.error ||
         'Kontakt med skärmen bröts. Visar tidigare värden; återansluter…'}
     </p>{/if}
-  {#if view === 'audio'}
+  {#if view === 'calendar'}
+    <CalendarView />
+  {:else if view === 'audio'}
     <AudioView
       home={weather.home}
       disconnected={refreshFailed || !!weather.error}
@@ -529,9 +544,9 @@
       <footer class="weather-footer">
         <span class="forecast-source"
           >Prognos: {#if data.kiosk}met.no · Meteorologisk institutt{:else}<a
-            href="https://www.met.no/"
-            target="_blank"
-            rel="noopener noreferrer">met.no · Meteorologisk institutt</a
+              href="https://www.met.no/"
+              target="_blank"
+              rel="noopener noreferrer">met.no · Meteorologisk institutt</a
             >{/if}</span
         >
         <div class="astronomy" aria-label="Sol och måne">

@@ -1,7 +1,7 @@
 # Väderstation
 
 Svensk dashboard för temperatur och luftfuktighet, byggd med SvelteKit, Svelte 5
-och TypeScript. Väder, Rum och Ljud är anpassade för Pi:ns kiosk på 1280 × 720
+och TypeScript. Väder, Rum, Ljud och Kalender är anpassade för Pi:ns kiosk på 1280 × 720
 och fungerar även på mindre skärmar. Utetemperaturen är vädervyns huvudvärde,
 med Vardagsrum, Sovrum och Balkong under.
 
@@ -25,6 +25,19 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 [COPILOT.md](COPILOT.md) beskriver en granskning av projektet.
 
 ## Status och genomförda val
+
+### Familjekalender
+
+Kalender-vyn visar händelser de kommande sju dagarna från endast iCloud-kalendern
+**Familjen**, ansluten till Home Assistant via CalDAV. Dashboardservern letar
+efter exakt `Familjen` med entitets-id `calendar.familjen` i HA och hämtar dess
+händelser via `/api/calendars/<entity_id>`. Saknas den visas ett fel.
+Svaret cachas i fem minuter. Bara titel och tid
+skickas till webbläsaren; beskrivning och plats visas inte. Ingen Apple-inloggning
+eller CalDAV-nyckel lagras i dashboardprojektet. Om HA eller kalendern är
+otillgänglig visar vyn ett fel, eller de senast hämtade händelserna med en tydlig
+varning. Dashboarden saknar inloggning på hemnätverket: alla med åtkomst till
+port 3000 kan se kalenderns titlar.
 
 - Projektet började med mockdata för ute, vardagsrum, sovrum och kontor.
   Nu hämtas riktiga värden från tre TIMMERFLOTTE-sensorer och en separat
