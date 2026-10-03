@@ -46,14 +46,14 @@ test('only the confirmed Familjen calendar is accepted', () => {
   assert.throws(() => selectFamilyCalendar([...listed, listed[1]]));
 });
 
-test('calendar response excludes private details and keeps all-day events', () => {
+test('calendar response includes location and notes when present', () => {
   const events = normalizeFamilyEvents([
     {
       summary: 'Middag',
       start: { dateTime: '2026-10-03T18:00:00+02:00' },
       end: { dateTime: '2026-10-03T20:00:00+02:00' },
-      location: 'Privat adress',
-      description: 'Privat beskrivning'
+      location: 'Nöjesfabriken\nKarlagatan 42',
+      description: 'Ta med biljetterna'
     },
     {
       summary: 'Ledigt',
@@ -67,17 +67,20 @@ test('calendar response excludes private details and keeps all-day events', () =
     title: 'Middag',
     start: '2026-10-03T18:00:00+02:00',
     end: '2026-10-03T20:00:00+02:00',
-    allDay: false
+    allDay: false,
+    location: 'Nöjesfabriken · Karlagatan 42',
+    note: 'Ta med biljetterna'
   });
   assert.equal(events[1].allDay, true);
-  assert.equal(JSON.stringify(events).includes('Privat'), false);
+  assert.equal(events[1].location, undefined);
+  assert.equal(events[1].note, undefined);
 });
 
 test('birth year in event notes yields age for each occurrence year', () => {
   const events = normalizeFamilyEvents([
     {
       summary: 'Anna fyller år',
-      description: 'Född 1982\nPrivat anteckning',
+      description: 'Född 1982\nBjud på tårta',
       start: { date: '2026-10-03' },
       end: { date: '2026-10-04' }
     },
@@ -102,10 +105,11 @@ test('birth year in event notes yields age for each occurrence year', () => {
   ]);
 
   assert.equal(events[0].birthdayAge, 44);
+  assert.equal(events[0].note, 'Bjud på tårta');
   assert.equal(events[1].birthdayAge, 45);
+  assert.equal(events[1].note, undefined);
   assert.equal(events[2].birthdayAge, undefined);
   assert.equal(events[3].birthdayAge, undefined);
-  assert.equal(JSON.stringify(events).includes('Privat anteckning'), false);
   assert.equal(JSON.stringify(events).includes('1982'), false);
 });
 

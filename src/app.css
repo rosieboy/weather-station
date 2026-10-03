@@ -3373,6 +3373,28 @@ html[data-theme='deep-ambient'] .weather-screen .room-humidity strong {
   font-size: 16px;
   font-weight: 650;
 }
+.calendar-event-details {
+  grid-column: 2 / -1;
+  display: grid;
+  gap: 4px;
+  min-width: 0;
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+.calendar-event-detail {
+  display: grid;
+  grid-template-columns: 42px minmax(0, 1fr);
+  gap: 7px;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.calendar-detail-label {
+  color: var(--accent);
+  font-weight: 650;
+}
+.calendar-event-note {
+  white-space: pre-line;
+}
 .calendar-message {
   padding: 34px;
   border-radius: 18px;
@@ -3427,6 +3449,9 @@ html[data-theme='deep-ambient'] .weather-screen .room-humidity strong {
   }
   .calendar-event {
     grid-template-columns: 105px minmax(0, 1fr) auto;
+  }
+  .calendar-event-details {
+    grid-column: 1 / -1;
   }
 }
 @media (max-width: 420px) {

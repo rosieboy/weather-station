@@ -32,14 +32,14 @@ Kalender-vyn visar händelser de kommande sju dagarna från endast iCloud-kalend
 **Familjen**, ansluten till Home Assistant via CalDAV. Dashboardservern letar
 efter exakt `Familjen` med entitets-id `calendar.familjen` i HA och hämtar dess
 händelser via `/api/calendars/<entity_id>`. Saknas den visas ett fel.
-Svaret cachas i fem minuter. Bara titel, tid och beräknad födelsedagsålder
-skickas till webbläsaren; beskrivning och plats visas inte. En årlig händelse
+Svaret cachas i fem minuter. Titel, tid, plats och anteckningar visas i
+kalenderkorten när de finns; texten är inte klickbar i kiosken. En årlig händelse
 med exempelvis `Född 1982` i beskrivningen visar åldern för händelsens år.
-Utan födelseår visas enbart händelsens titel. Ingen Apple-inloggning
+Den raden döljs som anteckning när åldern visas. Ingen Apple-inloggning
 eller CalDAV-nyckel lagras i dashboardprojektet. Om HA eller kalendern är
 otillgänglig visar vyn ett fel, eller de senast hämtade händelserna med en tydlig
 varning. Dashboarden saknar inloggning på hemnätverket: alla med åtkomst till
-port 3000 kan se kalenderns titlar.
+port 3000 kan se kalenderns titlar, platser och anteckningar.
 Föregående/Nästa bläddrar i sammanhängande sjudagarsperioder räknade från
 dagens datum i Europe/Stockholm; Idag återgår till nuvarande period. Tidsgränserna
 följer svensk sommar- och vintertid. Bara dagar med händelser får egna kort.

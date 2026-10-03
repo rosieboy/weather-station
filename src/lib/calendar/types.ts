@@ -4,6 +4,8 @@ export type FamilyEvent = {
   end: string;
   allDay: boolean;
   birthdayAge?: number;
+  location?: string;
+  note?: string;
 };
 
 export type FamilyAgenda = {

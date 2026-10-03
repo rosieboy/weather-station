@@ -3,6 +3,7 @@ import type { FamilyEvent } from './types';
 type HaEvent = {
   summary?: unknown;
   description?: unknown;
+  location?: unknown;
   start?: { date?: unknown; dateTime?: unknown };
   end?: { date?: unknown; dateTime?: unknown };
 };
@@ -18,6 +19,34 @@ function birthdayAge(description: unknown, start: string): number | undefined {
   const eventYear = Number(start.slice(0, 4));
   const age = eventYear - birthYear;
   return age >= 0 && age <= 130 ? age : undefined;
+}
+
+function eventLocation(location: unknown): string | undefined {
+  if (typeof location !== 'string') return undefined;
+  return (
+    location
+      .replace(/\r\n?/g, '\n')
+      .split('\n')
+      .map((line) => line.replace(/\s+/g, ' ').trim())
+      .filter(Boolean)
+      .join(' · ') || undefined
+  );
+}
+
+function eventNote(
+  description: unknown,
+  hasBirthdayAge: boolean
+): string | undefined {
+  if (typeof description !== 'string') return undefined;
+  const lines = description
+    .replace(/\r\n?/g, '\n')
+    .split('\n')
+    .map((line) => line.trim())
+    .filter(
+      (line) =>
+        line && !(hasBirthdayAge && /^född\s*[:\-]?\s*\d{4}$/i.test(line))
+    );
+  return lines.join('\n') || undefined;
 }
 
 export function selectFamilyCalendar(listed: unknown): string {
@@ -53,6 +82,8 @@ export function normalizeFamilyEvents(raw: unknown): FamilyEvent[] {
       )
         return [];
       const age = birthdayAge(item.description, start);
+      const location = eventLocation(item.location);
+      const note = eventNote(item.description, age !== undefined);
       return [
         {
           title:
@@ -62,7 +93,9 @@ export function normalizeFamilyEvents(raw: unknown): FamilyEvent[] {
           start,
           end,
           allDay: typeof item.start?.date === 'string',
-          ...(age === undefined ? {} : { birthdayAge: age })
+          ...(age === undefined ? {} : { birthdayAge: age }),
+          ...(location === undefined ? {} : { location }),
+          ...(note === undefined ? {} : { note })
         }
       ];
     })

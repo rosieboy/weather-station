@@ -180,6 +180,22 @@
                       <strong>{event.birthdayAge}</strong><span>år</span>
                     </span>
                   {/if}
+                  {#if event.location || event.note}
+                    <div class="calendar-event-details">
+                      {#if event.location}
+                        <div class="calendar-event-detail">
+                          <span class="calendar-detail-label">Plats</span>
+                          <span>{event.location}</span>
+                        </div>
+                      {/if}
+                      {#if event.note}
+                        <div class="calendar-event-detail">
+                          <span class="calendar-detail-label">Info</span>
+                          <span class="calendar-event-note">{event.note}</span>
+                        </div>
+                      {/if}
+                    </div>
+                  {/if}
                 </div>
               {/each}
             </div>
