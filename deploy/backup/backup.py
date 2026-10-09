@@ -117,7 +117,7 @@ def backup():
     if not all(p.exists() for p in required):
         raise RuntimeError('Required source data missing')
     manifest = {'created_at': datetime.now(timezone.utc).isoformat(), 'usb_uuid': USB_UUID,
-                'git_commit': output('git', '-C', str(HOME / 'weather-station'), 'rev-parse', 'HEAD'),
+                'git_commit': output('runuser', '-u', 'anders', '--', 'git', '-C', str(HOME / 'weather-station'), 'rev-parse', 'HEAD'),
                 'containers': [{'name': c['Name'], 'image': c['Config']['Image'],
                                 'was_running': c['State']['Running']} for c in info],
                 'dashboard_volume': mounts[0]['Name'],

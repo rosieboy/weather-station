@@ -3,7 +3,7 @@
 set -euo pipefail
 [[ $EUID -eq 0 ]] || { echo 'Kör med sudo på Pi:n.' >&2; exit 1; }
 cd -- "$(dirname -- "${BASH_SOURCE[0]}")"
-for executable in docker python3 tar gzip sha256sum findmnt mount umount udevadm; do
+for executable in docker python3 tar gzip sha256sum findmnt mount umount udevadm runuser; do
   command -v "$executable" >/dev/null
 done
 [[ $(blkid -s TYPE -o value /dev/disk/by-uuid/66CD-AEC1) == exfat ]] || {
