@@ -1,7 +1,7 @@
 # Överlämning till ChatGPT/Codex
 
-Uppdaterad 2026-09-26. Projektet är en SvelteKit/Svelte 5-dashboard för en
-Raspberry Pi-kiosk på **1280 × 720**, med Väder, Rum och Ljud samt mobilvy.
+Uppdaterad 2026-10-10. Projektet är en SvelteKit/Svelte 5-dashboard för en
+Raspberry Pi-kiosk på **1280 × 720**, med Väder, Rum, Ljud, Kalender och Bil samt mobilvy.
 Läs [README.md](README.md) för installation, arkitektur och fullständig
 funktionsbeskrivning. [COPILOT.md](COPILOT.md) listar tidigare granskningsfynd;
 de är inte åtgärdade av UI-arbetet.
@@ -50,13 +50,24 @@ i webbläsaren. De manuella lägena är fasta. Auto väljer `deep-ambient`
 CSS använder de
 faktiska attributvärdena `day`, `night` och `deep-ambient` (inte `dag`/`natt`).
 
-Senast verifierat lokalt: `npm test` (24 tester), `npm run check`,
-`npm run build`, Prettier och `git diff --check` passerar. Webbläsarvyn har
-kontrollerats vid 1280 × 720 och mobilbredder. Vädervyns tre mätvärden
-linjerar utan horisontellt överflöde; rummens och ljudets ambient-ramar har
-kontrollerats i beräknad CSS. **Ingen ny Pi-installation eller fysisk skärmtest
-har gjorts för dessa ändringar.** Verifiera därför kioskens ljusstyrka,
-läsbarhet och touch på själva Pi:n, särskilt kring 23:00 och 08:00.
+Senast verifierat för Bil-vyn: `npm test` (46 tester), `npm run check` och
+`npm run build` passerar. Bil-vyn är installerad på Pi:n och användaren har
+bekräftat att den fungerar på den fysiska kioskskärmen efter kioskomstart.
+Kalenderns flerdagshändelser visas på varje överlappande dag. Dashboarden återgår
+till Väder efter fem minuter utan interaktion, oavsett vald vy.
+
+Bil-vyn finns i `CarView.svelte`, `/api/car` och `car-model.ts`. Den läser fasta
+`sensor.polestar_*` via den befintliga HA-strömmen. Bilsidan hämtar den cachen var
+30:e sekund när den är synlig; det gör inga extra anrop till Polestar.
+Bakgrunden ligger i `static/polestar.jpg`. Saknade värden visas som streck och
+bilens batterirapporteringstid visas separat, med varning efter ett dygn.
+Polestar Data Portal 0.3.0 är manuellt installerad i HA utanför detta repo.
+Nuvarande API-credential löper ut 2026-12-16. Hemligheter finns endast i HA.
+
+[DRIFT.md](DRIFT.md) har verifierade manuella kommandon. `scripts/pi/restart-kiosk.py`
+kapslar fjärromstarten med den körande kioskens Wayland-miljö, utan sudo;
+`--check` gör endast kontroll. Pi-repot ligger i `~/weather-station`,
+HA/Matter i `~/home-assistant`. SSH-nyckeln på Macen är `~/.ssh/id_raspberry`.
 
 Undvik att skicka styrkommandon till live-HA/Sonos bara för att testa UI.
 Vid behov: mocka kontroll-API:erna i webbläsaren. Publicering/deploy till Pi

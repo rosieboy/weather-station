@@ -1,7 +1,7 @@
 # Väderstation
 
 Svensk dashboard för temperatur och luftfuktighet, byggd med SvelteKit, Svelte 5
-och TypeScript. Väder, Rum, Ljud och Kalender är anpassade för Pi:ns kiosk på 1280 × 720
+och TypeScript. Väder, Rum, Ljud, Kalender och Bil är anpassade för Pi:ns kiosk på 1280 × 720
 och fungerar även på mindre skärmar. Utetemperaturen är vädervyns huvudvärde,
 med Vardagsrum, Sovrum och Balkong under.
 
@@ -11,10 +11,10 @@ med Vardagsrum, Sovrum och Balkong under.
 
 ![Bild på vädervy](./static/sound.png 'Sonos ljudvy')
 
-Drift verifierad på Raspberry Pi per **2026-09-23**.
+Drift verifierad på Raspberry Pi per **2026-10-10**.
 Dashboard: http://vaderstation.local:3000/ · Home Assistant: http://vaderstation.local/
 
-Se [Pi-guiden](RASPBERRY-PI.md), [flytthistoriken](HA-MIGRATION.md) och
+Se [manualen för daglig drift](DRIFT.md), [Pi-guiden](RASPBERRY-PI.md), [flytthistoriken](HA-MIGRATION.md) och
 [HA/Matter-drift](deploy/home-assistant/README.md).
 
 ## Idéer och vägval
@@ -86,7 +86,7 @@ på start- och slutdagen och Hela dagen på mellanliggande dagar.
 - Ljudvyn har större spelknappar, en fylld touchvänlig volymstapel och tydligare
   låt- och artisttext. Tidsrad och statiska uppspelningstexter visas inte längre;
   volymkommandot skickas fortfarande först när reglaget släpps.
-- De tre vyerna har egna färgpaletter för dag och natt. `deep-ambient` använder
+- Vyerna har egna färgpaletter för dag och natt. `deep-ambient` använder
   svart bakgrund och dämpat rött i alla vyer, inklusive reglage och dialoger.
   Rumskort och högtalarkort får en diskret röd ram och skugga som framhävs vid
   hover eller tryck, utan att påverka övriga vyer och teman.
@@ -154,7 +154,7 @@ flowchart TB
             App -->|REST: prognos och kontroller| HA
         end
         Storage[("Beständig lagring<br/>HA /config · Matter /data")]
-        Kiosk["Chromium i kiosk · pekskärm<br/>Väder · Rum · Ljud"]
+        Kiosk["Chromium i kiosk · pekskärm<br/>Väder · Rum · Ljud · Kalender · Bil"]
         Health["systemd-timer · var femte minut<br/>Resurser, tjänster och sensorflöde<br/>Lokala larm + Gmail-utskick"]
         HA --- Storage
         Matter --- Storage
@@ -524,8 +524,8 @@ inte på nästa 15-minutersintervall.
 
 ## Rum och lampkontroller (2026-09-17)
 
-Knapparna **Väder / Rum / Ljud** byter skärm. Ett horisontellt svep åt vänster öppnar
-rummen och åt höger återgår till vädret. Svep byter inte skärm när en rumsdialog
+Knapparna **Väder / Rum / Ljud / Kalender / Bil** byter skärm. Ett horisontellt
+svep åt vänster går till nästa vy och åt höger till föregående. Svep byter inte skärm när en rumsdialog
 är öppen eller när gesten börjar på ett reglage. Vyn återgår till väder vid omladdning.
 Dag-/nattläget gäller båda vyerna och dialogerna.
 
@@ -584,7 +584,7 @@ som når dashboarden kan styra de valda lamporna.
 Den tredje vyn visar ett kort per aktiv, synlig Sonos-mediaspelare i HA-registret.
 Apple TV filtreras bort. Kortens områden följer HA; enhetens eget namn kan avvika
 (exempelvis Sonos-namnet TV-rum i området Vardagsrum). Inga nya miljövariabler krävs.
-Svep går stegvis mellan Väder → Rum → Ljud, utan att slå runt i ändarna.
+Svep går stegvis mellan Väder → Rum → Ljud → Kalender → Bil, utan att slå runt i ändarna.
 
 - Spela/pausa, föregående/nästa spår, tystning och individuell volym 0–100 %.
   Volymanrop skickas när reglaget släpps, inte kontinuerligt under dragningen.

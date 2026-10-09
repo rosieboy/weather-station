@@ -3,6 +3,8 @@
 Installerat och verifierat 2026-09-23: Raspberry Pi 5, Raspberry Pi OS 64-bit
 med skrivbord (Wayland/labwc), Docker Engine och Chromium i kiosk.
 
+För uppdatering, kioskomstart och felsökning: se [Manuell drift](DRIFT.md).
+
 ## Aktuell drift
 
 Sensorer och DIRIGERA → Matter Server på Pi → HA Container på Pi → dashboard → Chromium.
@@ -30,15 +32,15 @@ Ingen disk eller något minneskort har ändrats under förberedelsen.
 
 Förbered följande val i Imager när kortet finns:
 
-| Inställning | Vårt val |
-| --- | --- |
-| Värdnamn | `vaderstation` |
-| Användare | `anders` (exemplet i resten av guiden) |
-| Lösenord | Välj själv i Imager; spara inte i repot |
-| Tidszon | Europe/Stockholm |
-| Tangentbord / Wi-Fi-land | Sverige / SE |
-| Nätverk | Ethernet om möjligt, annars hemmets Wi-Fi |
-| SSH | Aktivera, helst med din Macs befintliga publika SSH-nyckel |
+| Inställning              | Vårt val                                                   |
+| ------------------------ | ---------------------------------------------------------- |
+| Värdnamn                 | `vaderstation`                                             |
+| Användare                | `anders` (exemplet i resten av guiden)                     |
+| Lösenord                 | Välj själv i Imager; spara inte i repot                    |
+| Tidszon                  | Europe/Stockholm                                           |
+| Tangentbord / Wi-Fi-land | Sverige / SE                                               |
+| Nätverk                  | Ethernet om möjligt, annars hemmets Wi-Fi                  |
+| SSH                      | Aktivera, helst med din Macs befintliga publika SSH-nyckel |
 
 Använd ett microSD-kort på minst 32 GB. 1 GB-kortet räcker inte.
 Imagers skrivning raderar det valda kortet: kontrollera diskens namn och storlek
@@ -147,10 +149,10 @@ webbläsaren; ersätt exemplet med den riktiga adressen. Detta tillåter alla
 hemmets enheter som besöker dessa serveradresser, inte bara en viss iPad.
 Macens gamla adress behöver inte följa med till Pi-konfigurationen.
 
-`HOME_ASSISTANT_URL` ska peka på HA-VM:ns nåbara LAN-adress, exempelvis det
-befintliga `http://homeassistant.local`. Om namnuppslagningen inte fungerar
-inne i Docker använder vi VM:ns IP och dess verkliga port. Använd inte Pi:ns
-`localhost` här. VirtualBox behöver fortsatt vara nåbar från hemnätverket.
+`HOME_ASSISTANT_URL` pekar på HA på Pi:ns nåbara LAN-adress, i nuvarande
+installation `http://192.168.0.130` (port 80). Använd inte `localhost`: dashboarden
+kör i en egen container där den adressen pekar tillbaka på containern.
+Macens gamla HA-VM ska vara stoppad och behövs inte för drift.
 
 `.env` innehåller hemligheter, är git-ignorerad och ska inte checkas in.
 Port 3000 är tillgänglig på hemnätverket utan inloggning enligt vårt val.
