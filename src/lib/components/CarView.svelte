@@ -287,7 +287,9 @@
     padding: 22px;
     border: 1px solid #ffffff1c;
     border-radius: 18px;
-    background: #0b131de3;
+    background: rgb(11 19 29 / 70%);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
   }
   .car-panel h3 {
     font-size: 22px;
@@ -295,7 +297,7 @@
     margin: 10px 0;
   }
   .panel-note {
-    color: #b2bdc4;
+    color: #d0d7db;
     font-size: 14px;
     line-height: 1.6;
   }
@@ -306,7 +308,7 @@
   .panel-time {
     display: block;
     margin-top: 14px;
-    color: #b2bdc4;
+    color: #d0d7db;
     font-size: 12px;
     line-height: 1.5;
   }
@@ -327,15 +329,16 @@
     margin-top: 6px;
   }
   :global(html[data-theme='deep-ambient']) .car-panel {
-    background: #080202dc;
+    background: rgb(8 2 2 / 70%);
+    color: #f3c3b4;
     border-color: var(--border-color);
   }
   :global(html[data-theme='deep-ambient']) .panel-note,
   :global(html[data-theme='deep-ambient']) .panel-time {
-    color: var(--text-secondary);
+    color: #ebbbad;
   }
   :global(html[data-theme='deep-ambient']) .panel-note strong {
-    color: var(--text-primary);
+    color: #f3c3b4;
   }
   @media (max-width: 850px) {
     .car-body {
@@ -483,19 +486,19 @@
   }
   :global(html[data-theme='day']) .car-panel {
     color: #23313a;
-    background: #f0f5f7ed;
+    background: rgb(240 245 247 / 78%);
     border-color: #ffffff66;
   }
   :global(html[data-theme='day']) .car-panel .car-eyebrow,
   :global(html[data-theme='day']) .panel-note,
   :global(html[data-theme='day']) .panel-time {
-    color: #52636d;
+    color: #35464f;
   }
   :global(html[data-theme='day']) .panel-note strong {
     color: #23313a;
   }
   :global(html[data-theme='day']) .car-panel .car-warning {
-    color: #8c4b12;
+    color: #743709;
   }
   @media (max-width: 650px) {
     :global(html[data-theme='day']) .car-view::before {
@@ -503,5 +506,17 @@
         linear-gradient(90deg, #07121ae8, #07121ab8 45%, #07121aa3),
         linear-gradient(0deg, #07121ab8, transparent);
     }
+  }
+  .car-panel .car-eyebrow {
+    color: #d0d7db;
+  }
+  .car-panel .car-warning {
+    color: #f5d2a2;
+  }
+  :global(html[data-theme='deep-ambient']) .car-panel .car-eyebrow {
+    color: #ebbbad;
+  }
+  :global(html[data-theme='deep-ambient']) .car-panel .car-warning {
+    color: #f2c7ad;
   }
 </style>

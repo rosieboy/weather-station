@@ -739,3 +739,9 @@ Bilbakgrunden har separata temaanpassningar: dagläget lyfter fotots ljusstyrka
 och använder ljusa statuskort, nattläget behåller originalbehandlingen och
 Ambient visar bilens former tydligare med dämpad bild och röda texter. Bildlagret
 är separat från textlagret så ljusjusteringen inte påverkar mätvärdena.
+
+Lås- och hälsokorten har halvtransparenta bakgrunder (70 % i Natt/Ambient,
+78 % i Dag) och lätt bakgrundsoskärpa. Texten har full opacitet och separata
+kontrastfärger. Normal paneltext har minst 4,5:1 kontrast även vid konservativ
+beräkning mot helt vit bild bakom mörka paneler respektive helt svart bild
+bakom den ljusa panelen. Bakgrundsoskärpa behövs inte för att uppnå kontrasten.
