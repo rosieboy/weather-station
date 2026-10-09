@@ -243,12 +243,20 @@
     min-height: 536px;
     border-radius: 24px;
     overflow: hidden;
-    background: #162027 url('/polestar.jpg') center right / cover no-repeat;
+    background: #162027;
     color: #f2f5f6;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
     padding: 32px;
+  }
+  .car-view::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    background: url('/polestar.jpg') center right / cover no-repeat;
+    filter: var(--car-photo-filter, none);
   }
   .car-view::before {
     content: '';
@@ -416,11 +424,18 @@
   }
   :global(html[data-theme='deep-ambient']) .car-view {
     color: var(--text-primary);
-    background-blend-mode: multiply;
-    background-color: #455149;
+    --car-photo-filter: brightness(0.9);
   }
   :global(html[data-theme='deep-ambient']) .car-view::before {
-    background: linear-gradient(90deg, #060a08, #060a08d9 40%, #060a0899);
+    background:
+      linear-gradient(
+        90deg,
+        #03080af5,
+        #03080acc 30%,
+        #03080a47 65%,
+        #03080a6b
+      ),
+      linear-gradient(0deg, #03080ad9, transparent 35%);
   }
   :global(html[data-theme='deep-ambient']) .car-report time {
     color: var(--text-primary);
@@ -438,6 +453,8 @@
   @media (max-width: 650px) {
     .car-view {
       padding: 24px;
+    }
+    .car-view::after {
       background-position: 60% top;
     }
     .car-view::before {
@@ -454,6 +471,37 @@
     .car-report time {
       display: block;
       margin: 6px 0 0;
+    }
+  }
+  :global(html[data-theme='day']) .car-view {
+    --car-photo-filter: brightness(1.45) contrast(1.04);
+  }
+  :global(html[data-theme='day']) .car-view::before {
+    background:
+      linear-gradient(90deg, #07121aed, #07121aa3 28%, transparent 62%),
+      linear-gradient(0deg, #07121ab8, transparent 35%);
+  }
+  :global(html[data-theme='day']) .car-panel {
+    color: #23313a;
+    background: #f0f5f7ed;
+    border-color: #ffffff66;
+  }
+  :global(html[data-theme='day']) .car-panel .car-eyebrow,
+  :global(html[data-theme='day']) .panel-note,
+  :global(html[data-theme='day']) .panel-time {
+    color: #52636d;
+  }
+  :global(html[data-theme='day']) .panel-note strong {
+    color: #23313a;
+  }
+  :global(html[data-theme='day']) .car-panel .car-warning {
+    color: #8c4b12;
+  }
+  @media (max-width: 650px) {
+    :global(html[data-theme='day']) .car-view::before {
+      background:
+        linear-gradient(90deg, #07121ae8, #07121ab8 45%, #07121aa3),
+        linear-gradient(0deg, #07121ab8, transparent);
     }
   }
 </style>

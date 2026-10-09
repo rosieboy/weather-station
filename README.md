@@ -734,3 +734,8 @@ kräver kända stängda/låsta värden för samtliga och en giltig rapporterings
 I HA betyder låssensorns `on` olåst. Okända uppgifter räknas inte som stängda.
 Lås, service och mätarställning har egna rapporteringstider; efter ett dygn
 markeras äldre status. Inga lås- eller andra bilkommandon skickas från vyn.
+
+Bilbakgrunden har separata temaanpassningar: dagläget lyfter fotots ljusstyrka
+och använder ljusa statuskort, nattläget behåller originalbehandlingen och
+Ambient visar bilens former tydligare med dämpad bild och röda texter. Bildlagret
+är separat från textlagret så ljusjusteringen inte påverkar mätvärdena.
