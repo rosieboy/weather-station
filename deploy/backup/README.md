@@ -5,6 +5,16 @@ UUID **66CD-AEC1**, exFAT. Ingen formatering görs och befintliga filer lämnas 
 En skriv-/återläsningskontroll på 1 MiB med SHA-256 lyckades 2026-10-10.
 Det är en funktionskontroll, inte en fullständig diagnos av USB-minnets hälsa.
 
+## Verifierad drift 2026-10-10
+
+Installerad på Pi:n och första skarpa backupen verifierad med gzip, tar och SHA-256.
+Arkivet var 27,6 MiB. Innehållskontrollen bekräftade HA-konfiguration och auth,
+Matter-data, dashboardens `.env`, kioskstartare och `device-health.json`.
+Containrarna återstartades efter cirka 63 sekunder; HA HTTP och bil-API svarade
+utan fel och Matter rapporterade healthy. Backup- och hälsotimern är aktiva.
+Fyra automatiska tester passerade även på Pi:n med isolerad testdata.
+En full återställning till ett nytt SD-kort har ännu inte provats.
+
 ## Installation
 
 På Pi:n efter att koden hämtats:

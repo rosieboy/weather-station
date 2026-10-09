@@ -202,5 +202,5 @@ En ren Git-status innebär alltså inte att all installationsdata är säkerhets
 ## USB-backup
 
 Se [USB-backupguiden](deploy/backup/README.md) för installation, nattlig körning
-03:00, de senaste 14 kopiorna, status och återställning. Installationen kräver
-sudo; det första arkivet ska verifieras innan backupen betraktas som i drift.
+03:00, de senaste 14 kopiorna, status och återställning. Backupen är installerad och första arkivet verifierat 2026-10-10.
+Installation och manuell körning kräver sudo.

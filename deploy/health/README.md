@@ -43,8 +43,9 @@ att köra vid nästa intervall.
 
 Oförändrade mätvärden är inte fel. Kontrollen bevisar inte att en givare rapporterar
 regelbundet om HA fortsätter visa ett gammalt giltigt värde. Lilla Roam, Samsung och
-övriga enheters av/på-status kontrolleras inte. Backupålder kontrolleras ännu inte:
-regelbunden extern backup måste först få en definierad destination och rutin.
+övriga enheters av/på-status kontrolleras inte. Backupålder kontrolleras ännu inte av hälsokontrollen.
+USB-backup körs separat enligt [backupguiden](../backup/README.md); kontrollera
+`last-success.json` och backuptjänstens journal för senaste lyckade körning.
 
 Enhetshändelser visas i Rum-vyn och sparas i dashboardens Docker-volym
 `device-health-data` i 90 dagar. Home Assistants Recorder används för att

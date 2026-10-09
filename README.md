@@ -183,7 +183,7 @@ flowchart TB
 
 Dashboard: **http://vaderstation.local:3000/** · HA: **http://vaderstation.local/**.
 Macens tidigare HA-VM är stoppad och behövs inte för drift. Extern åtkomst och
-backup utanför hemmet är ännu inte installerade. USB-backup förbereds enligt
+backup utanför hemmet är ännu inte installerade. USB-backup är installerad och verifierad 2026-10-10 enligt
 [backupguiden](deploy/backup/README.md). Systemd-kontrollen mejlar larm och återhämtningar via Gmail, men kan inte
 larma när Pi:n är strömlös.
 

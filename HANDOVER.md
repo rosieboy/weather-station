@@ -73,11 +73,13 @@ Undvik att skicka styrkommandon till live-HA/Sonos bara för att testa UI.
 Vid behov: mocka kontroll-API:erna i webbläsaren. Publicering/deploy till Pi
 är en separat åtgärd; se [RASPBERRY-PI.md](RASPBERRY-PI.md).
 
-## USB-backup (förberedd 2026-10-10)
+## USB-backup (installerad 2026-10-10)
 
 `deploy/backup` innehåller installerare, systemd-mount för UUID 66CD-AEC1,
 03:00-timer, arkivskript och återställningsguide. Backupen pausar de tre
 applikationscontainrarna medan deras data arkiveras lokalt, återstartar dem och
 verifierar arkivet på exFAT-minnet före retention (14 uppsättningar). USB-minnets
-befintliga dokument lämnas kvar. Aktivering och första backup kräver sudo på Pi:n;
-kontrollera statusfil och journal innan installationen rapporteras som klar.
+befintliga dokument lämnas kvar. Första skarpa backupen (27,6 MiB) är verifierad, båda timrarna är aktiva
+och alla tre containrarna återkom efter cirka en minuts paus. Status finns i
+`/var/lib/weather-station-backup/last-success.json`. Full katastrofåterställning
+till nytt SD-kort är ännu inte provad.
