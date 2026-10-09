@@ -50,7 +50,7 @@ i webbläsaren. De manuella lägena är fasta. Auto väljer `deep-ambient`
 CSS använder de
 faktiska attributvärdena `day`, `night` och `deep-ambient` (inte `dag`/`natt`).
 
-Senast verifierat för Bil-vyn: `npm test` (46 tester), `npm run check` och
+Senast verifierat för Bil-vyn: `npm test` (49 tester), `npm run check` och
 `npm run build` passerar. Bil-vyn är installerad på Pi:n och användaren har
 bekräftat att den fungerar på den fysiska kioskskärmen efter kioskomstart.
 Kalenderns flerdagshändelser visas på varje överlappande dag. Dashboarden återgår
@@ -83,3 +83,8 @@ befintliga dokument lämnas kvar. Första skarpa backupen (27,6 MiB) är verifie
 och alla tre containrarna återkom efter cirka en minuts paus. Status finns i
 `/var/lib/weather-station-backup/last-success.json`. Full katastrofåterställning
 till nytt SD-kort är ännu inte provad.
+
+Bilvyn har utökats med snittförbrukning, trippmätare, sammanfattad lås-/öppningsstatus,
+serviceintervall och fem rapporterade hälsovarningar. Okända värden blockerar
+”Allt stängt och låst”; låssensor `on` betyder olåst. Lås, hälsa och mätarställning
+visar domänens egen rapporteringstid, så batteriets tid inte används för andra data.

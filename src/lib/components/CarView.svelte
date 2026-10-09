@@ -6,6 +6,34 @@
   let now = $state(Date.now());
   const format = (n: number | null | undefined) =>
     n == null ? '—' : Math.round(n).toLocaleString('sv-SE');
+  const decimal = (n: number | null | undefined) =>
+    n == null
+      ? '—'
+      : n.toLocaleString('sv-SE', {
+          minimumFractionDigits: 1,
+          maximumFractionDigits: 1
+        });
+  const date = (at: string | null | undefined) =>
+    at
+      ? new Date(at).toLocaleString('sv-SE', {
+          timeZone: 'Europe/Stockholm',
+          day: 'numeric',
+          month: 'long',
+          hour: '2-digit',
+          minute: '2-digit'
+        })
+      : 'Rapporteringstid saknas';
+  const stale = (at: string | null | undefined) =>
+    !!at && now - Date.parse(at) > 24 * 60 * 60 * 1000;
+  let securityLabel = $derived(
+    car?.security.status === 'secure'
+      ? stale(car.security.reportedAt)
+        ? 'Senast stängt och låst'
+        : 'Allt stängt och låst'
+      : car?.security.status === 'attention'
+        ? 'Öppet eller olåst'
+        : 'Status inte bekräftad'
+  );
   let old = $derived(
     !!car?.reportedAt && now - Date.parse(car.reportedAt) > 24 * 60 * 60 * 1000
   );
@@ -68,42 +96,109 @@
 </script>
 
 <section class="car-view" aria-labelledby="car-title">
-  <div class="car-content">
-    <p class="car-eyebrow">DIN BIL · MODELLÅR 2025</p>
-    <h2 id="car-title">Polestar 2</h2>
-    <div class="car-metrics">
-      <div>
-        <p>Batteri</p>
-        <strong>{format(car?.battery)}<span> %</span></strong>
+  <div class="car-body">
+    <div class="car-content">
+      <p class="car-eyebrow">DIN BIL · MODELLÅR 2025</p>
+      <h2 id="car-title">Polestar 2</h2>
+      <div class="car-metrics">
+        <div>
+          <p>Batteri</p>
+          <strong>{format(car?.battery)}<span> %</span></strong>
+        </div>
+        <div>
+          <p>Räckvidd</p>
+          <strong>{format(car?.range)}<span> km</span></strong>
+        </div>
       </div>
-      <div>
-        <p>Räckvidd</p>
-        <strong>{format(car?.range)}<span> km</span></strong>
+      <div
+        class="battery-track"
+        role="progressbar"
+        aria-label="Batterinivå"
+        aria-valuenow={car?.battery ?? undefined}
+        aria-valuemin="0"
+        aria-valuemax="100"
+      >
+        <span style:width="{car?.battery ?? 0}%"></span>
+      </div>
+      <div class="car-details">
+        <div>
+          <p>Laddning</p>
+          <strong>{status}</strong><small>{cable}</small>
+        </div>
+        <div>
+          <p>Laddgräns</p>
+          <strong>{format(car?.chargeLimit)} %</strong>
+        </div>
+        <div>
+          <p>Snittförbrukning</p>
+          <strong
+            >{decimal(car?.averageConsumption)}
+            <span class="unit">kWh/100 km</span></strong
+          >
+        </div>
+        <div>
+          <p>Trippmätare</p>
+          <strong>{decimal(car?.tripMeter)} km</strong>
+        </div>
+        <div>
+          <p>Mätarställning</p>
+          <strong>{format(car?.odometer)} km</strong>
+        </div>
       </div>
     </div>
-    <div
-      class="battery-track"
-      role="progressbar"
-      aria-label="Batterinivå"
-      aria-valuenow={car?.battery ?? undefined}
-      aria-valuemin="0"
-      aria-valuemax="100"
-    >
-      <span style:width="{car?.battery ?? 0}%"></span>
-    </div>
-    <div class="car-details">
-      <div>
-        <p>Laddning</p>
-        <strong>{status}</strong><small>{cable}</small>
-      </div>
-      <div>
-        <p>Laddgräns</p>
-        <strong>{format(car?.chargeLimit)} %</strong>
-      </div>
-      <div>
-        <p>Mätarställning</p>
-        <strong>{format(car?.odometer)} km</strong>
-      </div>
+    <div class="car-panels">
+      <section
+        class="car-panel"
+        class:attention={car?.security.status === 'attention'}
+        aria-labelledby="security-title"
+      >
+        <p class="car-eyebrow">RAPPORTERAD LÅSSTATUS</p>
+        <h3 id="security-title">{securityLabel}</h3>
+        {#if car?.security.issues.length}
+          <ul>
+            {#each car.security.issues as issue}<li>{issue}</li>{/each}
+          </ul>
+        {:else}<p class="panel-note">
+            Dörrar, fönster och luckor · centrallås och bakluckans lås
+          </p>{/if}
+        {#if car?.security.unknownCount}<p class="car-warning">
+            {car.security.unknownCount} uppgifter saknas
+          </p>{/if}
+        <small class="panel-time"
+          >{date(car?.security.reportedAt)}{stale(car?.security.reportedAt)
+            ? ' · Över ett dygn gammalt'
+            : ''}</small
+        >
+      </section>
+      <section
+        class="car-panel"
+        class:attention={!!car?.warnings.length}
+        aria-labelledby="service-title"
+      >
+        <p class="car-eyebrow">SERVICE & BILHÄLSA</p>
+        <h3 id="service-title">
+          {car?.warnings.length
+            ? 'Rapporterade varningar'
+            : car && !car.healthIncomplete && !car.error
+              ? 'Inga rapporterade varningar'
+              : 'Varningsstatus inte bekräftad'}
+        </h3>
+        {#if car?.warnings.length}<ul>
+            {#each car.warnings as warning}<li>{warning}</li>{/each}
+          </ul>{/if}
+        <p class="panel-note">
+          Service om <strong>{format(car?.distanceToService)} km</strong> /
+          <strong>{format(car?.daysToService)} dagar</strong>
+        </p>
+        {#if car?.healthIncomplete}<p class="car-warning">
+            Vissa varningsuppgifter saknas
+          </p>{/if}
+        <small class="panel-time"
+          >{date(car?.healthReportedAt)}{stale(car?.healthReportedAt)
+            ? ' · Över ett dygn gammalt'
+            : ''}</small
+        >
+      </section>
     </div>
   </div>
   <div class="car-report" role="status">
@@ -112,7 +207,7 @@
       </p>{/if}
     {#if car?.reportedAt}
       <p>
-        Senast rapporterat av bilen <time datetime={car.reportedAt}
+        Batteri & förbrukning rapporterat <time datetime={car.reportedAt}
           >{new Date(car.reportedAt).toLocaleString('sv-SE', {
             timeZone: 'Europe/Stockholm',
             day: 'numeric',
@@ -120,6 +215,12 @@
             hour: '2-digit',
             minute: '2-digit'
           })}</time
+        >
+      </p>
+      <p>
+        Mätarställning & tripp <time
+          datetime={car.odometerReportedAt ?? undefined}
+          >{date(car.odometerReportedAt)}</time
         >
       </p>
       {#if old}<small class="car-warning"
@@ -163,8 +264,81 @@
       ),
       linear-gradient(0deg, rgba(7, 13, 18, 0.9), transparent 35%);
   }
+  .car-body {
+    display: grid;
+    grid-template-columns: minmax(0, 400px) minmax(0, 330px);
+    gap: 32px;
+    justify-content: space-between;
+  }
+  .car-panels {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+  }
+  .car-panel {
+    padding: 22px;
+    border: 1px solid #ffffff1c;
+    border-radius: 18px;
+    background: #0b131de3;
+  }
+  .car-panel h3 {
+    font-size: 22px;
+    font-weight: 500;
+    margin: 10px 0;
+  }
+  .panel-note {
+    color: #b2bdc4;
+    font-size: 14px;
+    line-height: 1.6;
+  }
+  .panel-note strong {
+    color: #f2f5f6;
+    font-weight: 500;
+  }
+  .panel-time {
+    display: block;
+    margin-top: 14px;
+    color: #b2bdc4;
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .car-panel ul {
+    padding-left: 18px;
+    margin: 10px 0;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+  .attention {
+    border-color: #e2bb8666;
+  }
+  .unit {
+    font-size: 13px;
+    white-space: nowrap;
+  }
+  .car-report p + p {
+    margin-top: 6px;
+  }
+  :global(html[data-theme='deep-ambient']) .car-panel {
+    background: #080202dc;
+    border-color: var(--border-color);
+  }
+  :global(html[data-theme='deep-ambient']) .panel-note,
+  :global(html[data-theme='deep-ambient']) .panel-time {
+    color: var(--text-secondary);
+  }
+  :global(html[data-theme='deep-ambient']) .panel-note strong {
+    color: var(--text-primary);
+  }
+  @media (max-width: 850px) {
+    .car-body {
+      grid-template-columns: 1fr;
+    }
+    .car-panels {
+      margin-top: 18px;
+    }
+  }
   .car-content {
-    max-width: 420px;
+    max-width: 400px;
   }
   .car-eyebrow {
     font-size: 12px;
@@ -174,7 +348,7 @@
   h2 {
     font-size: 40px;
     font-weight: 500;
-    margin: 8px 0 30px;
+    margin: 8px 0 20px;
     letter-spacing: -0.04em;
   }
   .car-metrics {
@@ -200,7 +374,7 @@
     height: 5px;
     border-radius: 8px;
     background: #455159;
-    margin: 18px 0 30px;
+    margin: 16px 0 22px;
     width: 320px;
     max-width: 100%;
     overflow: hidden;
@@ -213,11 +387,9 @@
   .car-details {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: 24px;
+    gap: 16px;
   }
-  .car-details > div:first-child {
-    grid-column: 1 / -1;
-  }
+
   .car-details strong {
     display: block;
     font-size: 20px;
@@ -230,7 +402,7 @@
     margin-top: 6px;
   }
   .car-report {
-    margin-top: 32px;
+    margin-top: 20px;
     font-size: 13px;
     color: #b2bdc4;
   }

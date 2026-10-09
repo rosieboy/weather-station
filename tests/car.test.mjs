@@ -59,3 +59,73 @@ test('missing and invalid measurements remain unknown, zero is valid', () => {
   assert.equal(car.reportedAt, null);
   assert.equal(car.error, 'Offline');
 });
+
+function securedCar() {
+  const result = states({
+    doors_and_locks_data_updated: '2026-10-09T15:17:06Z'
+  });
+  for (const key of [
+    'front_left_door',
+    'front_right_door',
+    'rear_left_door',
+    'rear_right_door',
+    'front_left_window',
+    'front_right_window',
+    'rear_left_window',
+    'rear_right_window',
+    'hood',
+    'tailgate',
+    'charge_port',
+    'central_lock',
+    'tailgate_lock'
+  ]) {
+    result.set(`binary_sensor.polestar_${key}`, { state: 'off' });
+  }
+  return result;
+}
+test('secure requires every opening and both locks confirmed, plus a vehicle timestamp', () => {
+  const all = securedCar();
+  assert.equal(buildCarSnapshot(all, null).security.status, 'secure');
+  all.delete('binary_sensor.polestar_rear_right_window');
+  assert.equal(buildCarSnapshot(all, null).security.status, 'unknown');
+  assert.equal(buildCarSnapshot(all, null).security.unknownCount, 1);
+  assert.equal(
+    buildCarSnapshot(securedCar(), 'Offline').security.status,
+    'unknown'
+  );
+  const noTime = securedCar();
+  noTime.delete('sensor.polestar_doors_and_locks_data_updated');
+  assert.equal(buildCarSnapshot(noTime, null).security.status, 'unknown');
+});
+test('HA lock on means unlocked; open and unknown measurements remain distinct', () => {
+  const all = securedCar();
+  all.set('binary_sensor.polestar_central_lock', { state: 'on' });
+  all.set('binary_sensor.polestar_tailgate', { state: 'on' });
+  all.set('binary_sensor.polestar_hood', { state: 'unavailable' });
+  const security = buildCarSnapshot(all, null).security;
+  assert.equal(security.status, 'attention');
+  assert.deepEqual(security.issues, ['Baklucka öppen', 'Centrallås olåst']);
+  assert.equal(security.unknownCount, 1);
+});
+test('consumption preserves decimals and requires the expected unit; warnings are explicit', () => {
+  const all = states({
+    average_consumption: '15.3',
+    distance_to_service: '7408',
+    days_to_service: '127',
+    service_warning: 'no_warning'
+  });
+  all.get('sensor.polestar_average_consumption').attributes = {
+    unit_of_measurement: 'kWh/100 km'
+  };
+  all.set('binary_sensor.polestar_washer_fluid_warning', { state: 'on' });
+  let car = buildCarSnapshot(all, null);
+  assert.equal(car.averageConsumption, 15.3);
+  assert.equal(car.distanceToService, 7408);
+  assert.equal(car.daysToService, 127);
+  assert.deepEqual(car.warnings, ['Spolarvätska']);
+  assert.equal(car.healthIncomplete, true);
+  all.get(
+    'sensor.polestar_average_consumption'
+  ).attributes.unit_of_measurement = 'Wh/km';
+  assert.equal(buildCarSnapshot(all, null).averageConsumption, null);
+});

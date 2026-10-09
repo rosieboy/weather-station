@@ -723,3 +723,12 @@ temperatur och gott om diskutrymme. [Regelbunden hälsokontroll](deploy/health/R
 ### Bilvy
 
 Fliken Bil visar Polestar 2 (modellår 2025) med bilden i `static/polestar.jpg`. Batteri, räckvidd, laddstatus, kabelanslutning, laddgräns och mätarställning läses från den befintliga HA-anslutningen. Vyn använder `sensor.polestar_*` från Polestar Data Portal-integrationen; inga API-hemligheter skickas till webbläsaren. Bilens `battery_data_updated` visas som rapporteringstid, med markering när den är äldre än ett dygn. Saknade värden visas som streck. Dashboarden gör inga extra anrop till Polestar.
+
+Bilvyn visar även snittförbrukning i kWh/100 km, trippmätare, serviceintervall
+och rapporterade varningar för bromsvätska, kylvätska, spolarvätska, 12 V-batteri
+och yttre belysning. Låsstatus omfattar fyra dörrar, fyra fönster, motorhuv,
+baklucka, laddlucka samt centrallås och bakluckans lås. ”Allt stängt och låst”
+kräver kända stängda/låsta värden för samtliga och en giltig rapporteringstid.
+I HA betyder låssensorns `on` olåst. Okända uppgifter räknas inte som stängda.
+Lås, service och mätarställning har egna rapporteringstider; efter ett dygn
+markeras äldre status. Inga lås- eller andra bilkommandon skickas från vyn.
