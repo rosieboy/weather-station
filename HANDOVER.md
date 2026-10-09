@@ -88,3 +88,8 @@ Bilvyn har utökats med snittförbrukning, trippmätare, sammanfattad lås-/öpp
 serviceintervall och fem rapporterade hälsovarningar. Okända värden blockerar
 ”Allt stängt och låst”; låssensor `on` betyder olåst. Lås, hälsa och mätarställning
 visar domänens egen rapporteringstid, så batteriets tid inte används för andra data.
+
+Toppmenyn använder `NavIcon.svelte` med fem SVG-ikoner i `currentColor`.
+Varje menyknapp har svensk aria-label, title och aria-current för aktiv vy.
+Ikonerna är dekorativa för skärmläsare. Tryckytorna är minst 48 × 48 px och
+menyn behåller temafärger/fokusmarkering. Sidrubriken visar den valda vyns namn.

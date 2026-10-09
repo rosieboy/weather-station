@@ -525,7 +525,9 @@ inte på nästa 15-minutersintervall.
 
 ## Rum och lampkontroller (2026-09-17)
 
-Knapparna **Väder / Rum / Ljud / Kalender / Bil** byter skärm. Ett horisontellt
+SVG-ikonerna för **Väder / Rum / Ljud / Kalender / Bil** byter skärm.
+Menyn har svenska skärmläsaretiketter och hovringstitlar, 48 px höga tryckytor
+och tydlig markering av aktiv vy. Ett horisontellt
 svep åt vänster går till nästa vy och åt höger till föregående. Svep byter inte skärm när en rumsdialog
 är öppen eller när gesten börjar på ett reglage. Vyn återgår till väder vid omladdning.
 Dag-/nattläget gäller båda vyerna och dialogerna.

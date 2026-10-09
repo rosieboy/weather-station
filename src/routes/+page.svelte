@@ -1,5 +1,6 @@
 <script lang="ts">
   import { startIdleReturn } from '$lib/navigation/idle';
+  import NavIcon from '$lib/components/NavIcon.svelte';
   import AudioView from '$lib/components/AudioView.svelte';
   import CarView from '$lib/components/CarView.svelte';
   import CalendarView from '$lib/components/CalendarView.svelte';
@@ -372,23 +373,33 @@
     </div>
     <nav class="view-nav" aria-label="Skärmvyer">
       <button
+        aria-label="Väder"
+        title="Väder"
         aria-current={view === 'weather' ? 'page' : undefined}
-        onclick={() => (view = 'weather')}>Väder</button
+        onclick={() => (view = 'weather')}><NavIcon name="weather" /></button
       ><button
+        aria-label="Rum"
+        title="Rum"
         aria-current={view === 'rooms' ? 'page' : undefined}
-        onclick={() => (view = 'rooms')}>Rum</button
+        onclick={() => (view = 'rooms')}><NavIcon name="rooms" /></button
       >
       <button
+        aria-label="Ljud"
+        title="Ljud"
         aria-current={view === 'audio' ? 'page' : undefined}
-        onclick={() => (view = 'audio')}>Ljud</button
+        onclick={() => (view = 'audio')}><NavIcon name="audio" /></button
       >
       <button
+        aria-label="Kalender"
+        title="Kalender"
         aria-current={view === 'calendar' ? 'page' : undefined}
-        onclick={() => (view = 'calendar')}>Kalender</button
+        onclick={() => (view = 'calendar')}><NavIcon name="calendar" /></button
       >
       <button
+        aria-label="Bil"
+        title="Bil"
         aria-current={view === 'car' ? 'page' : undefined}
-        onclick={() => (view = 'car')}>Bil</button
+        onclick={() => (view = 'car')}><NavIcon name="car" /></button
       >
     </nav>
     <div class="header-controls">
