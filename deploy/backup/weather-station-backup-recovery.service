@@ -1,0 +1,12 @@
+[Unit]
+Description=Recover containers after interrupted weather station backup
+Requires=docker.service
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/weather-station-backup/backup.py --recover
+TimeoutStartSec=5min
+
+[Install]
+WantedBy=multi-user.target

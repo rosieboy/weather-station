@@ -198,3 +198,9 @@ antal lokala respektive fjärrcommits som saknas på andra sidan.
 Git innehåller kod, dashboardbilder och dokumentation. `.env`, HA-konfiguration,
 Polestar-hemligheter, Matter-data och Docker-volymen med enhetshistorik ingår inte.
 En ren Git-status innebär alltså inte att all installationsdata är säkerhetskopierad.
+
+## USB-backup
+
+Se [USB-backupguiden](deploy/backup/README.md) för installation, nattlig körning
+03:00, de senaste 14 kopiorna, status och återställning. Installationen kräver
+sudo; det första arkivet ska verifieras innan backupen betraktas som i drift.

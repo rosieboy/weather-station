@@ -1,0 +1,13 @@
+[Unit]
+Description=Verified weather station USB backup
+Requires=mnt-weatherbackup.mount
+After=mnt-weatherbackup.mount docker.service
+Requires=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/python3 /usr/local/lib/weather-station-backup/backup.py
+ExecStopPost=/usr/bin/python3 /usr/local/lib/weather-station-backup/backup.py --recover
+TimeoutStartSec=45min
+TimeoutStopSec=5min
+UMask=0077

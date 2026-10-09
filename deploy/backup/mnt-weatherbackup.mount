@@ -1,0 +1,9 @@
+[Unit]
+Description=Weather station backup USB
+
+[Mount]
+What=/dev/disk/by-uuid/66CD-AEC1
+Where=/mnt/weatherbackup
+Type=exfat
+Options=rw,nosuid,nodev,noexec,uid=0,gid=0,umask=0077
+TimeoutSec=30

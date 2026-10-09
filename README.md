@@ -183,7 +183,8 @@ flowchart TB
 
 Dashboard: **http://vaderstation.local:3000/** · HA: **http://vaderstation.local/**.
 Macens tidigare HA-VM är stoppad och behövs inte för drift. Extern åtkomst och
-schemalagd extern backup är ännu inte installerade. Systemd-kontrollen mejlar larm och återhämtningar via Gmail, men kan inte
+backup utanför hemmet är ännu inte installerade. USB-backup förbereds enligt
+[backupguiden](deploy/backup/README.md). Systemd-kontrollen mejlar larm och återhämtningar via Gmail, men kan inte
 larma när Pi:n är strömlös.
 
 Modellnamnet är **Shelly BLU H&T ZB** (inte Shelby). Givaren stöder Zigbee och

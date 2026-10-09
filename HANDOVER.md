@@ -72,3 +72,12 @@ HA/Matter i `~/home-assistant`. SSH-nyckeln på Macen är `~/.ssh/id_raspberry`.
 Undvik att skicka styrkommandon till live-HA/Sonos bara för att testa UI.
 Vid behov: mocka kontroll-API:erna i webbläsaren. Publicering/deploy till Pi
 är en separat åtgärd; se [RASPBERRY-PI.md](RASPBERRY-PI.md).
+
+## USB-backup (förberedd 2026-10-10)
+
+`deploy/backup` innehåller installerare, systemd-mount för UUID 66CD-AEC1,
+03:00-timer, arkivskript och återställningsguide. Backupen pausar de tre
+applikationscontainrarna medan deras data arkiveras lokalt, återstartar dem och
+verifierar arkivet på exFAT-minnet före retention (14 uppsättningar). USB-minnets
+befintliga dokument lämnas kvar. Aktivering och första backup kräver sudo på Pi:n;
+kontrollera statusfil och journal innan installationen rapporteras som klar.
