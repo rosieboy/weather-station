@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { startIdleReturn } from '$lib/navigation/idle';
   import AudioView from '$lib/components/AudioView.svelte';
   import CalendarView from '$lib/components/CalendarView.svelte';
   import RoomsView from '$lib/components/RoomsView.svelte';
@@ -252,6 +253,14 @@
   import { onMount, untrack } from 'svelte';
   import type { WeatherSnapshot } from '$lib/weather/types';
   onMount(() => {
+    const stopIdleReturn = startIdleReturn(document, () => {
+      if (view === 'weather') return;
+      view = 'weather';
+      roomOpen = false;
+      swipeStart = null;
+      dragScroll = null;
+      window.scrollTo({ top: 0, behavior: 'instant' });
+    });
     const preventSwipeClick = (event: MouseEvent) => {
       if (Date.now() < suppressClickUntil) {
         event.preventDefault();
@@ -300,6 +309,7 @@
       refreshFailed = true;
     });
     return () => {
+      stopIdleReturn();
       events.close();
       window.removeEventListener('click', preventSwipeClick, true);
       clearInterval(clockTimer);

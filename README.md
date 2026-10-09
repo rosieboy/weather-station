@@ -63,6 +63,11 @@ på start- och slutdagen och Hela dagen på mellanliggande dagar.
 
 ### Gränssnitt och teman (2026-09-26)
 
+- Efter fem minuter utan interaktion återgår dashboarden till Väder och toppen
+  av sidan. Öppna rum- och ljuddialoger stängs då. Tryck, pekarrörelser,
+  tangenttryckningar och scrollning startar om tiden. Livevärden och automatiska
+  uppdateringar påverkar inte timern. Regeln gäller både Pi:n och övriga webbläsare.
+
 - Vädervyn visar stora mätvärden utan mät- och prognostidsstämplar. Hela
   prognosraden är en knapp som växlar mellan sex dygn och sex timmar. Temperatur
   och luftfuktighet i de tre väderkortens rum ligger på samma baslinje; den
