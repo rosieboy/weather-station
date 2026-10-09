@@ -56,6 +56,7 @@ export class HAStream {
   private tracked(id: string, state?: HAState | null) {
     return (
       this.ids.has(id) ||
+      /^(sensor|binary_sensor)\.polestar_/.test(id) ||
       /^(light|switch|event|media_player)\./.test(id) ||
       (id.startsWith('sensor.') &&
         ['temperature', 'humidity', 'battery'].includes(

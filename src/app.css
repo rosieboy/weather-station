@@ -2572,7 +2572,7 @@ html[data-theme='day'] .weather-screen .outdoor {
 /* Deep ambient: muted controls, readable warm text and a visible focus ring. */
 html[data-theme='deep-ambient'],
 html[data-theme='deep-ambient']
-  :is(.view-weather, .view-rooms, .view-audio, .view-calendar) {
+  :is(.view-weather, .view-rooms, .view-audio, .view-calendar, .view-car) {
   --bg-app: #000000;
   --bg-card: #080202;
   --bg-card-hover: #120404;
@@ -2599,25 +2599,25 @@ html[data-theme='deep-ambient'] .dashboard {
   color: var(--text-primary);
 }
 html[data-theme='deep-ambient']
-  :is(.view-weather, .view-rooms, .view-audio, .view-calendar)
+  :is(.view-weather, .view-rooms, .view-audio, .view-calendar, .view-car)
   :is(.view-nav, .brand-icon, .theme-toggle, .source) {
   border-color: var(--border-color);
   color: var(--text-primary);
 }
 html[data-theme='deep-ambient']
-  :is(.view-weather, .view-rooms, .view-audio, .view-calendar)
+  :is(.view-weather, .view-rooms, .view-audio, .view-calendar, .view-car)
   .source,
 html[data-theme='deep-ambient'] .audio-view {
   background: var(--bg-app);
   color: var(--text-primary);
 }
 html[data-theme='deep-ambient']
-  :is(.view-weather, .view-rooms, .view-audio, .view-calendar)
+  :is(.view-weather, .view-rooms, .view-audio, .view-calendar, .view-car)
   .source-dot {
   background: var(--accent);
 }
 html[data-theme='deep-ambient']
-  :is(.view-weather, .view-rooms, .view-audio, .view-calendar)
+  :is(.view-weather, .view-rooms, .view-audio, .view-calendar, .view-car)
   .view-nav
   button[aria-current] {
   background: var(--accent-fill);
@@ -3458,4 +3458,21 @@ html[data-theme='deep-ambient'] .weather-screen .room-humidity strong {
   .calendar-navigation button span {
     display: none;
   }
+}
+
+html[data-theme='day']:has(.view-car),
+html[data-theme='day'] .view-car {
+  --bg-app: #edf0f1;
+  --bg-card: #fff;
+  --text-primary: #202b31;
+  --text-secondary: #56666f;
+  --accent: #40515d;
+}
+html[data-theme='night']:has(.view-car),
+html[data-theme='night'] .view-car {
+  --bg-app: #0b1014;
+  --bg-card: #172027;
+  --text-primary: #edf2f5;
+  --text-secondary: #aab8c0;
+  --accent: #b4d7cb;
 }

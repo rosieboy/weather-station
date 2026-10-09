@@ -718,3 +718,7 @@ Användaren har bekräftat att omstart efter HA-flytten fungerar. Efter drygt fy
 timmars drift såg allt bra ut; användarens diagnostik visade rimlig minnesanvändning,
 temperatur och gott om diskutrymme. [Regelbunden hälsokontroll](deploy/health/README.md) är installerad och verifierad
 2026-09-23. Systemd-timern kör var femte minut och loggar lokala larm; Gmail-utskick är aktiverade och verifierade 2026-09-24.
+
+### Bilvy
+
+Fliken Bil visar Polestar 2 (modellår 2025) med bilden i `static/polestar.jpg`. Batteri, räckvidd, laddstatus, kabelanslutning, laddgräns och mätarställning läses från den befintliga HA-anslutningen. Vyn använder `sensor.polestar_*` från Polestar Data Portal-integrationen; inga API-hemligheter skickas till webbläsaren. Bilens `battery_data_updated` visas som rapporteringstid, med markering när den är äldre än ett dygn. Saknade värden visas som streck. Dashboarden gör inga extra anrop till Polestar.

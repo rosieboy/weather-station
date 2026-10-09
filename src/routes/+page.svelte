@@ -1,6 +1,7 @@
 <script lang="ts">
   import { startIdleReturn } from '$lib/navigation/idle';
   import AudioView from '$lib/components/AudioView.svelte';
+  import CarView from '$lib/components/CarView.svelte';
   import CalendarView from '$lib/components/CalendarView.svelte';
   import RoomsView from '$lib/components/RoomsView.svelte';
   import WeatherScene from '$lib/components/WeatherScene.svelte';
@@ -11,7 +12,9 @@
   import type { ThemeMode } from '$lib/weather/theme';
   import type { PageData } from './$types';
   let { data }: { data: PageData } = $props();
-  let view = $state<'weather' | 'rooms' | 'audio' | 'calendar'>('weather');
+  let view = $state<'weather' | 'rooms' | 'audio' | 'calendar' | 'car'>(
+    'weather'
+  );
   let roomOpen = $state(false);
   let suppressClickUntil = 0;
   let swipeStart: { x: number; y: number; id: number } | null = null;
@@ -78,7 +81,7 @@
       dy = event.clientY - start.y;
     if (Math.abs(dx) > 70 && Math.abs(dx) > Math.abs(dy) * 1.5) {
       suppressClickUntil = Date.now() + 500;
-      const views = ['weather', 'rooms', 'audio', 'calendar'] as const;
+      const views = ['weather', 'rooms', 'audio', 'calendar', 'car'] as const;
       view =
         views[
           Math.max(
@@ -361,7 +364,9 @@
               ? 'Hemkontroll'
               : view === 'audio'
                 ? 'Ljud hemma'
-                : 'Familjen'}
+                : view === 'car'
+                  ? 'Bilen'
+                  : 'Familjen'}
         </h1>
       </div>
     </div>
@@ -380,6 +385,10 @@
       <button
         aria-current={view === 'calendar' ? 'page' : undefined}
         onclick={() => (view = 'calendar')}>Kalender</button
+      >
+      <button
+        aria-current={view === 'car' ? 'page' : undefined}
+        onclick={() => (view = 'car')}>Bil</button
       >
     </nav>
     <div class="header-controls">
@@ -420,7 +429,9 @@
       {weather.error ||
         'Kontakt med skärmen bröts. Visar tidigare värden; återansluter…'}
     </p>{/if}
-  {#if view === 'calendar'}
+  {#if view === 'car'}
+    <CarView />
+  {:else if view === 'calendar'}
     <CalendarView />
   {:else if view === 'audio'}
     <AudioView
