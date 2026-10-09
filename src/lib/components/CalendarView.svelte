@@ -1,6 +1,10 @@
 <script lang="ts">
   import { onMount } from 'svelte';
-  import { calendarRange, stockholmDate } from '$lib/calendar/range';
+  import {
+    calendarRange,
+    groupEventsByDay,
+    stockholmDate
+  } from '$lib/calendar/range';
   import type { FamilyAgenda, FamilyEvent } from '$lib/calendar/types';
 
   let agenda = $state<FamilyAgenda | null>(null);
@@ -13,13 +17,6 @@
 
   const zone = 'Europe/Stockholm';
   const today = () => stockholmDate(new Date(now));
-  const dateKey = (event: FamilyEvent) => {
-    const start = event.allDay
-      ? event.start.slice(0, 10)
-      : new Date(event.start).toLocaleDateString('sv-SE', { timeZone: zone });
-    const firstDay = agenda?.startDate ?? range.startDate;
-    return start < firstDay ? firstDay : start;
-  };
   const dateLabel = (key: string) =>
     new Date(`${key}T12:00:00Z`).toLocaleDateString('sv-SE', {
       timeZone: zone,
@@ -35,7 +32,7 @@
           day: 'numeric',
           month: 'long'
         });
-  const eventTime = (event: FamilyEvent) => {
+  const eventTime = (event: FamilyEvent, day: string) => {
     if (event.allDay) return 'Hela dagen';
     const time = (value: string) =>
       new Date(value).toLocaleTimeString('sv-SE', {
@@ -43,6 +40,11 @@
         hour: '2-digit',
         minute: '2-digit'
       });
+    const startsToday = stockholmDate(new Date(event.start)) === day;
+    const endsToday = stockholmDate(new Date(event.end)) === day;
+    if (!startsToday && !endsToday) return 'Hela dagen';
+    if (!startsToday) return `Till ${time(event.end)}`;
+    if (!endsToday) return `Från ${time(event.start)}`;
     return `${time(event.start)}–${time(event.end)}`;
   };
   const eventTitle = (event: FamilyEvent) => {
@@ -51,16 +53,11 @@
   };
 
   let days = $derived(
-    Object.entries(
-      (agenda?.events ?? []).reduce<Record<string, FamilyEvent[]>>(
-        (groups, event) => {
-          const key = dateKey(event);
-          (groups[key] ??= []).push(event);
-          return groups;
-        },
-        {}
-      )
-    ).sort(([a], [b]) => a.localeCompare(b))
+    groupEventsByDay(
+      agenda?.events ?? [],
+      agenda?.startDate ?? range.startDate,
+      agenda?.endDate ?? range.endDate
+    )
   );
 
   async function refresh() {
@@ -173,7 +170,9 @@
                   class="calendar-event"
                   class:has-birthday={event.birthdayAge !== undefined}
                 >
-                  <span class="calendar-event-time">{eventTime(event)}</span>
+                  <span class="calendar-event-time"
+                    >{eventTime(event, date)}</span
+                  >
                   <span class="calendar-event-title">{eventTitle(event)}</span>
                   {#if event.birthdayAge !== undefined}
                     <span class="calendar-birthday-age">

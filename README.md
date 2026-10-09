@@ -42,7 +42,10 @@ varning. Dashboarden saknar inloggning på hemnätverket: alla med åtkomst till
 port 3000 kan se kalenderns titlar, platser och anteckningar.
 Föregående/Nästa bläddrar i sammanhängande sjudagarsperioder räknade från
 dagens datum i Europe/Stockholm; Idag återgår till nuvarande period. Tidsgränserna
-följer svensk sommar- och vintertid. Bara dagar med händelser får egna kort.
+följer svensk sommar- och vintertid. Bara dagar med händelser får egna kort. Flerdagshändelser visas på varje dag
+de pågår inom den valda perioden; kalenderns slutdatum är exklusivt. Händelseantalet
+räknar varje aktivitet en gång. Tidsatta händelser över midnatt visar Från/Till
+på start- och slutdagen och Hela dagen på mellanliggande dagar.
 
 - Projektet började med mockdata för ute, vardagsrum, sovrum och kontor.
   Nu hämtas riktiga värden från tre TIMMERFLOTTE-sensorer och en separat

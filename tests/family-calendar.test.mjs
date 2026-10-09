@@ -19,14 +19,14 @@ const { selectFamilyCalendar, normalizeFamilyEvents } = await import(
 const rangeSource = readFileSync(
   new URL('../src/lib/calendar/range.ts', import.meta.url),
   'utf8'
-);
+).replace(/^import type .*;\n/gm, '');
 const rangeCode = ts.transpileModule(rangeSource, {
   compilerOptions: {
     module: ts.ModuleKind.ESNext,
     target: ts.ScriptTarget.ES2022
   }
 }).outputText;
-const { calendarRange } = await import(
+const { calendarRange, groupEventsByDay } = await import(
   'data:text/javascript;base64,' + Buffer.from(rangeCode).toString('base64')
 );
 
@@ -129,4 +129,100 @@ test('seven calendar days remain correct across Swedish daylight saving changes'
     167
   );
   assert.throws(() => calendarRange(53));
+});
+
+test('Sitevisiondagarna appears on both days, with the exclusive end omitted', () => {
+  const events = normalizeFamilyEvents([
+    {
+      summary: 'Sitevisiondagarna',
+      start: { date: '2026-10-20' },
+      end: { date: '2026-10-22' }
+    }
+  ]);
+  const days = groupEventsByDay(events, '2026-10-16', '2026-10-22');
+  assert.deepEqual(
+    days.map(([day]) => day),
+    ['2026-10-20', '2026-10-21']
+  );
+  assert.equal(days[1][1][0].title, 'Sitevisiondagarna');
+  assert.equal(events.length, 1);
+});
+
+test('events spanning a period are shown only on the visible overlapping days', () => {
+  const events = normalizeFamilyEvents([
+    {
+      summary: 'Resa',
+      start: { date: '2026-10-15' },
+      end: { date: '2026-10-25' }
+    }
+  ]);
+  assert.deepEqual(
+    groupEventsByDay(events, '2026-10-16', '2026-10-22').map(([day]) => day),
+    [
+      '2026-10-16',
+      '2026-10-17',
+      '2026-10-18',
+      '2026-10-19',
+      '2026-10-20',
+      '2026-10-21',
+      '2026-10-22'
+    ]
+  );
+  assert.deepEqual(
+    groupEventsByDay(events, '2026-10-23', '2026-10-29').map(([day]) => day),
+    ['2026-10-23', '2026-10-24']
+  );
+});
+
+test('single-day events and midnight endings do not add an extra day', () => {
+  const events = normalizeFamilyEvents([
+    {
+      summary: 'Ledigt',
+      start: { date: '2026-10-20' },
+      end: { date: '2026-10-21' }
+    },
+    {
+      summary: 'Kväll',
+      start: { dateTime: '2026-10-20T22:00:00+02:00' },
+      end: { dateTime: '2026-10-21T00:00:00+02:00' }
+    },
+    {
+      summary: 'Utanför',
+      start: { date: '2026-10-19' },
+      end: { date: '2026-10-20' }
+    }
+  ]);
+  const days = groupEventsByDay(events, '2026-10-20', '2026-10-22');
+  assert.deepEqual(
+    days.map(([day]) => day),
+    ['2026-10-20']
+  );
+  assert.deepEqual(
+    days[0][1].map((event) => event.title),
+    ['Ledigt', 'Kväll']
+  );
+});
+
+test('overnight events use Stockholm days across both daylight saving changes', () => {
+  for (const [start, end, first, last] of [
+    [
+      '2026-10-24T21:00:00Z',
+      '2026-10-26T01:00:00Z',
+      '2026-10-24',
+      '2026-10-26'
+    ],
+    ['2026-03-28T22:00:00Z', '2026-03-30T00:00:00Z', '2026-03-28', '2026-03-30']
+  ]) {
+    const events = normalizeFamilyEvents([
+      {
+        summary: 'Nattresa',
+        start: { dateTime: start },
+        end: { dateTime: end }
+      }
+    ]);
+    const days = groupEventsByDay(events, first, last);
+    assert.equal(days.length, 3);
+    assert.equal(days[0][0], first);
+    assert.equal(days[2][0], last);
+  }
 });

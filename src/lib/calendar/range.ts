@@ -1,3 +1,5 @@
+import type { FamilyEvent } from './types';
+
 const zone = 'Europe/Stockholm';
 
 export function stockholmDate(date: Date): string {
@@ -53,4 +55,27 @@ export function calendarRange(offset: number, now = new Date()) {
     start: stockholmMidnight(startDate),
     end: stockholmMidnight(addCalendarDays(startDate, 7))
   };
+}
+
+export function groupEventsByDay(
+  events: FamilyEvent[],
+  startDate: string,
+  endDate: string
+): [string, FamilyEvent[]][] {
+  const days: [string, FamilyEvent[]][] = [];
+  for (let day = startDate; day <= endDate; day = addCalendarDays(day, 1)) {
+    const nextDay = addCalendarDays(day, 1);
+    const dayStart = Date.parse(stockholmMidnight(day));
+    const dayEnd = Date.parse(stockholmMidnight(nextDay));
+    const matches = events.filter((event) => {
+      // Calendar end dates/times are exclusive: midnight belongs to the next day.
+      if (event.allDay)
+        return event.start.slice(0, 10) <= day && event.end.slice(0, 10) > day;
+      return (
+        Date.parse(event.start) < dayEnd && Date.parse(event.end) > dayStart
+      );
+    });
+    if (matches.length) days.push([day, matches]);
+  }
+  return days;
 }
