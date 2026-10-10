@@ -10,7 +10,7 @@ Swedish. The Swedish README also preserves dated development notes.
 
 ![Weather overview with outdoor and room readings and daily forecast](static/docs/weather-day.jpg)
 
-Weather overview in Day mode. Screenshots captured from the Pi dashboard on
+Weather overview in Day mode. Screenshots captured from the dashboard on
 2026-10-10 at 1280 × 720; readings and availability are examples from that moment.
 The interface remains Swedish in both documentation versions.
 
@@ -94,8 +94,10 @@ pressure and forecasts. Six forecast columns switch between days (min/max) and
 hours by tapping the whole row. Precipitation is probability in %, not amount.
 `weather/get_forecasts?return_response` retrieves daily/hourly forecasts through
 HA, cached in server memory for 15 minutes. Failed forecasts do not block sensors.
-Pressure and the three-hour pressure trend remain in server data but are not
-shown in the kiosk. Trend needs Recorder history; missing history, API errors or
+The kiosk shows met.no pressure in hPa with the three-hour change and a rising,
+falling or stable label. Missing history displays “Trycktrend saknas” (pressure
+trend unavailable). Four weather details use a two-column, two-row layout to fit
+the 1280 × 720 kiosk. Trend needs Recorder history; missing history, API errors or
 current data older than 90 minutes yields no trend.
 
 Weather/Rooms cards show 24-hour temperature curves and change in degrees from

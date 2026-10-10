@@ -88,3 +88,9 @@ Keep Swedish `.md` and English `.en.md` operational guides aligned in the same
 commit. Preserve command paths, entity IDs and Swedish UI names in English text.
 Historical Gemini/Copilot conversations remain in their original language.
 Documentation language does not change the dashboard language.
+
+## Restored pressure display
+
+Weather again shows pressure and the three-hour trend. Four secondary readings
+use two columns and two rows in the kiosk. Missing history shows Trycktrend saknas.
+Weather screenshots and both README versions are updated.

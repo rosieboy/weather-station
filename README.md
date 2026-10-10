@@ -9,7 +9,7 @@ med Vardagsrum, Sovrum och Balkong under.
 
 ![Väderöversikt med utegivare, rumsvärden och dygnsprognos](static/docs/weather-day.jpg)
 
-Vädervyn i dagläge. Skärmbilderna togs från Pi-dashboarden 2026-10-10 i
+Vädervyn i dagläge. Skärmbilderna togs från dashboarden 2026-10-10 i
 1280 × 720; mätvärden och tillgänglighet är exempel från det tillfället.
 
 Drift verifierad på Raspberry Pi per **2026-10-10**.
@@ -522,7 +522,10 @@ Temat ändrar färgerna, inte skärmens hårdvaruljusstyrka.
 
 met.no-panelen visar även lufttryck i hPa, vind i m/s och kompassriktning (varifrån
 vinden blåser). Kända enheter konverteras; saknade/okända enheter visas som streck.
-Lufttryck och trend finns kvar i serverns data men visas inte i kiosk-vyn.
+Lufttryck från met.no visas i hPa i vädervyn, tillsammans med förändringen
+under tre timmar och texten Stigande, Fallande eller Stabilt. Saknad historik
+visas som ”Trycktrend saknas”. Väderdetaljerna ligger i två kolumner och två
+rader så att de ryms på kioskens 1280 × 720-skärm.
 
 Stora panelen visar den separata utomhusgivaren. Raden Hemma visar riktiga
 värden för Vardagsrum, Sovrum och Balkong.

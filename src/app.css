@@ -2003,7 +2003,8 @@ html[data-theme='day'] .weather-screen .outdoor {
   font-size: 16px;
 }
 .weather-screen .outdoor-details {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  row-gap: 14px;
   align-self: stretch;
   align-items: center;
   padding: 0 0 0 14px;
@@ -2012,6 +2013,10 @@ html[data-theme='day'] .weather-screen .outdoor {
 }
 .weather-screen .weather-measure {
   border-color: #8ca99c;
+}
+.weather-screen .weather-measure:nth-child(odd) {
+  border-left: 0;
+  padding-left: 0;
 }
 .weather-screen .weather-measure p {
   color: #fff;

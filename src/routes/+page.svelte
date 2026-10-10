@@ -502,6 +502,28 @@
               >{direction(weather.details.windBearing)}</span
             >
           </div>
+          <div class="weather-measure">
+            <span class="label">Lufttryck · met.no</span>
+            <p>{number(weather.details.pressure)} <span>hPa</span></p>
+            <span
+              class="weather-measure-note"
+              title="Förändring sedan tre timmar före senaste vädervärdet"
+            >
+              {#if weather.details.pressureDelta === null}
+                Trycktrend saknas
+              {:else}
+                {weather.details.pressureDelta > 0.5
+                  ? 'Stigande'
+                  : weather.details.pressureDelta < -0.5
+                    ? 'Fallande'
+                    : 'Stabilt'}
+                · {weather.details.pressureDelta > 0 ? '+' : ''}{number(
+                  weather.details.pressureDelta,
+                  1
+                )} hPa / 3 h
+              {/if}
+            </span>
+          </div>
         </div>
         {#if weather.outdoor.temperature !== null && weather.outdoor.temperatureEntityId}
           <TemperatureTrend

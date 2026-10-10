@@ -105,3 +105,9 @@ språk ändras inte. Sparade Gemini-/Copilot-samtal behåller sitt ursprungliga 
 Bilens temaanpassade foto och halvtransparenta lås-/hälsokort är installerade.
 Paneltext har full opacitet och minst 4,5:1 kontrast vid konservativ beräkning
 mot ljusaste/mörkaste möjliga bakgrund. Kontroll och bygge passerade.
+
+## Återställt lufttryck
+
+Lufttryck och tre timmars trycktrend visas åter i vädervyn. De fyra sekundära
+mätvärdena använder två kolumner och två rader i kiosken. Saknad historik visas
+som Trycktrend saknas. Väderbilderna och båda README-versionerna är uppdaterade.
