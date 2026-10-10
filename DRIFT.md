@@ -1,5 +1,7 @@
 # Manuell drift av väderstationen
 
+Svenska · [English](DRIFT.en.md)
+
 Kontrollerad mot installationen **2026-10-10**. Pi-användaren är `anders`,
 värdnamnet `vaderstation.local`. Dashboarden körs i `~/weather-station`,
 Home Assistant och Matter Server i `~/home-assistant`.
@@ -145,9 +147,9 @@ En backup skapades i HA före installationen; den ersätter inte en extern backu
 
 Polestar-hemligheterna anges i HA, inte dashboardens `.env`. Nuvarande credential
 löper ut **2026-12-16**; förnya den i Polestars portal och uppdatera integrationens
-uppgifter i HA innan dess. Bilsidan läser HA:s `sensor.polestar_*`. Rapporteringstiden
-är bilens batterimätningstid; nya HA-avläsningar betyder inte automatiskt att bilen
-har rapporterat nya värden.
+uppgifter i HA innan dess. Bilsidan läser HA:s `sensor.polestar_*` och `binary_sensor.polestar_*`. Batteri,
+lås, hälsa och mätarställning har egna rapporteringstider; nya HA-avläsningar
+betyder inte automatiskt att bilen har rapporterat nya värden.
 
 ## Pi: resurser och hälsokontroll
 

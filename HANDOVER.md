@@ -1,5 +1,7 @@
 # Överlämning till ChatGPT/Codex
 
+Svenska · [English](HANDOVER.en.md)
+
 Uppdaterad 2026-10-10. Projektet är en SvelteKit/Svelte 5-dashboard för en
 Raspberry Pi-kiosk på **1280 × 720**, med Väder, Rum, Ljud, Kalender och Bil samt mobilvy.
 Läs [README.md](README.md) för installation, arkitektur och fullständig
@@ -57,7 +59,7 @@ Kalenderns flerdagshändelser visas på varje överlappande dag. Dashboarden åt
 till Väder efter fem minuter utan interaktion, oavsett vald vy.
 
 Bil-vyn finns i `CarView.svelte`, `/api/car` och `car-model.ts`. Den läser fasta
-`sensor.polestar_*` via den befintliga HA-strömmen. Bilsidan hämtar den cachen var
+`sensor.polestar_*` och `binary_sensor.polestar_*` via den befintliga HA-strömmen. Bilsidan hämtar den cachen var
 30:e sekund när den är synlig; det gör inga extra anrop till Polestar.
 Bakgrunden ligger i `static/polestar.jpg`. Saknade värden visas som streck och
 bilens batterirapporteringstid visas separat, med varning efter ett dygn.
@@ -93,3 +95,13 @@ Toppmenyn använder `NavIcon.svelte` med fem SVG-ikoner i `currentColor`.
 Varje menyknapp har svensk aria-label, title och aria-current för aktiv vy.
 Ikonerna är dekorativa för skärmläsare. Tryckytorna är minst 48 × 48 px och
 menyn behåller temafärger/fokusmarkering. Sidrubriken visar den valda vyns namn.
+
+## Dokumentationsspråk
+
+Driftguiderna finns på svenska (`.md`) och engelska (`.en.md`); uppdatera båda
+i samma commit. Kommandon, sökvägar och entitets-id:n ska bevaras. Dashboardens
+språk ändras inte. Sparade Gemini-/Copilot-samtal behåller sitt ursprungliga språk.
+
+Bilens temaanpassade foto och halvtransparenta lås-/hälsokort är installerade.
+Paneltext har full opacitet och minst 4,5:1 kontrast vid konservativ beräkning
+mot ljusaste/mörkaste möjliga bakgrund. Kontroll och bygge passerade.

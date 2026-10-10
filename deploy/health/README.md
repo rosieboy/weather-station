@@ -1,5 +1,7 @@
 # Hälsokontroll på Pi:n
 
+Svenska · [English](README.en.md)
+
 Installerad och verifierad på Pi:n 2026-09-23. Timern är aktiverad och första
 körningen slutfördes 20:55 CEST med alla 11 kontroller godkända. Mejl är valfritt och kräver separat aktivering nedan. Ingen automatisk omstart/reparation utförs.
 
@@ -65,7 +67,7 @@ sudo cat /var/lib/weather-station-health/status.json
 
 Senaste mätvärden och larmräknare sparas i status.json (privat katalog).
 Kontrollen använder ingen HA-token, lagrar inga entitetsvärden och gör inga externa
-nätverksanrop. Den kör som root för Docker-inspektion och vcgencmd; Docker-socketen
+nätverksanrop för kontrollerna; valfria mejlutskick använder SMTP. Den kör som root för Docker-inspektion och vcgencmd; Docker-socketen
 innebär root-behörighet trots systemd-härdningen. Kör bara betrodd kod här.
 Ingen watchdog eller extern tillgänglighetskontroll ingår: en strömlös Pi kan inte
 köra kontrollen eller larma. Mejlleverans är nu aktiverad enligt avsnittet nedan.

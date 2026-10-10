@@ -1,5 +1,7 @@
 # USB-backup av hela applikationsinstallationen
 
+Svenska · [English](README.en.md)
+
 Avsedd för Pi:n `vaderstation`, användaren `anders` och USB-minnet **AR-128GB**,
 UUID **66CD-AEC1**, exFAT. Ingen formatering görs och befintliga filer lämnas kvar.
 En skriv-/återläsningskontroll på 1 MiB med SHA-256 lyckades 2026-10-10.

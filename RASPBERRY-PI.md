@@ -1,5 +1,7 @@
 # Väderstationen på Raspberry Pi
 
+Svenska · [English](RASPBERRY-PI.en.md)
+
 Installerat och verifierat 2026-09-23: Raspberry Pi 5, Raspberry Pi OS 64-bit
 med skrivbord (Wayland/labwc), Docker Engine och Chromium i kiosk.
 

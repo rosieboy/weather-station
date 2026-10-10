@@ -1,5 +1,7 @@
 # Återställning från USB-backup
 
+Svenska · [English](RESTORE.en.md)
+
 Backupen är ett dataarkiv, inte en startbar avbild av SD-kortet. Den innehåller
 hemligheter: HA-inloggningar, Polestar-uppgifter, dashboardens `.env` och eventuell
 SMTP-konfiguration. Förvara USB-minnet säkert. Arkivet är inte krypterat.

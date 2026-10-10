@@ -1,5 +1,7 @@
 # HA och Matter på Pi:n
 
+Svenska · [English](README.en.md)
+
 I drift sedan 2026-09-23, återställt från Macens HA OS. Kör på Raspberry Pi OS
 64-bit med Docker Engine. Dashboardens Compose-projekt är separat.
 
@@ -53,6 +55,7 @@ och återskapa berörd tjänst. Nedgradering kan kräva återställning av gamma
 OS-uppdatering sker separat via SSH; kioskläget hindrar inte administrationen.
 
 Källor:
+
 - https://www.home-assistant.io/installation/linux
 - https://github.com/home-assistant/addons/blob/master/matter_server/CHANGELOG.md
 - https://github.com/matter-js/matterjs-server/blob/main/docs/docker.md

@@ -1,5 +1,7 @@
 # Home Assistant: inventering inför Pi-flytt
 
+Svenska · [English](HA-MIGRATION.en.md)
+
 Historik från förberedelse till genomförd flytt 2026-09-23. Se slutstatus nedan.
 
 ## Befintlig installation
@@ -78,7 +80,9 @@ WebSocket-prenumeration är uppdaterade, byggda och verifierade i Pi:ns liveflö
 Mac-VM:ns klocka verifierades efter omstart till cirka 0,35 sekunders avvikelse.
 Den senare backupen 5087c284 har korrekt datum/tid. Säkerhetskopior och privata
 återställningsuppgifter ligger utanför repot. Omstartstest efter hela flytten är nu bekräftat fungerande av användaren.
-Regelbunden extern backup och provåterställning återstår.
+Vid flytten återstod regelbunden extern backup och provåterställning.
+Uppdatering 2026-10-10: nattlig USB-backup är installerad och första arkivet
+verifierat. Backup utanför hemmet och full katastrofåterställning återstår.
 
 Uppföljning: användaren rapporterar drygt fyra timmars stabil drift samt att
 minnesanvändning, temperatur och diskutrymme ser bra ut i egen diagnostik.

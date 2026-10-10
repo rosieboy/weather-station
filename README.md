@@ -1,5 +1,7 @@
 # Väderstation
 
+Svenska · [English](README.en.md)
+
 Svensk dashboard för temperatur och luftfuktighet, byggd med SvelteKit, Svelte 5
 och TypeScript. Väder, Rum, Ljud, Kalender och Bil är anpassade för Pi:ns kiosk på 1280 × 720
 och fungerar även på mindre skärmar. Utetemperaturen är vädervyns huvudvärde,
@@ -16,6 +18,24 @@ Dashboard: http://vaderstation.local:3000/ · Home Assistant: http://vaderstatio
 
 Se [manualen för daglig drift](DRIFT.md), [Pi-guiden](RASPBERRY-PI.md), [flytthistoriken](HA-MIGRATION.md) och
 [HA/Matter-drift](deploy/home-assistant/README.md).
+
+## Dokumentation på svenska och engelska
+
+Dokumentationen finns i två språkversioner. Dashboardens gränssnitt är fortsatt
+på svenska. Uppdatera båda versionerna vid ändrade funktioner eller driftkommandon.
+Sparade samtal och granskningsanteckningar behåller sitt ursprungliga språk.
+
+| Guide           | Svenska                                  | English                                         |
+| --------------- | ---------------------------------------- | ----------------------------------------------- |
+| Översikt        | [README](README.md)                      | [README](README.en.md)                          |
+| Manuell drift   | [Drift](DRIFT.md)                        | [Operation](DRIFT.en.md)                        |
+| Pi-installation | [Raspberry Pi](RASPBERRY-PI.md)          | [Raspberry Pi](RASPBERRY-PI.en.md)              |
+| HA-flytt        | [Flytthistorik](HA-MIGRATION.md)         | [Migration](HA-MIGRATION.en.md)                 |
+| HA/Matter       | [Drift](deploy/home-assistant/README.md) | [Operation](deploy/home-assistant/README.en.md) |
+| Hälsokontroll   | [Guide](deploy/health/README.md)         | [Guide](deploy/health/README.en.md)             |
+| USB-backup      | [Guide](deploy/backup/README.md)         | [Guide](deploy/backup/README.en.md)             |
+| Återställning   | [Guide](deploy/backup/RESTORE.md)        | [Guide](deploy/backup/RESTORE.en.md)            |
+| Överlämning     | [Guide](HANDOVER.md)                     | [Handover](HANDOVER.en.md)                      |
 
 ## Idéer och vägval
 
@@ -105,7 +125,8 @@ batterier. Servern läser Home Assistants Recorder-historik och sparar endast
 i en separat händelselogg i 90 dagar. En kort strömcykel syns därför i loggen
 utan att behöva utlösa mejl. Vid serveromstart fylls luckor från HA:s historik
 (högst de senaste tio dagarna med standardinställningen). Loggen ligger i Docker-
-volymen `device-health-data` och behöver tas med i framtida extern backup.
+volymen `device-health-data` och ingår nu i USB-backupen. Backup utanför
+hemmet återstår.
 
 Pi:ns befintliga hälsokontroll läser `/api/device-health` var femte minut.
 En fysisk lampa som varit otillgänglig minst 15 minuter ger ett mejl; återkomst
@@ -170,8 +191,9 @@ flowchart TB
     Clients["Mac · iPad · mobil<br/>Webbläsare på hemnätverket"]
     App -->|SSE: livevärden| Clients
     Clients -->|HTTP: användarens kommandon| App
-    Backup["Backup på Mac · utanför Git<br/>HA + Matter + återställningsnyckel"]
-    Storage -. manuell backup / återställning .-> Backup
+    Backup["USB-backup · 03:00 svensk tid<br/>14 uppsättningar · HA + Matter + dashboard"]
+    Storage -. nattlig backup .-> Backup
+    App -. kod, konfiguration och enhetshistorik .-> Backup
 
     classDef hardware fill:#eef1e7,stroke:#829578,color:#233e36
     classDef service fill:#e2eee9,stroke:#527b6b,color:#203c33
@@ -403,9 +425,10 @@ kontroll och bygge, tar bort utvecklingsberoenden och kopierar `build/`,
 med digest. Bygget använder värdmaskinens arkitektur; basimagen finns för ARM64/AMD64.
 
 Containern kör som användaren `node`, lyssnar på `0.0.0.0:3000` och har
-`init: true` samt `restart: unless-stopped`. Ingen hälsokontroll eller datavolym
-finns. Dashboarden sparar ingen egen historik. Att stoppa den påverkar inte Home
-Assistant-VM:n eller sensorkopplingarna.
+`init: true` samt `restart: unless-stopped`. Ingen containerhälsokontroll finns i Compose; den separata systemd-kontrollen
+övervakar driften. Docker-volymen `device-health-data` monteras på `/app/data`
+och sparar enhetshändelser. Att stoppa dashboarden påverkar inte de separata
+HA-/Matter-containrarna eller sensorkopplingarna.
 
 Om `.local` inte kan lösas inne i Docker, sätt `HOME_ASSISTANT_URL` till Home
 Assistants LAN-IP och reservera gärna adressen i routern. Använd inte `localhost`
@@ -428,7 +451,8 @@ kontroll, inte en aktuell säkerhetsgaranti. Appen sätter inga egna cookies.
 
 Återstående kontroller och framtida arbete:
 
-- Återkommande backup utanför Pi:n och provåterställning.
+- USB-backup är installerad och verifierad; backup utanför hemmet och full
+  provåterställning till nytt SD-kort återstår.
 - Lokal Bluetooth är inte konfigurerad; nätverksanslutna enheter fungerar.
 - Fjärråtkomst utanför hemnätverket är inte installerad.
 
@@ -479,7 +503,7 @@ webbläsaren. De manuella lägena är fasta. Auto använder solhändelserna i
 `sun.sun` (se detaljer nedan), med solstatus som reserv.
 Saknas solstatus används dagläge. Vid anslutningsavbrott behålls senast mottagna
 solstatus tills anslutningen återkommer. Mellan 23:00 och 08:00 svensk tid väljer
-Auto `deep-ambient` i alla tre vyerna.
+Auto `deep-ambient` i alla vyerna.
 Temat ändrar färgerna, inte skärmens hårdvaruljusstyrka.
 
 met.no-panelen visar även lufttryck i hPa, vind i m/s och kompassriktning (varifrån
@@ -515,11 +539,12 @@ tryckattribut i HA; saknad historik, API-fel eller ett aktuellt värde äldre ä
 90 minuter ger ”Trycktrend saknas”. Inget separat datalager behövs på dashboarden.
 Trenden beskriver met.no-värden, inte en lokal barometer eller en vädervarning.
 
-`WeatherScene.svelte` är stilla SVG med samma landskap och färgpalett som tidigare.
+`WeatherScene.svelte` beskrevs vid detta arbete som stilla SVG. Scenen har
+senare fått animationer; se avsnittet Levande väderscen nedan.
 Den visar sol/måne, stjärnor, moln, regn, snö/hagel, dimma, vind och åska efter
 met.no:s väderkod samt soltid. Månformen är en stiliserad tolkning av månfasen,
 inte en astronomiskt exakt återgivning. Okänt väder visar en neutral miljö.
-Grafiken ändras bara när dess indata ändras, utan animation eller egna nätanrop.
+Denna historiska version saknade animation och egna nätanrop.
 Befintlig 15-minutersuppdatering och livehändelser används; solväxlingen väntar
 inte på nästa 15-minutersintervall.
 
@@ -644,7 +669,7 @@ skiljer avvisade svar från osäkra timeout-resultat och kontrollerar källbytet
 ### Låtinformation (2026-09-18; vy uppdaterad 2026-09-26)
 
 Ljudkorten visar gruppledarens låt och artist även när uppspelningen startas utanför
-Tidsrad, spelad tid, total längd och platshållaren ”Tidsinformation saknas” har
+dashboarden. Tidsrad, spelad tid, total längd och platshållaren ”Tidsinformation saknas” har
 tagits bort ur spelarkorten för att ge större plats åt titel och kontroller.
 
 När Sonos tar emot TV-ljud kan dess metadata enbart vara ”TV”. För en bekräftad
@@ -671,7 +696,8 @@ SVG-scenen har långsamt drivande moln, regn/snö, dimma och vattenrörelse. Met
 
 Solens och månens positioner och månfas beräknas på servern med [SunCalc 1.9](https://github.com/mourner/suncalc/tree/v1.9.0). HA:s `get_config` ger Hem-positionen, som cachas i en timme. Koordinater skickas inte till webbläsaren. Positioner uppdateras via SSE minst varje minut och interpoleras visuellt. Prognosens befintliga cache gäller fortfarande. Om platsen inte kan hämtas visas inga gissade himlakroppar.
 
-Illustrationen är ett stiliserat panorama: azimut 45–315° går från vänster till höger, nordliga riktningar kläms till kanterna och höjd över horisonten styr vertikalleden. Det är inte en exakt fönsterutsikt. Månen kan synas även dagtid och döljs under horisonten. Solens synlighet använder −0,83° som ungefärlig soluppgångsgräns. Landskap och moln kan skymma kropparna. Positionerna är astronomiska approximationer, inte observationer; terräng ingår inte. Pi-prestanda återstår att verifiera på hårdvaran.
+Illustrationen är ett stiliserat panorama: azimut 45–315° går från vänster till höger, nordliga riktningar kläms till kanterna och höjd över horisonten styr vertikalleden. Det är inte en exakt fönsterutsikt. Månen kan synas även dagtid och döljs under horisonten. Solens synlighet använder −0,83° som ungefärlig soluppgångsgräns. Landskap och moln kan skymma kropparna. Positionerna är astronomiska approximationer, inte observationer; terräng ingår inte. Denna utvecklingsanteckning föregår Pi-installationen; animationernas
+långvariga resursbelastning har inte separat uppmätts.
 
 ### Dimning av lampor och ljusgrupper
 
