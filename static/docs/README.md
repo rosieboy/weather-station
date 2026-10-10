@@ -5,7 +5,7 @@ dashboard at `http://vaderstation.local:3000/?kiosk=1`. Weather day/hourly image
 were refreshed from the local development preview using the same live HA data
 to show the restored pressure and three-hour trend. Car Day/Night/Ambient images
 were also refreshed from that preview with live HA data for the approved
-full-screen photo layout. The UI is Swedish; captions are provided
+full-screen photo layout, state-dependent status icons and charging/driving divider. The UI is Swedish; captions are provided
 in both main README versions. Each filename describes the use case, not a permanent
 state. No image editing, synthetic values or device-control commands were used.
 Sonos grouping selection was cancelled. The browser theme was returned to Auto.

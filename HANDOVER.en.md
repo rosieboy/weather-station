@@ -99,3 +99,9 @@ The car photo now uses fixed background layers across the viewport, including
 behind navigation. `.dashboard.view-car` isolates stacking; `.car-view` is
 transparent. View-specific menu surfaces protect readability. Mobile content
 stacks above the photo. Check/build, view switching and mobile width verified.
+
+Car status cards now use `CarStatusIcon.svelte` with state-dependent SVG icons
+(locked/unlocked, service, warning, unknown and stale data). Connection failures
+use the unknown icon; reported issues retain their warning icon. Icons are hidden
+from screen readers and exempt from the global Ambient SVG filter to preserve
+text contrast. A subtle divider separates charging and driving data.

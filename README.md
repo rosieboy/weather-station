@@ -808,6 +808,12 @@ I HA betyder låssensorns `on` olåst. Okända uppgifter räknas inte som stäng
 Lås, service och mätarställning har egna rapporteringstider; efter ett dygn
 markeras äldre status. Inga lås- eller andra bilkommandon skickas från vyn.
 
+Statuskorten använder SVG-ikoner: lås vid bekräftad låst status, öppet lås vid
+öppet/olåst, skiftnyckel för service/bilhälsa och varningstriangel vid rapporterade
+varningar. Frågetecken visar saknade uppgifter eller kontaktfel; klocka markerar
+bekräftad status som är över ett dygn gammal. Ikonerna kompletterar texten och är
+dolda för skärmläsare. Laddning och kördata skiljs åt med en diskret linje.
+
 Bilfotot fyller hela skärmen, även bakom toppmenyn. Mörka toningar skyddar
 texten och menyknapparna har egna halvtransparenta underlag. På mindre skärmar
 staplas innehållet och bakgrunden ligger kvar medan sidan rullas. Bakgrunden

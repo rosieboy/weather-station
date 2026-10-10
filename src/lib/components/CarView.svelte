@@ -1,5 +1,6 @@
 <script lang="ts">
   import { onMount } from 'svelte';
+  import CarStatusIcon from './CarStatusIcon.svelte';
   import type { CarSnapshot } from '$lib/car/types';
   let car = $state<CarSnapshot | null>(null);
   let failed = $state(false);
@@ -33,6 +34,24 @@
       : car?.security.status === 'attention'
         ? 'Öppet eller olåst'
         : 'Status inte bekräftad'
+  );
+  let securityIcon: 'locked' | 'unlocked' | 'unknown' | 'clock' = $derived(
+    car?.security.status === 'attention'
+      ? 'unlocked'
+      : !car || failed || car.error || car.security.status === 'unknown'
+        ? 'unknown'
+        : stale(car.security.reportedAt)
+          ? 'clock'
+          : 'locked'
+  );
+  let healthIcon: 'service' | 'warning' | 'unknown' | 'clock' = $derived(
+    car?.warnings.length
+      ? 'warning'
+      : !car || failed || car.error || car.healthIncomplete
+        ? 'unknown'
+        : stale(car.healthReportedAt)
+          ? 'clock'
+          : 'service'
   );
   let old = $derived(
     !!car?.reportedAt && now - Date.parse(car.reportedAt) > 24 * 60 * 60 * 1000
@@ -120,7 +139,7 @@
       >
         <span style:width="{car?.battery ?? 0}%"></span>
       </div>
-      <div class="car-details">
+      <div class="car-details charging-details">
         <div>
           <p>Laddning</p>
           <strong>{status}</strong><small>{cable}</small>
@@ -129,6 +148,8 @@
           <p>Laddgräns</p>
           <strong>{format(car?.chargeLimit)} %</strong>
         </div>
+      </div>
+      <div class="car-details driving-details">
         <div>
           <p>Snittförbrukning</p>
           <strong
@@ -153,7 +174,10 @@
         aria-labelledby="security-title"
       >
         <p class="car-eyebrow">RAPPORTERAD LÅSSTATUS</p>
-        <h3 id="security-title">{securityLabel}</h3>
+        <div class="panel-heading">
+          <span class="panel-icon"><CarStatusIcon name={securityIcon} /></span>
+          <h3 id="security-title">{securityLabel}</h3>
+        </div>
         {#if car?.security.issues.length}
           <ul>
             {#each car.security.issues as issue}<li>{issue}</li>{/each}
@@ -176,13 +200,16 @@
         aria-labelledby="service-title"
       >
         <p class="car-eyebrow">SERVICE & BILHÄLSA</p>
-        <h3 id="service-title">
-          {car?.warnings.length
-            ? 'Rapporterade varningar'
-            : car && !car.healthIncomplete && !car.error
-              ? 'Inga rapporterade varningar'
-              : 'Varningsstatus inte bekräftad'}
-        </h3>
+        <div class="panel-heading">
+          <span class="panel-icon"><CarStatusIcon name={healthIcon} /></span>
+          <h3 id="service-title">
+            {car?.warnings.length
+              ? 'Rapporterade varningar'
+              : car && !car.healthIncomplete && !car.error
+                ? 'Inga rapporterade varningar'
+                : 'Varningsstatus inte bekräftad'}
+          </h3>
+        </div>
         {#if car?.warnings.length}<ul>
             {#each car.warnings as warning}<li>{warning}</li>{/each}
           </ul>{/if}
@@ -291,10 +318,23 @@
     backdrop-filter: blur(8px);
     -webkit-backdrop-filter: blur(8px);
   }
+  .panel-heading {
+    display: grid;
+    grid-template-columns: 32px minmax(0, 1fr);
+    align-items: start;
+    gap: 14px;
+    margin: 14px 0 12px;
+  }
+  .panel-icon {
+    display: flex;
+    padding-top: 1px;
+  }
   .car-panel h3 {
     font-size: 22px;
+    line-height: 1.25;
     font-weight: 500;
-    margin: 10px 0;
+    margin: 0;
+    text-wrap: balance;
   }
   .panel-note {
     color: #d0d7db;
@@ -401,6 +441,11 @@
     gap: 16px;
   }
 
+  .driving-details {
+    margin-top: 20px;
+    padding-top: 18px;
+    border-top: 1px solid #ffffff26;
+  }
   .car-details strong {
     display: block;
     font-size: 20px;

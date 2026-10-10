@@ -116,3 +116,9 @@ Bilfotot ligger nu i fasta bakgrundslager över hela viewporten, bakom även
 toppmenyn. `.dashboard.view-car` isolerar lagerordningen; `.car-view` är
 genomskinlig. Vyspecifika menyunderlag skyddar läsbarheten. Mobilvyn staplar
 innehållet över bakgrunden. Kontroll/bygge samt vybyte och mobilbredd verifierade.
+
+Bilens statuskort har nu `CarStatusIcon.svelte` med tillståndsstyrda SVG-ikoner
+(lås/öppet lås, service, varning, okänd status och äldre data). Kontaktfel använder
+okänd ikon, rapporterade problem behåller sin varningsikon. Ikonerna är dekorativa
+för skärmläsare och undantas från Ambients globala SVG-filter för att behålla
+textens kontrast. Laddning och kördata har en diskret avdelare.

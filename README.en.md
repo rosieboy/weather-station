@@ -230,6 +230,13 @@ brake fluid, coolant, washer fluid, 12 V battery and exterior lighting. Missing
 readings are dashes. Battery, security, health and mileage have independent report
 times; values older than a day are marked stale.
 
+Status cards use SVG icons: a closed lock for confirmed secure status, an open
+lock for open/unlocked, a wrench for service/health and a warning triangle for
+reported warnings. A question mark indicates missing data or a connection error;
+a clock marks confirmed status older than a day. Icons supplement the text and
+are hidden from screen readers. A subtle divider separates charging and driving
+data.
+
 The car photo fills the viewport, including behind the top navigation. Dark
 gradients protect the text, and menu controls have translucent backgrounds.
 On smaller screens, content stacks and the backdrop stays fixed while scrolling.
