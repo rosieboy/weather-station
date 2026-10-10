@@ -3494,3 +3494,48 @@ html[data-theme='night'] .view-car {
 .dashboard .view-nav svg {
   display: block;
 }
+
+/* Full-screen car photo; the dashboard isolates its fixed background layers. */
+.dashboard.view-car {
+  position: relative;
+  isolation: isolate;
+  max-width: none;
+  background: transparent;
+}
+.dashboard.view-car > header {
+  position: relative;
+}
+.dashboard.view-car > header::before {
+  content: '';
+  position: fixed;
+  z-index: -1;
+  inset: 0 0 auto;
+  height: 120px;
+  background: linear-gradient(180deg, rgba(7, 13, 18, 0.8), rgba(7, 13, 18, 0));
+  pointer-events: none;
+}
+.dashboard.view-car
+  > header
+  :is(.brand, .clock, .eyebrow, .theme-toggle, .view-nav button) {
+  color: #f2f5f6;
+}
+.dashboard.view-car :is(.view-nav, .theme-toggle, .brand-icon) {
+  background: rgba(7, 13, 18, 0.68);
+  border-color: rgba(255, 255, 255, 0.25);
+}
+.dashboard.view-car .view-nav button[aria-current] {
+  background: #38544b;
+  color: #fff;
+}
+html[data-theme='deep-ambient']
+  .dashboard.view-car
+  > header
+  :is(.brand, .clock, .eyebrow, .theme-toggle, .view-nav button) {
+  color: #f3c3b4;
+}
+html[data-theme='deep-ambient']
+  .dashboard.view-car
+  .view-nav
+  button[aria-current] {
+  background: #482018;
+}

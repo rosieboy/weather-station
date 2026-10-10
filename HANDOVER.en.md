@@ -94,3 +94,8 @@ Documentation language does not change the dashboard language.
 Weather again shows pressure and the three-hour trend. Four secondary readings
 use two columns and two rows in the kiosk. Missing history shows Trycktrend saknas.
 Weather screenshots and both README versions are updated.
+
+The car photo now uses fixed background layers across the viewport, including
+behind navigation. `.dashboard.view-car` isolates stacking; `.car-view` is
+transparent. View-specific menu surfaces protect readability. Mobile content
+stacks above the photo. Check/build, view switching and mobile width verified.

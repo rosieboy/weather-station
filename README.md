@@ -808,6 +808,11 @@ I HA betyder låssensorns `on` olåst. Okända uppgifter räknas inte som stäng
 Lås, service och mätarställning har egna rapporteringstider; efter ett dygn
 markeras äldre status. Inga lås- eller andra bilkommandon skickas från vyn.
 
+Bilfotot fyller hela skärmen, även bakom toppmenyn. Mörka toningar skyddar
+texten och menyknapparna har egna halvtransparenta underlag. På mindre skärmar
+staplas innehållet och bakgrunden ligger kvar medan sidan rullas. Bakgrunden
+finns bara i Bil-vyn och försvinner direkt vid vybyte.
+
 Bilbakgrunden har separata temaanpassningar: dagläget lyfter fotots ljusstyrka
 och använder ljusa statuskort, nattläget behåller originalbehandlingen och
 Ambient visar bilens former tydligare med dämpad bild och röda texter. Bildlagret

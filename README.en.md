@@ -230,6 +230,11 @@ brake fluid, coolant, washer fluid, 12 V battery and exterior lighting. Missing
 readings are dashes. Battery, security, health and mileage have independent report
 times; values older than a day are marked stale.
 
+The car photo fills the viewport, including behind the top navigation. Dark
+gradients protect the text, and menu controls have translucent backgrounds.
+On smaller screens, content stacks and the backdrop stays fixed while scrolling.
+The photo is scoped to Car and disappears immediately when switching views.
+
 Day mode brightens the photograph and uses light status cards. Night retains the
 original treatment; Ambient reveals the car more clearly with a subdued image
 and red text. Image brightness is independent of text. Security/health cards use

@@ -239,11 +239,11 @@
 <style>
   .car-view {
     position: relative;
-    isolation: isolate;
-    min-height: 536px;
-    border-radius: 24px;
-    overflow: hidden;
-    background: #162027;
+    isolation: auto;
+    min-height: calc(100dvh - 124px);
+    border-radius: 0;
+    overflow: visible;
+    background: transparent;
     color: #f2f5f6;
     display: flex;
     flex-direction: column;
@@ -252,7 +252,7 @@
   }
   .car-view::after {
     content: '';
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: -2;
     background: url('/polestar.jpg') center right / cover no-repeat;
@@ -260,7 +260,7 @@
   }
   .car-view::before {
     content: '';
-    position: absolute;
+    position: fixed;
     inset: 0;
     z-index: -1;
     background:

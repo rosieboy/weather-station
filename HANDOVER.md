@@ -111,3 +111,8 @@ mot ljusaste/mörkaste möjliga bakgrund. Kontroll och bygge passerade.
 Lufttryck och tre timmars trycktrend visas åter i vädervyn. De fyra sekundära
 mätvärdena använder två kolumner och två rader i kiosken. Saknad historik visas
 som Trycktrend saknas. Väderbilderna och båda README-versionerna är uppdaterade.
+
+Bilfotot ligger nu i fasta bakgrundslager över hela viewporten, bakom även
+toppmenyn. `.dashboard.view-car` isolerar lagerordningen; `.car-view` är
+genomskinlig. Vyspecifika menyunderlag skyddar läsbarheten. Mobilvyn staplar
+innehållet över bakgrunden. Kontroll/bygge samt vybyte och mobilbredd verifierade.
