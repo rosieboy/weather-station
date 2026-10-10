@@ -58,6 +58,11 @@ rapporterar också om själva historikfrågan misslyckas.
 
 ## Status och loggar
 
+![Enhetshälsa i dashboarden](../../static/docs/device-health.jpg)
+
+Enhetshälsa finns i Rum-vyn. Den visar HA-rapporterad kontaktstatus, batterier
+och händelser; systemd-timerns resurstillstånd läses med kommandona nedan.
+
 ```bash
 systemctl list-timers weather-station-health.timer
 sudo systemctl start weather-station-health.service

@@ -7,11 +7,10 @@ och TypeScript. Väder, Rum, Ljud, Kalender och Bil är anpassade för Pi:ns kio
 och fungerar även på mindre skärmar. Utetemperaturen är vädervyns huvudvärde,
 med Vardagsrum, Sovrum och Balkong under.
 
-![Bild på vädervy](./static/weather.png 'Väder- och temperaturvy')
+![Väderöversikt med utegivare, rumsvärden och dygnsprognos](static/docs/weather-day.jpg)
 
-![Bild på rumsvy](./static/rooms.png 'rums- och belysningskontrollsvy')
-
-![Bild på vädervy](./static/sound.png 'Sonos ljudvy')
+Vädervyn i dagläge. Skärmbilderna togs från Pi-dashboarden 2026-10-10 i
+1280 × 720; mätvärden och tillgänglighet är exempel från det tillfället.
 
 Drift verifierad på Raspberry Pi per **2026-10-10**.
 Dashboard: http://vaderstation.local:3000/ · Home Assistant: http://vaderstation.local/
@@ -47,6 +46,11 @@ designreferenser och förslag kring en framtida fysisk volymkontroll.
 ## Status och genomförda val
 
 ### Familjekalender
+
+![Sitevisiondagarna visas både 20 och 21 oktober](static/docs/calendar-multiday.jpg)
+
+En tvådagarsaktivitet visas på båda datumen men räknas som en händelse.
+Föregående / Idag / Nästa byter sjudagarsperiod.
 
 Kalender-vyn visar händelser de kommande sju dagarna från endast iCloud-kalendern
 **Familjen**, ansluten till Home Assistant via CalDAV. Dashboardservern letar
@@ -119,6 +123,11 @@ på start- och slutdagen och Hela dagen på mellanliggande dagar.
 
 ### Enhetshälsa
 
+![Utfälld enhetshälsa med kontaktstatus, batterier och händelser](static/docs/device-health.jpg)
+
+Fäll ut Enhetshälsa i Rum och rulla för att se kontaktstatus, låga/okända
+batterier och händelser. Bilden visar återkomst efter den schemalagda backupen.
+
 Rum-vyn har en kompakt panel för övervakade lampor, uttag, temperaturgivare och
 batterier. Servern läser Home Assistants Recorder-historik och sparar endast
 övergångar mellan tillgänglig/otillgänglig samt batterinivåerna normal/låg/kritisk
@@ -141,7 +150,7 @@ inte alltid upptäckas utan en separat kontaktkontroll. Ett gammalt batterivärd
 är inte heller bevis för att givaren fortfarande har kontakt: om dess
 temperatursensor är offline visas batterinivån som okänd i panelen.
 
-## Visualisering
+## Tidigare designvisualisering (historik)
 
 ![Visualisering av väderpresentation](./static/visualisering.png 'Visualisering av väderpresentation')
 
@@ -458,6 +467,11 @@ kontroll, inte en aktuell säkerhetsgaranti. Appen sätter inga egna cookies.
 
 ## Prognos, jämförelsetemperatur och astronomi (2026-09-14)
 
+![Vädervyn med sex timprognoser](static/docs/weather-hourly.jpg)
+
+Tryck på prognosraden för att växla mellan dygn och timmar. Landskapet följer
+verklig soltid även när dagläge väljs manuellt.
+
 Den egna utomhussensorn är fortfarande huvudvärdet. met.no visas mindre bredvid,
 märkt **beräknad temperatur**, eftersom värdet inte är vår lokala mätning.
 Vid byte av utomhusgivare ändras `HA_OUTDOOR_TEMPERATURE` och `HA_OUTDOOR_HUMIDITY` till
@@ -550,6 +564,16 @@ inte på nästa 15-minutersintervall.
 
 ## Rum och lampkontroller (2026-09-17)
 
+![Rumskort med lampstatus, temperatur och luftfuktighet](static/docs/rooms-day.jpg)
+
+Tryck på ett rumskort för att öppna reglagen. Tända rum markeras; rum utan
+givare visar streck.
+
+![Vardagsrumsdialog med enskilda brytare och Tänd alla och Släck alla](static/docs/room-controls.jpg)
+
+Styr varje lampa separat eller hela rummet med Tänd alla / Släck alla.
+Att öppna dialogen skickar inget styrkommando.
+
 SVG-ikonerna för **Väder / Rum / Ljud / Kalender / Bil** byter skärm.
 Menyn har svenska skärmläsaretiketter och hovringstitlar, 48 px höga tryckytor
 och tydlig markering av aktiv vy. Ett horisontellt
@@ -608,6 +632,16 @@ som når dashboarden kan styra de valda lamporna.
 `npm test` omfattar även registerkommandon och avbrott i WebSocket-transporten.
 
 ## Ljud och Sonos (2026-09-17)
+
+![Sonos-kort med uppspelning, volym och källval](static/docs/audio-day.jpg)
+
+Varje högtalare har egen volym; uppspelning och källval följer gruppledaren.
+TV-högtalaren visar den konfigurerade Apple TV-metadatan.
+
+![Grupperingsdialog med Balkong vald att följa Kök](static/docs/audio-grouping.jpg)
+
+Välj högtalare och tryck Gruppera för att verkställa eller Avbryt för att lämna.
+Bilden visar endast ett urval; inget grupperingskommando skickades vid fotograferingen.
 
 Den tredje vyn visar ett kort per aktiv, synlig Sonos-mediaspelare i HA-registret.
 Apple TV filtreras bort. Kortens områden följer HA; enhetens eget namn kan avvika
@@ -701,6 +735,11 @@ långvariga resursbelastning har inte separat uppmätts.
 
 ### Dimning av lampor och ljusgrupper
 
+![Matrum med dimmer för Köksö tak och inaktiverade reglage för Matbord tak](static/docs/room-dimming.jpg)
+
+Köksö tak visar dimmerfunktionen; Matbord tak visar hur reglagen spärras när
+lampan saknar kontakt. Ett fungerande dimmerreglage skickar kommandot när det släpps.
+
 Rumsvyn visar ett reglage 1–100 % för `light`-enheter vars `supported_color_modes`
 anger stöd för ljusstyrka. Detta gäller också HA-ljusgrupper, exempelvis
 `light.kokso_tak`: gruppen får ett enda `light.turn_on` med `brightness_pct`.
@@ -750,6 +789,11 @@ temperatur och gott om diskutrymme. [Regelbunden hälsokontroll](deploy/health/R
 
 ### Bilvy
 
+![Polestar i dagläge med batteri, räckvidd, förbrukning, lås och service](static/docs/car-day.jpg)
+
+Dagläget visar batteri/räckvidd, laddning, förbrukning, mätarställning,
+rapporterad låsstatus och service/bilhälsa. Egna rapporteringstider synliggör äldre data.
+
 Fliken Bil visar Polestar 2 (modellår 2025) med bilden i `static/polestar.jpg`. Batteri, räckvidd, laddstatus, kabelanslutning, laddgräns och mätarställning läses från den befintliga HA-anslutningen. Vyn använder `sensor.polestar_*` från Polestar Data Portal-integrationen; inga API-hemligheter skickas till webbläsaren. Bilens `battery_data_updated` visas som rapporteringstid, med markering när den är äldre än ett dygn. Saknade värden visas som streck. Dashboarden gör inga extra anrop till Polestar.
 
 Bilvyn visar även snittförbrukning i kWh/100 km, trippmätare, serviceintervall
@@ -771,3 +815,17 @@ Lås- och hälsokorten har halvtransparenta bakgrunder (70 % i Natt/Ambient,
 kontrastfärger. Normal paneltext har minst 4,5:1 kontrast även vid konservativ
 beräkning mot helt vit bild bakom mörka paneler respektive helt svart bild
 bakom den ljusa panelen. Bakgrundsoskärpa behövs inte för att uppnå kontrasten.
+
+<details>
+<summary>Bilvyn i natt- och ambientläge</summary>
+
+![Polestar i nattläge](static/docs/car-night.jpg)
+
+Nattläget använder mörk palett och ljus text.
+
+![Polestar i ambientläge](static/docs/car-ambient.jpg)
+
+Ambient använder dämpad röd text. Lås- och hälsokorten behåller sina egna
+kontrastfärger och halvtransparenta bakgrunder.
+
+</details>

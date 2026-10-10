@@ -8,9 +8,11 @@ Svelte 5 and TypeScript. Weather, Rooms, Audio, Calendar and Car fit the Pi's
 installation; documentation is bilingual, while the dashboard interface remains
 Swedish. The Swedish README also preserves dated development notes.
 
-![Weather view](static/weather.png)
-![Room and lighting controls](static/rooms.png)
-![Sonos audio view](static/sound.png)
+![Weather overview with outdoor and room readings and daily forecast](static/docs/weather-day.jpg)
+
+Weather overview in Day mode. Screenshots captured from the Pi dashboard on
+2026-10-10 at 1280 × 720; readings and availability are examples from that moment.
+The interface remains Swedish in both documentation versions.
 
 Operation verified on Raspberry Pi as of **2026-10-10**.
 Dashboard: <http://vaderstation.local:3000/> · Home Assistant: <http://vaderstation.local/>
@@ -77,6 +79,11 @@ of Pi power.
 
 ### Weather
 
+![Weather view with six hourly forecast columns](static/docs/weather-hourly.jpg)
+
+Tap the forecast row to switch from daily to hourly forecasts. The landscape
+follows actual sun time even when Day is selected manually.
+
 The dedicated **Shelly BLU H&T ZB** outdoor sensor, connected through DIRIGERA,
 provides the primary temperature/humidity reading. Three TIMMERFLOTTE sensors
 supply Balcony, Living room and Bedroom. The sensor originally named Kitchen is
@@ -106,6 +113,22 @@ exact view or observation; terrain is not included.
 
 ### Rooms and lighting
 
+![Room cards showing lighting, temperature and humidity](static/docs/rooms-day.jpg)
+
+Tap a room card to open its controls. Lit rooms are highlighted; rooms without
+sensors show a dash.
+
+![Living-room dialog with individual and room-wide light switches](static/docs/room-controls.jpg)
+
+Use individual switches or Tänd alla / Släck alla (all on / all off). Opening the
+dialog does not send a command.
+
+![Dining-room controls with a brightness slider and unavailable light](static/docs/room-dimming.jpg)
+
+Brightness is available for Köksö tak. Matbord tak illustrates the disabled
+controls shown when a light is unavailable. Dragging a working dimmer sends a
+command when released.
+
 Cards use HA areas and device/entity registries. Controls include lights and
 Matter switches classified as outlets; Sonos/system switches are excluded.
 Disabled, hidden and diagnostic/configuration entities are excluded; an entity
@@ -124,6 +147,16 @@ checks and `CONTROL_ALLOWED_ORIGINS` prevent arbitrary origins, but are not logi
 Anyone able to access the dashboard on the trusted LAN can control selected lights.
 
 ### Audio and Sonos
+
+![Sonos speakers with playback controls, volume and sources](static/docs/audio-day.jpg)
+
+Each speaker has its own volume; playback and source selection follow its group
+leader. The TV speaker shows the configured Apple TV metadata.
+
+![Sonos grouping dialog with Balcony selected to follow Kitchen](static/docs/audio-grouping.jpg)
+
+Select speakers, then press Gruppera to apply or Avbryt to cancel. This screenshot
+shows a selection only; no grouping command was sent during capture.
 
 Cards show active, visible Sonos media players; Apple TV is excluded as a separate
 card. HA area names and device names can differ. Controls include play/pause,
@@ -154,6 +187,11 @@ TV input status is not integrated. Confirmed mapping:
 
 ### Family calendar
 
+![Sitevisiondagarna displayed on both 20 and 21 October](static/docs/calendar-multiday.jpg)
+
+A single two-day event appears on both dates while the total remains one event.
+Previous / Today / Next changes the seven-day period.
+
 Only iCloud calendar **Familjen**, exposed in HA through CalDAV as
 `calendar.familjen`, is selected; absence is an error. Seven-day periods start
 from today in Europe/Stockholm with daylight-saving handling. Previous/Next moves
@@ -169,6 +207,11 @@ an error or last-fetched events with a warning are shown. Apple login and CalDAV
 secrets remain in HA. Anyone with access to port 3000 can read calendar content.
 
 ### Car: Polestar 2, model year 2025
+
+![Polestar status in Day mode with battery, range, consumption, locks and service](static/docs/car-day.jpg)
+
+Day mode shows battery/range, charging, consumption, mileage, reported security
+and service/health. Independent report times make older data visible.
 
 Uses `static/polestar.jpg` as its backdrop. Battery, range, charging, cable,
 charge limit, odometer, average consumption in kWh/100 km, trip meter, service
@@ -199,6 +242,20 @@ current credential expires **2026-12-16**; renewal instructions are in
 
 ### Navigation, themes and accessibility
 
+<details>
+<summary>Car view: Night and Ambient themes</summary>
+
+![Polestar car view in Night mode](static/docs/car-night.jpg)
+
+Night uses a dark palette with light text.
+
+![Polestar car view in Ambient mode](static/docs/car-ambient.jpg)
+
+Ambient uses subdued red text; security and health panels retain their own
+contrast colors and translucent backgrounds.
+
+</details>
+
 Five inline SVG icons switch Weather / Rooms / Audio / Calendar / Car. Buttons
 have Swedish accessible names, hover titles, active `aria-current`, at least
 48 × 48 px targets and visible focus. Icons are decorative to screen readers.
@@ -220,6 +277,11 @@ extrapolated. During disconnection the last sun state is retained. Manual themes
 do not change the landscape's actual day/night, or hardware screen brightness.
 
 ### Device health
+
+![Expanded device-health panel with contact status, battery levels and recent events](static/docs/device-health.jpg)
+
+Expand Enhetshälsa in Rooms and scroll to see contact status, low/unknown batteries
+and recent events. This capture shows recovery after the scheduled backup.
 
 Rooms includes monitored lights/outlets, sensors and batteries. The server stores
 availability transitions and normal/low/critical battery transitions for 90 days

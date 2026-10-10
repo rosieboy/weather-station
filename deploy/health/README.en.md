@@ -56,6 +56,11 @@ the gap cannot be reconstructed. `device_monitor` also reports history-query err
 
 ## Status and logs
 
+![Dashboard device-health panel](../../static/docs/device-health.jpg)
+
+Device health is in Rooms. It shows HA-reported contact status, batteries and
+events; read the systemd timer’s resource-check status with the commands below.
+
 ```bash
 systemctl list-timers weather-station-health.timer
 sudo systemctl start weather-station-health.service
