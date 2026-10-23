@@ -115,5 +115,9 @@ Timer and listeners are cleaned up on unmount. Live readings, SSE, forecast
 cache, temperature history and clock are unchanged. Fan thresholds are unchanged.
 Before installation: 68.1 °C, throttled=0x0, fan state 3 (~7,446 rpm).
 Five-second sample: Chromium 55.6% + labwc 21.1% of one CPU core.
-Local check and build pass. Pi sudo requires a password; installation and
-post-change measurements await the user running the deployment command.
+Local check and build pass. The user installed the change on the Pi and
+confirmed that the display looks correct. Three five-second post-install samples:
+Chromium 0.4 / 0.4 / 5.2% and labwc 0.2 / 0.2 / 0.0% of one CPU core.
+Temperature 64.2–65.3 °C, throttled=0x0; fan remained at state 3 (~7,458 rpm).
+Rendering load is substantially lower; steady-state temperature and perceived
+fan noise have not yet been evaluated.

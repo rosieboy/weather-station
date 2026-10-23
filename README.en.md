@@ -115,7 +115,11 @@ HA's home location cached for one hour. Coordinates remain server-side. Position
 are calculated through SSE at least each minute; the scene samples the latest
 positions at its next snapshot without animated interpolation. No guessed
 celestial bodies are shown without location. The panorama is stylized, not an
-exact view or observation; terrain is not included.
+exact view or observation; terrain is not included. After installation, three
+five-second samples measured Chromium at 0.4–5.2% and labwc at 0–0.2% of one CPU
+core, compared with about 56% + 21% before the change. Temperature was 64–65 °C;
+the fan remained at the same stage. Steady-state temperature and perceived noise
+still need evaluation.
 
 ### Rooms and lighting
 

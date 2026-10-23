@@ -132,5 +132,9 @@ Timer och lyssnare tas bort vid avmontering. Livevärden, SSE, prognoscache,
 temperaturhistorik och klocka är oförändrade. Inga fläktgränser har ändrats.
 Före installation: 68,1 °C, throttled=0x0, fläktsteg 3 (~7 446 rpm).
 Femsekunders stickprov: Chromium 55,6 % + labwc 21,1 % av en CPU-kärna.
-Check och build passerar lokalt. Sudo kräver lösenord på Pi:n; installation och
-mätning efter ändringen återstår tills användaren kör installationskommandot.
+Check och build passerar lokalt. Användaren har installerat ändringen på Pi:n
+och bekräftat att skärmen visas korrekt. Tre femsekunders stickprov efter
+installationen: Chromium 0,4 / 0,4 / 5,2 % och labwc 0,2 / 0,2 / 0,0 % av en
+CPU-kärna. Temperatur 64,2–65,3 °C, throttled=0x0; fläkten låg fortfarande på
+steg 3 (~7 458 rpm). Ritbelastningen är kraftigt lägre; stabil temperatur och
+upplevt fläktljud är ännu inte utvärderade.
