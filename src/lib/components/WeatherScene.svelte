@@ -2,10 +2,10 @@
   import { onMount } from 'svelte';
   import type { Sky, SkyPosition } from '$lib/weather/types';
   let {
-    condition,
-    daylight,
-    sky,
-    wind
+    condition: currentCondition,
+    daylight: currentDaylight,
+    sky: currentSky,
+    wind: currentWind
   }: {
     condition: string;
     daylight: boolean | null;
@@ -13,18 +13,38 @@
     wind: number | null;
   } = $props();
   const id = $props.id();
-  let hidden = $state(false);
+  // Only the decorative scene is sampled. Live readings remain independent.
+  let snapshot = $state<{
+    condition: string;
+    daylight: boolean | null;
+    sky: Sky | null;
+    wind: number | null;
+  } | null>(null);
+  let condition = $derived(snapshot?.condition ?? currentCondition);
+  let daylight = $derived(snapshot ? snapshot.daylight : currentDaylight);
+  let sky = $derived(snapshot ? snapshot.sky : currentSky);
+  let wind = $derived(snapshot ? snapshot.wind : currentWind);
   let wide = $state(false);
   let stageWidth = $derived(wide ? 800 : 500);
   onMount(() => {
-    const update = () => (hidden = document.hidden);
+    const update = () => {
+      if (document.hidden) return;
+      snapshot = {
+        condition: currentCondition,
+        daylight: currentDaylight,
+        sky: currentSky,
+        wind: currentWind
+      };
+    };
     const desktop = window.matchMedia('(min-width: 701px)');
     const updateWidth = () => (wide = desktop.matches);
     update();
     updateWidth();
+    const timer = setInterval(update, 10 * 60_000);
     document.addEventListener('visibilitychange', update);
     desktop.addEventListener('change', updateWidth);
     return () => {
+      clearInterval(timer);
       document.removeEventListener('visibilitychange', update);
       desktop.removeEventListener('change', updateWidth);
     };
@@ -54,13 +74,11 @@
 </script>
 
 <svg
-  class="landscape weather-scene living-sky"
+  class="landscape weather-scene snapshot-sky"
   class:night
-  class:paused={hidden}
   viewBox={`0 0 ${stageWidth} 320`}
   fill="none"
   aria-hidden="true"
-  style={`--cloud-speed:${Math.max(25, 100 - (wind ?? 2) * 5)}s`}
 >
   <defs>
     <linearGradient id="{id}-sky" x2="0" y2="1"
@@ -170,7 +188,6 @@
           <g
             class:flake={snow && i % 2 === 0}
             class:drop={!snow || i % 2 !== 0}
-            style={`animation-delay:-${i * 0.37}s;animation-duration:${snow && i % 2 === 0 ? 5 + (i % 4) : 0.9 + (i % 3) * 0.2}s`}
           >
             {#if snow && i % 2 === 0}<circle
                 cx={70 + ((i * 47) % (stageWidth - 140))}
@@ -231,99 +248,17 @@
 </svg>
 
 <style>
-  .living-sky {
+  .snapshot-sky {
     overflow: hidden;
     pointer-events: none;
   }
-  .celestial {
-    transition:
-      transform 60s linear,
-      opacity 5s ease;
-  }
-  .cloud-layer,
-  .cloud-low,
-  .stars,
-  .mist {
-    transition: opacity 5s ease;
-  }
-  .cloud {
-    animation: drift var(--cloud-speed) ease-in-out infinite alternate;
-  }
   .cloud-back {
     opacity: 0.5;
-    animation-delay: -30s;
-  }
-  .cloud-front {
-    animation-direction: alternate-reverse;
-  }
-  .cloud-low {
-    animation-delay: -15s;
   }
   .drop {
-    animation: rain linear infinite;
     opacity: 0.5;
   }
   .flake {
-    animation: snow linear infinite;
     opacity: 0.7;
-  }
-  .mist {
-    animation: drift 35s ease-in-out infinite alternate;
-  }
-  .water {
-    animation: ripple 12s ease-in-out infinite alternate;
-  }
-  @keyframes drift {
-    from {
-      transform: translateX(-22px);
-    }
-    to {
-      transform: translateX(24px);
-    }
-  }
-  @keyframes rain {
-    from {
-      transform: translate(4px, -25px);
-      opacity: 0;
-    }
-    20% {
-      opacity: 0.5;
-    }
-    to {
-      transform: translate(-8px, 45px);
-      opacity: 0;
-    }
-  }
-  @keyframes snow {
-    from {
-      transform: translate(-8px, -20px);
-      opacity: 0;
-    }
-    25% {
-      opacity: 0.7;
-    }
-    to {
-      transform: translate(14px, 60px);
-      opacity: 0;
-    }
-  }
-  @keyframes ripple {
-    from {
-      transform: translateX(-5px);
-      opacity: 0.15;
-    }
-    to {
-      transform: translateX(6px);
-      opacity: 0.35;
-    }
-  }
-  .paused * {
-    animation-play-state: paused !important;
-  }
-  @media (prefers-reduced-motion: reduce) {
-    .living-sky * {
-      animation: none !important;
-      transition: none !important;
-    }
   }
 </style>

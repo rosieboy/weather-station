@@ -105,3 +105,15 @@ Car status cards now use `CarStatusIcon.svelte` with state-dependent SVG icons
 use the unknown icon; reported issues retain their warning icon. Icons are hidden
 from screen readers and exempt from the global Ambient SVG filter to preserve
 text contrast. A subtle divider separates charging and driving data.
+
+## Weather illustration and fan noise · 2026-10-23
+
+`WeatherScene.svelte` now uses a still snapshot with no CSS animation or
+transitions. Only scene condition/daylight/sky/wind are sampled: on mount,
+every ten minutes while visible, and when the page becomes visible again.
+Timer and listeners are cleaned up on unmount. Live readings, SSE, forecast
+cache, temperature history and clock are unchanged. Fan thresholds are unchanged.
+Before installation: 68.1 °C, throttled=0x0, fan state 3 (~7,446 rpm).
+Five-second sample: Chromium 55.6% + labwc 21.1% of one CPU core.
+Local check and build pass. Pi sudo requires a password; installation and
+post-change measurements await the user running the deployment command.

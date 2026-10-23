@@ -557,7 +557,7 @@ tryckattribut i HA; saknad historik, API-fel eller ett aktuellt värde äldre ä
 Trenden beskriver met.no-värden, inte en lokal barometer eller en vädervarning.
 
 `WeatherScene.svelte` beskrevs vid detta arbete som stilla SVG. Scenen har
-senare fått animationer; se avsnittet Levande väderscen nedan.
+senare fått animationer, som nu ersatts av stillbilder för lägre belastning; se avsnittet Levande väderscen nedan.
 Den visar sol/måne, stjärnor, moln, regn, snö/hagel, dimma, vind och åska efter
 met.no:s väderkod samt soltid. Månformen är en stiliserad tolkning av månfasen,
 inte en astronomiskt exakt återgivning. Okänt väder visar en neutral miljö.
@@ -729,12 +729,11 @@ Aktiverad och bekräftad koppling: `media_player.tv_rum_tv_rum` tar TV-ljudet;
 
 ### Levande väderscen
 
-SVG-scenen har långsamt drivande moln, regn/snö, dimma och vattenrörelse. Met.no:s tillstånd styr illustrationen och vindstyrkan påverkar molnhastigheten. Ingen väderfilm eller extern bildtjänst används. Reducerad rörelse respekteras och animationerna pausas när webbsidan är dold; scenen avmonteras i Rum/Ljud.
+SVG-scenen visar en stillbild av moln, regn/snö, dimma och vatten utifrån met.no:s tillstånd. Från 23 oktober 2026 är de kontinuerliga animationerna och övergångarna borttagna för att minska Pi:ns ritbelastning. En ny lägesbild tas när vädervyn öppnas, var tionde minut medan sidan är synlig och när sidan åter blir synlig. Vindstyrkan påverkar regnets lutning. Ingen väderfilm eller extern bildtjänst används. Scenen avmonteras när en annan vy öppnas. Temperaturer, prognos, klocka och andra HA-värden fortsätter uppdateras som tidigare; endast illustrationen samplas mer sällan.
 
-Solens och månens positioner och månfas beräknas på servern med [SunCalc 1.9](https://github.com/mourner/suncalc/tree/v1.9.0). HA:s `get_config` ger Hem-positionen, som cachas i en timme. Koordinater skickas inte till webbläsaren. Positioner uppdateras via SSE minst varje minut och interpoleras visuellt. Prognosens befintliga cache gäller fortfarande. Om platsen inte kan hämtas visas inga gissade himlakroppar.
+Solens och månens positioner och månfas beräknas på servern med [SunCalc 1.9](https://github.com/mourner/suncalc/tree/v1.9.0). HA:s `get_config` ger Hem-positionen, som cachas i en timme. Koordinater skickas inte till webbläsaren. Positioner beräknas via SSE minst varje minut; illustrationen visar den senaste beräkningen vid nästa lägesbild utan animerad förflyttning. Prognosens befintliga cache gäller fortfarande. Om platsen inte kan hämtas visas inga gissade himlakroppar.
 
-Illustrationen är ett stiliserat panorama: azimut 45–315° går från vänster till höger, nordliga riktningar kläms till kanterna och höjd över horisonten styr vertikalleden. Det är inte en exakt fönsterutsikt. Månen kan synas även dagtid och döljs under horisonten. Solens synlighet använder −0,83° som ungefärlig soluppgångsgräns. Landskap och moln kan skymma kropparna. Positionerna är astronomiska approximationer, inte observationer; terräng ingår inte. Denna utvecklingsanteckning föregår Pi-installationen; animationernas
-långvariga resursbelastning har inte separat uppmätts.
+Illustrationen är ett stiliserat panorama: azimut 45–315° går från vänster till höger, nordliga riktningar kläms till kanterna och höjd över horisonten styr vertikalleden. Det är inte en exakt fönsterutsikt. Månen kan synas även dagtid och döljs under horisonten. Solens synlighet använder −0,83° som ungefärlig soluppgångsgräns. Landskap och moln kan skymma kropparna. Positionerna är astronomiska approximationer, inte observationer; terräng ingår inte. Före ändringen uppmättes Chromium till cirka 56 % och labwc till 21 % av en CPU-kärna i ett femsekunders stickprov. Temperatur och fläktljud behöver jämföras efter installation; någon förbättring är ännu inte verifierad.
 
 ### Dimning av lampor och ljusgrupper
 

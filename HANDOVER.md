@@ -122,3 +122,15 @@ Bilens statuskort har nu `CarStatusIcon.svelte` med tillståndsstyrda SVG-ikoner
 okänd ikon, rapporterade problem behåller sin varningsikon. Ikonerna är dekorativa
 för skärmläsare och undantas från Ambients globala SVG-filter för att behålla
 textens kontrast. Laddning och kördata har en diskret avdelare.
+
+## Väderillustration och fläktljud · 2026-10-23
+
+`WeatherScene.svelte` använder nu en stillbild utan CSS-animationer eller
+övergångar. Bara scenens condition/daylight/sky/wind samplas: vid montering,
+var tionde minut medan sidan är synlig och vid återgång till synlig sida.
+Timer och lyssnare tas bort vid avmontering. Livevärden, SSE, prognoscache,
+temperaturhistorik och klocka är oförändrade. Inga fläktgränser har ändrats.
+Före installation: 68,1 °C, throttled=0x0, fläktsteg 3 (~7 446 rpm).
+Femsekunders stickprov: Chromium 55,6 % + labwc 21,1 % av en CPU-kärna.
+Check och build passerar lokalt. Sudo kräver lösenord på Pi:n; installation och
+mätning efter ändringen återstår tills användaren kör installationskommandot.

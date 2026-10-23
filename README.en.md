@@ -104,12 +104,16 @@ Weather/Rooms cards show 24-hour temperature curves and change in degrees from
 HA Recorder, refreshed every ten minutes and omitted if unavailable. The outdoor
 status refers to that sensor; the header status refers to HA connectivity.
 
-The SVG landscape follows met.no conditions and actual sun time, including slowly
-moving clouds, precipitation, fog and water. Wind affects cloud speed. Reduced
-motion is respected; animations pause when the page is hidden. There is no remote
+The SVG landscape shows a still snapshot of met.no conditions and actual sun
+time, including clouds, precipitation, fog and water. As of 23 October 2026,
+continuous animation and transitions are removed to reduce Pi rendering load.
+The scene refreshes when opened, every ten minutes while visible and when the
+page becomes visible again. Wind affects rain slant. Live readings, forecast,
+clock and other HA updates keep their existing cadence. There is no remote
 weather-video service. SunCalc 1.9 computes sun/moon position and moon phase using
 HA's home location cached for one hour. Coordinates remain server-side. Positions
-update through SSE at least each minute and interpolate visually. No guessed
+are calculated through SSE at least each minute; the scene samples the latest
+positions at its next snapshot without animated interpolation. No guessed
 celestial bodies are shown without location. The panorama is stylized, not an
 exact view or observation; terrain is not included.
 
