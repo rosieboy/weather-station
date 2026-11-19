@@ -1,3 +1,4 @@
+import { env } from '$env/dynamic/private';
 import { getHAStream } from '$lib/server/ha-stream';
 import { getWeatherSnapshot } from '$lib/server/weather';
 import type { RequestHandler } from './$types';
@@ -15,6 +16,11 @@ export const GET: RequestHandler = ({ request }) => {
       };
       const publish = async () => {
         if (closed) return;
+        const ha = getHAStream();
+        const raw = ha.states.get(env.HA_KIOSK_MOTION_ENTITY ?? '')?.state;
+        const state =
+          !ha.error && (raw === 'on' || raw === 'off') ? raw : 'unknown';
+        send(`event: presence\ndata: ${JSON.stringify({ state })}\n\n`);
         if (busy) {
           pending = true;
           return;

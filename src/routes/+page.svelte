@@ -1,4 +1,9 @@
 <script lang="ts">
+  import SleepScreen from '$lib/components/SleepScreen.svelte';
+  import {
+    createPresenceController,
+    type MotionState
+  } from '$lib/presence/controller';
   import { startIdleReturn } from '$lib/navigation/idle';
   import NavIcon from '$lib/components/NavIcon.svelte';
   import AudioView from '$lib/components/AudioView.svelte';
@@ -17,6 +22,9 @@
     'weather'
   );
   let roomOpen = $state(false);
+  let sleeping = $state(false);
+  let wakeScreen = $state<() => void>(() => {});
+  const presenceEnabled = $derived(data.kiosk && data.presence.enabled);
   let suppressClickUntil = 0;
   let swipeStart: { x: number; y: number; id: number } | null = null;
   let dragScroll: {
@@ -257,14 +265,46 @@
   import { onMount, untrack } from 'svelte';
   import type { WeatherSnapshot } from '$lib/weather/types';
   onMount(() => {
-    const stopIdleReturn = startIdleReturn(document, () => {
-      if (view === 'weather') return;
-      view = 'weather';
-      roomOpen = false;
-      swipeStart = null;
-      dragScroll = null;
-      window.scrollTo({ top: 0, behavior: 'instant' });
-    });
+    const presence = presenceEnabled
+      ? createPresenceController(data.presence.awakeMs, (sleep) => {
+          sleeping = sleep;
+          if (sleep) {
+            swipeStart = null;
+            dragScroll = null;
+            document
+              .querySelectorAll<HTMLDialogElement>('.dashboard dialog[open]')
+              .forEach((dialog) => dialog.close());
+          }
+        })
+      : null;
+    wakeScreen = () => presence?.wake();
+    const activity = (event: Event) => {
+      if (
+        !sleeping &&
+        !(event.target as Element)?.closest?.('[data-sleep-screen]')
+      )
+        presence?.wake();
+    };
+    const activityEvents = ['pointerdown', 'keydown', 'wheel', 'input'];
+    for (const name of activityEvents)
+      document.addEventListener(name, activity, {
+        capture: true,
+        passive: true
+      });
+    const visible = () => presence?.check();
+    document.addEventListener('visibilitychange', visible);
+    let presenceDeadline: ReturnType<typeof setTimeout>;
+    const presenceLost = () => presence?.update('unknown');
+    const stopIdleReturn = presence
+      ? () => {}
+      : startIdleReturn(document, () => {
+          if (view === 'weather') return;
+          view = 'weather';
+          roomOpen = false;
+          swipeStart = null;
+          dragScroll = null;
+          window.scrollTo({ top: 0, behavior: 'instant' });
+        });
     const preventSwipeClick = (event: MouseEvent) => {
       if (Date.now() < suppressClickUntil) {
         event.preventDefault();
@@ -296,6 +336,19 @@
       /* Storage is optional. */
     }
     const events = new EventSource('/api/events');
+    events.addEventListener('presence', (event) => {
+      if (!presence) return;
+      try {
+        const state = JSON.parse((event as MessageEvent).data).state;
+        const motion: MotionState =
+          state === 'on' || state === 'off' ? state : 'unknown';
+        presence.update(motion);
+        clearTimeout(presenceDeadline);
+        presenceDeadline = setTimeout(presenceLost, 90_000);
+      } catch {
+        presenceLost();
+      }
+    });
     events.onmessage = (event) => {
       try {
         live = JSON.parse(event.data) as WeatherSnapshot;
@@ -307,13 +360,20 @@
       }
     };
     events.onerror = () => {
+      presenceLost();
       refreshFailed = true;
     };
     events.addEventListener('stream-error', () => {
+      presenceLost();
       refreshFailed = true;
     });
     return () => {
       stopIdleReturn();
+      presence?.stop();
+      clearTimeout(presenceDeadline);
+      for (const name of activityEvents)
+        document.removeEventListener(name, activity, true);
+      document.removeEventListener('visibilitychange', visible);
       events.close();
       window.removeEventListener('click', preventSwipeClick, true);
       clearInterval(clockTimer);
@@ -348,7 +408,17 @@
   }}
 />
 
+{#if sleeping}
+  <SleepScreen
+    {clock}
+    temperature={weather.outdoor.temperature}
+    wake={wakeScreen}
+  />
+{/if}
 <main
+  inert={sleeping}
+  aria-hidden={sleeping ? 'true' : undefined}
+  style:display={sleeping ? 'none' : undefined}
   class="dashboard view-{view}"
   class:rooms-active={view === 'rooms'}
   class:weather-active={view === 'weather'}

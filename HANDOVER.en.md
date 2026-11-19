@@ -121,3 +121,19 @@ Chromium 0.4 / 0.4 / 5.2% and labwc 0.2 / 0.2 / 0.0% of one CPU core.
 Temperature 64.2–65.3 °C, throttled=0x0; fan remained at state 3 (~7,458 rpm).
 Rendering load is substantially lower; steady-state temperature and perceived
 fan noise have not yet been evaluated.
+
+## Motion-controlled sleep screen · 2026-11-19
+
+Sensor: `binary_sensor.myggspray_wrlss_mtn_sensor_belaggning` (device_class motion).
+`HA_KIOSK_MOTION_ENTITY` joins HA stream tracked IDs. `/api/events` emits named
+`presence` events containing only on/off/unknown. Page serverload exposes enablement
+and timeout, never the HA token. `createPresenceController` in
+`src/lib/presence/controller.ts` owns timing and is tested with simulated time.
+The client has a 90-second status watchdog and fails awake on sensor/stream errors.
+`SleepScreen.svelte` shows clock and outdoor temperature in the current theme,
+without animation. The main view stays mounted but hidden and inert during sleep;
+dialogs close. Wake clicks are consumed. The old five-minute return is disabled
+only when kiosk presence is enabled. Motion holds awake; off starts a full interval.
+Configure via `.env` as documented in DRIFT, default 10 minutes (1–120).
+Local tests, check and build pass. Installation requires the Pi sudo password;
+physical motion wake and visual Pi verification remain after installation.

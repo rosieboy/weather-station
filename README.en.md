@@ -454,3 +454,21 @@ the LAN remain unconfigured. AI/voice control is deferred.
 Dated dependency audits and earlier Sonos troubleshooting are retained in the
 [Swedish history](README.md); they are not current security or reliability guarantees.
 No CI is configured. Avoid sending live light/Sonos commands solely for UI tests.
+
+### Motion-controlled sleep screen
+
+In Pi kiosk mode (`?kiosk=1`), MYGGSPRAY can switch to a static sleep screen
+showing a large clock and outdoor temperature simultaneously. Day, Night and
+Ambient follow the existing theme. Readings keep updating; there is no animation.
+Motion holds the dashboard awake. After motion clears, the selected view remains
+visible for another ten minutes. Clicking/tapping the sleep screen wakes that
+same view for ten minutes and does not activate controls underneath. Dashboard
+interaction extends the time. Open dialogs close on sleep; the main view is preserved.
+
+Set `HA_KIOSK_MOTION_ENTITY` and `KIOSK_AWAKE_MINUTES` in the Pi `.env`
+(1–120 minutes, default 10). An empty sensor setting disables the feature and
+restores the regular five-minute return to Weather. Ordinary browsers without
+`?kiosk=1` retain that existing behavior. Raspberry Pi Connect shares the kiosk
+itself: one click wakes it. Sensor status uses the existing HA WebSocket/SSE;
+no sensor commands are sent. Unknown sensor state, HA failure, or no status for
+90 seconds keeps the screen awake. This is a display view, not backlight power-off.

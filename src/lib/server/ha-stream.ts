@@ -248,6 +248,7 @@ export function getHAStream() {
       env.HOME_ASSISTANT_TOKEN || '',
       new Set(
         [
+          env.HA_KIOSK_MOTION_ENTITY,
           env.HA_OUTDOOR_TEMPERATURE,
           env.HA_OUTDOOR_HUMIDITY,
           env.HA_BALCONY_TEMPERATURE,

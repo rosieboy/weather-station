@@ -206,3 +206,26 @@ En ren Git-status innebär alltså inte att all installationsdata är säkerhets
 Se [USB-backupguiden](deploy/backup/README.md) för installation, nattlig körning
 03:00, de senaste 14 kopiorna, status och återställning. Backupen är installerad och första arkivet verifierat 2026-10-10.
 Installation och manuell körning kräver sudo.
+
+## Konfigurera rörelsestyrd viloskärm
+
+Redigera `~/weather-station/.env` på Pi:n:
+
+```dotenv
+HA_KIOSK_MOTION_ENTITY=binary_sensor.myggspray_wrlss_mtn_sensor_belaggning
+KIOSK_AWAKE_MINUTES=10
+```
+
+Tiden gäller efter senaste interaktion eller efter att sensorn slutat rapportera
+rörelse. Tillåtna tider är 1–120 minuter; standard är 10. Lämna sensorvärdet
+tomt för att stänga av funktionen. Inställningarna gäller bara kioskläget.
+Efter ändring, kör från `~/weather-station`:
+
+```bash
+sudo docker compose up -d --build
+python3 scripts/pi/restart-kiosk.py
+```
+
+Testa att ett klick väcker viloskärmen utan att ändra en lampa eller starta ljud.
+Rörelse ska väcka skärmen; vid sensorfel ska den vanliga vyn vara tillgänglig.
+Utan rörelse eller interaktion går skärmen till vila efter den valda tiden.

@@ -842,3 +842,22 @@ Ambient använder dämpad röd text. Lås- och hälsokorten behåller sina egna
 kontrastfärger och halvtransparenta bakgrunder.
 
 </details>
+
+### Rörelsestyrd viloskärm
+
+I Pi:ns kioskläge (`?kiosk=1`) kan MYGGSPRAY växla till en stilla viloskärm
+med stor klocka och utetemperatur samtidigt. Dag, Natt och Ambient följer den
+befintliga temainställningen. Mätvärden fortsätter uppdateras; inga animationer används.
+Rörelse håller dashboarden vaken. När rörelsen upphör visas den senast valda
+vyn ytterligare tio minuter. Klick/tryck på viloskärmen väcker samma vy i tio
+minuter och skickas inte vidare till reglagen bakom. Interaktion i dashboarden
+förlänger tiden. Öppna dialoger stängs vid vila, men vald huvudvy bevaras.
+
+Aktiveras med `HA_KIOSK_MOTION_ENTITY` och konfigureras med `KIOSK_AWAKE_MINUTES`
+i Pi:ns `.env` (1–120 minuter, standard 10). Tom sensorinställning stänger av
+funktionen. Kiosken använder då åter den vanliga femminutersåtergången till
+vädervyn. I vanliga webbläsarvyer utan `?kiosk=1` gäller samma tidigare beteende.
+Vid Raspberry Pi Connect delas själva kioskskärmen: ett klick väcker den.
+Sensorstatus hämtas via befintlig HA WebSocket/SSE; inga sensorkommandon skickas.
+Okänd sensorstatus, HA-fel eller utebliven status i 90 sekunder håller skärmen
+vaken. Detta är visningsvila, inte avstängning av skärmens bakgrundsbelysning.

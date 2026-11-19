@@ -138,3 +138,19 @@ installationen: Chromium 0,4 / 0,4 / 5,2 % och labwc 0,2 / 0,2 / 0,0 % av en
 CPU-kärna. Temperatur 64,2–65,3 °C, throttled=0x0; fläkten låg fortfarande på
 steg 3 (~7 458 rpm). Ritbelastningen är kraftigt lägre; stabil temperatur och
 upplevt fläktljud är ännu inte utvärderade.
+
+## Rörelsestyrd viloskärm · 2026-11-19
+
+Sensorn är `binary_sensor.myggspray_wrlss_mtn_sensor_belaggning` (device_class motion).
+`HA_KIOSK_MOTION_ENTITY` läggs till i HA-strömmens spårade id:n. `/api/events`
+skickar namngivna `presence`-event med bara on/off/unknown. Sidans serverload
+skickar aktivering och tidsgräns, aldrig HA-nyckeln. `createPresenceController`
+i `src/lib/presence/controller.ts` hanterar tiden och testas med simulerad tid.
+Klienten har 90 sekunders statusvakt och går till vanlig vy vid sensor/strömfel.
+`SleepScreen.svelte` visar klocka och utetemperatur, utan animation, i befintligt tema.
+Main-vyn bevaras monterad men är dold och inert under vila; dialoger stängs.
+Väckningsklicket konsumeras. Den gamla femminutersåtergången är avstängd bara
+när rörelsestyrning används i kiosken. Rörelse håller vaken; off startar hel tidsgräns.
+Konfiguration: `.env`-variabler enligt DRIFT, standard 10 minuter (1–120).
+Lokala tester, check och build passerar. Installation behöver Pi:s sudo-lösenord;
+fysisk väckning med sensorn och visuell kontroll på Pi återstår efter installation.

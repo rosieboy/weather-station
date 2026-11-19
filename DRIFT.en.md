@@ -202,3 +202,26 @@ mean all installation data is backed up.
 See the [USB backup guide](deploy/backup/README.en.md) for installation, nightly
 03:00 runs, retention of 14 backups, status and restoration. Installed and first
 archive verified on 2026-10-10. Installation and manual runs require sudo.
+
+## Configure motion-controlled sleep
+
+Edit `~/weather-station/.env` on the Pi:
+
+```dotenv
+HA_KIOSK_MOTION_ENTITY=binary_sensor.myggspray_wrlss_mtn_sensor_belaggning
+KIOSK_AWAKE_MINUTES=10
+```
+
+The interval starts after the latest interaction or after the sensor stops
+reporting motion. Valid values are 1–120 minutes; the default is 10. Leave the
+sensor value empty to disable the feature. Settings apply only in kiosk mode.
+After editing, run from `~/weather-station`:
+
+```bash
+sudo docker compose up -d --build
+python3 scripts/pi/restart-kiosk.py
+```
+
+Check that clicking the sleep screen wakes it without changing lights or starting
+audio. Motion should wake the screen; sensor failures should leave the normal
+view accessible. With no motion or interaction, sleep starts after the configured time.
