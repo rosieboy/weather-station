@@ -13,15 +13,13 @@
 <button
   class="sleep-screen"
   data-sleep-screen
-  aria-label="Väck dashboarden"
+  aria-label={`Klockan ${clock}. Utetemperatur ${temperature === null ? 'saknas' : temperature.toLocaleString('sv-SE', { maximumFractionDigits: 1 }) + ' grader'}. Väck dashboarden.`}
   onclick={(event) => {
     event.stopPropagation();
     wake();
   }}
 >
-  <span class="sleep-label">KLOCKAN</span>
   <span class="sleep-clock">{clock}</span>
-  <span class="sleep-temperature-label">UTETEMPERATUR</span>
   <span class="sleep-temperature"
     >{temperature === null
       ? '—'
@@ -30,7 +28,6 @@
           maximumFractionDigits: 1
         })}<span class="sleep-unit"> °C</span></span
   >
-  <span class="sleep-hint">Tryck för att visa dashboarden</span>
 </button>
 
 <style>
@@ -44,47 +41,37 @@
     border: 0;
     border-radius: 0;
     margin: 0;
-    padding: clamp(20px, 4vh, 40px);
+    padding: 2vh 3vw;
     display: flex;
     flex-direction: column;
     align-items: center;
     justify-content: center;
+    gap: 2vh;
     background: #080e12;
     color: #f2f5f6;
+    --temperature-color: #9fdec9;
     font-family: inherit;
     cursor: pointer;
     box-shadow: none;
   }
-  .sleep-label,
-  .sleep-temperature-label {
-    font-size: clamp(14px, 2.4vh, 22px);
-    font-weight: 500;
-    letter-spacing: 0.15em;
-  }
   .sleep-clock {
-    font-size: clamp(70px, min(25vw, 29vh), 240px);
-    line-height: 1.1;
-    font-weight: 500;
+    font-size: min(32vw, 43vh);
+    line-height: 1;
+    font-weight: 750;
     letter-spacing: -0.05em;
     font-variant-numeric: tabular-nums;
   }
-  .sleep-temperature-label {
-    margin-top: 3vh;
-  }
   .sleep-temperature {
-    font-size: clamp(60px, min(22vw, 23vh), 190px);
-    line-height: 1.15;
-    font-weight: 500;
+    font-size: min(25vw, 40vh);
+    color: var(--temperature-color);
+    line-height: 1;
+    font-weight: 750;
     letter-spacing: -0.04em;
     font-variant-numeric: tabular-nums;
   }
   .sleep-unit {
     font-size: 0.48em;
     letter-spacing: 0;
-  }
-  .sleep-hint {
-    margin-top: 4vh;
-    font-size: clamp(14px, 2.2vh, 18px);
   }
   .sleep-screen:focus-visible {
     outline: 3px solid currentColor;
@@ -93,9 +80,11 @@
   :global(html[data-theme='day']) .sleep-screen {
     background: #f4f6f3;
     color: #1a231f;
+    --temperature-color: #165c58;
   }
   :global(html[data-theme='deep-ambient']) .sleep-screen {
     background: #080303;
     color: #e5a194;
+    --temperature-color: #d9b482;
   }
 </style>

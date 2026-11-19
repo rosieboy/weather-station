@@ -861,3 +861,8 @@ Vid Raspberry Pi Connect delas själva kioskskärmen: ett klick väcker den.
 Sensorstatus hämtas via befintlig HA WebSocket/SSE; inga sensorkommandon skickas.
 Okänd sensorstatus, HA-fel eller utebliven status i 90 sekunder håller skärmen
 vaken. Detta är visningsvila, inte avstängning av skärmens bakgrundsbelysning.
+
+Viloskärmen använder extra stora, feta siffror utan synliga etiketter. Klocka och
+temperatur har varsin temaanpassad färg; skärmläsarbeskrivningen finns kvar.
+Efter ändring av `.env` måste Docker-containern återskapas, därefter kiosken
+laddas om — enbart en kioskstart räcker inte. Se [DRIFT](DRIFT.md).

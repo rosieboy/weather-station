@@ -154,3 +154,16 @@ när rörelsestyrning används i kiosken. Rörelse håller vaken; off startar he
 Konfiguration: `.env`-variabler enligt DRIFT, standard 10 minuter (1–120).
 Lokala tester, check och build passerar. Installation behöver Pi:s sudo-lösenord;
 fysisk väckning med sensorn och visuell kontroll på Pi återstår efter installation.
+
+### Uppföljning: klick och läsbarhet
+
+Användaren bekräftar fungerande fysisk rörelseväckning. Pi:s `.env` har ändrats
+till `KIOSK_AWAKE_MINUTES=1`, medan serverload fortfarande rapporterar 600000 ms:
+enbart kioskstart läser inte om containerns miljö. Inställningen bevaras.
+`startPresenceInput` fångar pointerdown/mousedown/touchstart/click/Enter/Space
+på window i capture-fasen före swipes och delegerade klick. Väckningshändelsen
+och dess syntetiska följdklick konsumeras för att undvika kommandon bakom vyn.
+Regressionstester omfattar alternativa inmatningar, följdklick och cleanup.
+Viloskärmen saknar nu synliga labels/hjälptext, har större 750-viktade siffror och
+två temaanpassade kontrastfärger. Tillgänglig beskrivning finns i knappens aria-label.
+Ny installation och användarens kontroll av Connect-klick återstår.

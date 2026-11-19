@@ -472,3 +472,8 @@ restores the regular five-minute return to Weather. Ordinary browsers without
 itself: one click wakes it. Sensor status uses the existing HA WebSocket/SSE;
 no sensor commands are sent. Unknown sensor state, HA failure, or no status for
 90 seconds keeps the screen awake. This is a display view, not backlight power-off.
+
+The sleep screen uses extra-large bold digits with no visible labels. Clock and
+temperature have separate theme-specific colors; the screen-reader description
+is retained. After editing `.env`, recreate the Docker container and reload the
+kiosk — a kiosk restart alone is insufficient. See [Manual operation](DRIFT.en.md).

@@ -1,4 +1,5 @@
 <script lang="ts">
+  import { startPresenceInput } from '$lib/presence/input';
   import SleepScreen from '$lib/components/SleepScreen.svelte';
   import {
     createPresenceController,
@@ -278,19 +279,13 @@
         })
       : null;
     wakeScreen = () => presence?.wake();
-    const activity = (event: Event) => {
-      if (
-        !sleeping &&
-        !(event.target as Element)?.closest?.('[data-sleep-screen]')
-      )
-        presence?.wake();
-    };
-    const activityEvents = ['pointerdown', 'keydown', 'wheel', 'input'];
-    for (const name of activityEvents)
-      document.addEventListener(name, activity, {
-        capture: true,
-        passive: true
-      });
+    const stopPresenceInput = presence
+      ? startPresenceInput(
+          window,
+          () => sleeping,
+          () => presence.wake()
+        )
+      : () => {};
     const visible = () => presence?.check();
     document.addEventListener('visibilitychange', visible);
     let presenceDeadline: ReturnType<typeof setTimeout>;
@@ -371,8 +366,7 @@
       stopIdleReturn();
       presence?.stop();
       clearTimeout(presenceDeadline);
-      for (const name of activityEvents)
-        document.removeEventListener(name, activity, true);
+      stopPresenceInput();
       document.removeEventListener('visibilitychange', visible);
       events.close();
       window.removeEventListener('click', preventSwipeClick, true);

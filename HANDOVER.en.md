@@ -137,3 +137,16 @@ only when kiosk presence is enabled. Motion holds awake; off starts a full inter
 Configure via `.env` as documented in DRIFT, default 10 minutes (1–120).
 Local tests, check and build pass. Installation requires the Pi sudo password;
 physical motion wake and visual Pi verification remain after installation.
+
+### Follow-up: click wake and readability
+
+The user confirms physical motion wake works. Pi `.env` is now set to
+`KIOSK_AWAKE_MINUTES=1`, but serverload still reports 600000 ms: kiosk restart
+alone does not refresh container environment. That setting is preserved.
+`startPresenceInput` captures pointerdown/mousedown/touchstart/click/Enter/Space
+on window before swipe handling and delegated clicks. It consumes the wake event
+and synthesized follow-up clicks to prevent commands reaching underlying controls.
+Regression tests cover alternate inputs, follow-up clicks and cleanup.
+Sleep now omits visible labels/hint, uses larger weight-750 digits and two
+theme-specific contrast colors. The button aria-label retains an accessible description.
+Installation and user verification of Connect click wake are pending.

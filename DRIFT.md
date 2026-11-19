@@ -229,3 +229,19 @@ python3 scripts/pi/restart-kiosk.py
 Testa att ett klick väcker viloskärmen utan att ändra en lampa eller starta ljud.
 Rörelse ska väcka skärmen; vid sensorfel ska den vanliga vyn vara tillgänglig.
 Utan rörelse eller interaktion går skärmen till vila efter den valda tiden.
+
+### När bara tidsgränsen ändras
+
+Kioskstartaren läser inte `.env`; värdena tillhör dashboardens Docker-container.
+Efter ändring av `KIOSK_AWAKE_MINUTES` behöver containern återskapas (enbart
+`docker compose restart` eller omstart av Chromium räcker inte):
+
+```bash
+cd ~/weather-station
+sudo docker compose up -d --force-recreate
+python3 scripts/pi/restart-kiosk.py
+```
+
+Ingen ny build behövs om bara `.env` ändrats. Vid koduppdatering används fortfarande
+`sudo docker compose up -d --build`. Tiden räknas efter senaste interaktion eller
+när rörelsen upphör; sensorn håller dashboarden vaken så länge den rapporterar rörelse.

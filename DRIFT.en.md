@@ -225,3 +225,19 @@ python3 scripts/pi/restart-kiosk.py
 Check that clicking the sleep screen wakes it without changing lights or starting
 audio. Motion should wake the screen; sensor failures should leave the normal
 view accessible. With no motion or interaction, sleep starts after the configured time.
+
+### Changing only the timeout
+
+The kiosk launcher does not read `.env`; these values belong to the dashboard
+Docker container. After changing `KIOSK_AWAKE_MINUTES`, recreate the container
+(`docker compose restart` or restarting Chromium alone is insufficient):
+
+```bash
+cd ~/weather-station
+sudo docker compose up -d --force-recreate
+python3 scripts/pi/restart-kiosk.py
+```
+
+No rebuild is needed for `.env` changes alone. Code updates still use
+`sudo docker compose up -d --build`. The interval starts after the latest
+interaction or when motion clears; the dashboard stays awake while motion is on.
